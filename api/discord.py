@@ -7,9 +7,9 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, urlencode
 import json, urllib.request, urllib.error, os, hashlib, hmac, time, base64
 
-DISCORD_CLIENT_ID     = os.environ.get("DISCORD_CLIENT_ID", "")
-DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET", "")
-DISCORD_GUILD_ID      = os.environ.get("DISCORD_GUILD_ID", "")
+DISCORD_CLIENT_ID     = os.environ.get("DISCORD_CLIENT_ID", "1481723128588669040")
+DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET", "hbbxd8dZF29lj5-cVXnC3auD2pfJbYHl")
+DISCORD_GUILD_ID      = os.environ.get("DISCORD_GUILD_ID", "1481745584602742847")
 GITHUB_TOKEN          = os.environ.get("GITHUB_TOKEN", "")
 JWT_SECRET            = os.environ.get("JWT_SECRET", "MF2026FOCUS_SECRET")
 APP_URL               = os.environ.get("APP_URL", "https://groupe-focus-card.vercel.app")
