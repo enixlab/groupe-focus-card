@@ -146,7 +146,14 @@ def build_pass_json(name, pts_int, cycle, level):
             ]
         },
 
-        "suppressStripShine": False,
+        "barcodes": [
+            {
+                "format": "PKBarcodeFormatQR",
+                "message": member_url,
+                "messageEncoding": "iso-8859-1",
+                "altText": "groupe-focus-card.vercel.app"
+            }
+        ],
     }
 
 
