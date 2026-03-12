@@ -58,7 +58,6 @@ def build_pass_json(name, pts_int, cycle, level):
     progress = f"{cycle_pts}/10"
     member_url = f"{APP_URL}?wallet_name={quote(name)}&wallet_pts={pts_int}&wallet_cycle={cycle}&wallet_level={quote(level)}"
 
-    # Barre de progression visuelle
     prog_bar = "".join(["●" if i < cycle_pts else "○" for i in range(10)])
     next_reward = 10 - cycle_pts
 
@@ -71,7 +70,6 @@ def build_pass_json(name, pts_int, cycle, level):
         "description": "Carte de fidelite Mentalite Focus",
         "logoText": "MENTALITE FOCUS",
 
-        # Or foncé premium
         "backgroundColor": "rgb(42, 32, 0)",
         "foregroundColor": "rgb(240, 208, 96)",
         "labelColor": "rgb(180, 150, 60)",
@@ -88,77 +86,74 @@ def build_pass_json(name, pts_int, cycle, level):
             "primaryFields": [
                 {
                     "key": "name",
-                    "label": level,
+                    "label": "CARTE DE",
                     "value": name
                 }
             ],
             "secondaryFields": [
                 {
-                    "key": "cycle",
-                    "label": "CYCLE",
-                    "value": f"#{cycle}"
-                },
-                {
-                    "key": "progress",
-                    "label": "PROGRESSION",
-                    "value": progress
-                },
-                {
-                    "key": "discord_front",
-                    "label": "DISCORD",
-                    "value": "discord.gg/AerNKK5zYF"
+                    "key": "hint",
+                    "label": "PLUS D'INFOS AU DOS",
+                    "value": "(avec le bouton ···)"
                 }
             ],
             "auxiliaryFields": [
                 {
-                    "key": "prog_bar",
-                    "label": "PROCHAIN REWARD",
-                    "value": f"{prog_bar}  encore {next_reward}"
+                    "key": "level_aux",
+                    "label": "NIVEAU",
+                    "value": level
+                },
+                {
+                    "key": "cycle_aux",
+                    "label": "CYCLE",
+                    "value": f"#{cycle}"
+                },
+                {
+                    "key": "prog_aux",
+                    "label": "PROGRESSION",
+                    "value": progress
                 }
             ],
             "backFields": [
                 {
-                    "key": "stats_title",
-                    "label": "━━━━ MES STATISTIQUES ━━━━",
-                    "value": f"Points totaux : {pts_int}\nCycle actuel : #{cycle}\nProgression : {progress} ({cycle_pts} lives sur 10)\nProchain reward dans : {next_reward} lives"
-                },
-                {
-                    "key": "prog_visual",
-                    "label": "PROGRESSION VISUELLE",
-                    "value": f"{prog_bar}\n{cycle_pts}/10 lives regardes ce cycle"
+                    "key": "stats",
+                    "label": "━━━  MES STATISTIQUES  ━━━",
+                    "value": f"Points : {pts_int}\nCycle : #{cycle}\nProgression : {progress}\nProchain reward : {next_reward} lives\n\n{prog_bar}"
                 },
                 {
                     "key": "card_link",
-                    "label": "━━━━ MA CARTE EN LIGNE ━━━━",
+                    "label": "━━━  MA CARTE EN LIGNE  ━━━",
                     "value": member_url,
-                    "attributedValue": f"<a href='{member_url}'>Ouvrir ma carte Focus - voir ma progression complete</a>"
+                    "attributedValue": f"<a href='{member_url}'>Ouvrir ma carte Focus</a>"
                 },
                 {
                     "key": "discord",
-                    "label": "━━━━ COMMUNAUTE ━━━━",
+                    "label": "━━━  DISCORD  ━━━",
                     "value": "https://discord.gg/AerNKK5zYF",
-                    "attributedValue": "<a href='https://discord.gg/AerNKK5zYF'>Rejoindre le Discord Focus (+2000 membres)</a>"
+                    "attributedValue": "<a href='https://discord.gg/AerNKK5zYF'>Rejoindre Focus (+2000 membres)</a>"
                 },
                 {
                     "key": "join",
-                    "label": "━━━━ ABONNEMENT ━━━━",
-                    "value": "9.90 euros/mois - Lives complets + replays + communaute",
-                    "attributedValue": "<a href='https://mentalitefocus.com/'>S'abonner a Mentalite Focus</a>"
-                },
-                {
-                    "key": "notif",
-                    "label": "━━━━ NOTIFICATIONS ━━━━",
-                    "value": "Active les notifications sur ta carte en ligne pour recevoir une alerte a chaque live en direct."
+                    "label": "━━━  ABONNEMENT  ━━━",
+                    "value": "9.90/mois",
+                    "attributedValue": "<a href='https://mentalitefocus.com/'>Rejoindre Mentalite Focus</a>"
                 },
                 {
                     "key": "howto",
-                    "label": "━━━━ COMMENT CA MARCHE ━━━━",
-                    "value": "1 live regarde = 1 point\n10 points = 1 cycle complete = 1 reward debloque\n\nRegarde les lives pour monter de niveau :\nMEMBRE → ACTIF → AVANCE → EXPERT → ELITE"
+                    "label": "━━━  COMMENT CA MARCHE  ━━━",
+                    "value": "1 live = 1 point\n10 points = 1 cycle = 1 reward\n\nNiveaux : MEMBRE → ACTIF → AVANCE → EXPERT → ELITE"
                 }
             ]
         },
 
-        "suppressStripShine": False,
+        "barcodes": [
+            {
+                "format": "PKBarcodeFormatQR",
+                "message": member_url,
+                "messageEncoding": "iso-8859-1",
+                "altText": f"FOCUS-{name[:10]}"
+            }
+        ],
     }
 
 
