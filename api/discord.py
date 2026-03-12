@@ -117,8 +117,12 @@ def discord_exchange_code(code):
         "https://discord.com/api/oauth2/token", data=data,
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
-    with urllib.request.urlopen(req) as r:
-        return json.loads(r.read())
+    try:
+        with urllib.request.urlopen(req) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        raise Exception(f"Discord {e.code}: {body[:200]}")
 
 def discord_get_user(access_token):
     req = urllib.request.Request(
@@ -144,6 +148,21 @@ class handler(BaseHTTPRequestHandler):
         qs     = parse_qs(parsed.query)
         code   = qs.get("code",  [""])[0]
         error  = qs.get("error", [""])[0]
+
+        # ── Debug mode ────────────────────────────────────────────────────────
+        if qs.get("debug"):
+            body = json.dumps({
+                "client_id": DISCORD_CLIENT_ID,
+                "secret_prefix": DISCORD_CLIENT_SECRET[:6] + "...",
+                "redirect_uri": REDIRECT_URI,
+                "app_url": APP_URL
+            }).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
 
         # ── Pas encore configuré ──────────────────────────────────────────────
         if not DISCORD_CLIENT_ID or not DISCORD_CLIENT_SECRET:
