@@ -118,10 +118,6 @@ def generate_pass(name, pts, cycle, level, serial):
     # Barcode = URL directe vers l'app Focus
     member_url = APP_URL
 
-    # Generate branded strip image
-    strip_png = create_strip_png(375, 123, name=name, pts_int=pts_int, cycle=cycle)
-    strip_b64 = base64.b64encode(strip_png).decode()
-
     payload = json.dumps({
         "barcodeValue": member_url,
         "barcodeFormat": "PDF417",
@@ -129,7 +125,6 @@ def generate_pass(name, pts, cycle, level, serial):
         "title": "MENTALITE FOCUS",
         "label": name[:20],
         "value": f"{progress} pts  •  Cycle #{cycle}  •  {level}",
-        "stripImage": strip_b64,
         "backFields": [
             {
                 "key": "card_link",
