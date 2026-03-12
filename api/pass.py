@@ -124,12 +124,42 @@ def generate_pass(name, pts, cycle, level, serial):
 
     payload = json.dumps({
         "barcodeValue": member_url,
-        "barcodeFormat": "PDF417",         # Comme Auchan/Carrefour — pas de QR carré
+        "barcodeFormat": "PDF417",
         "colorPreset": "dark",
         "title": "MENTALITE FOCUS",
         "label": name[:20],
         "value": f"{progress} pts  •  Cycle #{cycle}  •  {level}",
         "stripImage": strip_b64,
+        "backFields": [
+            {
+                "key": "card_link",
+                "label": "Ma Carte Focus en ligne",
+                "value": APP_URL,
+                "attributedValue": f"<a href=\"{APP_URL}\">Ouvrir ma carte Focus</a>"
+            },
+            {
+                "key": "discord_link",
+                "label": "Rejoindre le Discord Focus",
+                "value": "https://discord.gg/focus",
+                "attributedValue": "<a href=\"https://discord.gg/focus\">Acceder au serveur Discord</a>"
+            },
+            {
+                "key": "join_link",
+                "label": "Devenir membre Focus",
+                "value": "https://mentalitefocus.com/",
+                "attributedValue": "<a href=\"https://mentalitefocus.com/\">S'abonner a 9.90/mois</a>"
+            },
+            {
+                "key": "notif_info",
+                "label": "Notifications Live",
+                "value": "Ouvre ta carte en ligne et active les notifications pour etre alerte a chaque live."
+            },
+            {
+                "key": "member_info",
+                "label": "Infos membre",
+                "value": f"Nom: {name} | Niveau: {level} | Cycle: #{cycle} | Points: {pts_int}"
+            }
+        ],
     }, ensure_ascii=False).encode("utf-8")
 
     req = urllib.request.Request(
