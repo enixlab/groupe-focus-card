@@ -150,8 +150,9 @@ class handler(BaseHTTPRequestHandler):
         error  = qs.get("error", [""])[0]
 
         # ── Debug mode ────────────────────────────────────────────────────────
-        if qs.get("debug"):
+        if "debug" in self.path:
             body = json.dumps({
+                "path": self.path,
                 "client_id": DISCORD_CLIENT_ID,
                 "secret_prefix": DISCORD_CLIENT_SECRET[:6] + "...",
                 "redirect_uri": REDIRECT_URI,
@@ -171,7 +172,8 @@ class handler(BaseHTTPRequestHandler):
 
         # ── Erreur OAuth2 ─────────────────────────────────────────────────────
         if error:
-            self._redirect(APP_URL + "#discord-error")
+            err_desc = qs.get("error_description", [""])[0]
+            self._redirect(f"{APP_URL}#discord-error&msg={error}:{err_desc[:60]}")
             return
 
         # ── Pas de code = lancer OAuth2 ───────────────────────────────────────
