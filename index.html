@@ -1223,34 +1223,42 @@ async function handleDiscordCallback() {
   if (tokenMatch) {
     const token = decodeURIComponent(tokenMatch[1]);
     localStorage.setItem('mf4_discord_token', token);
-    // Charger le profil depuis l'API
+    // Decoder le token directement (payload.signature)
     try {
-      const r    = await fetch(`/api/me?token=${encodeURIComponent(token)}`);
-      const data = await r.json();
-      if (data.discord_id) {
-        // Fusionner profil serveur avec état local
-        S.discord_id     = data.discord_id;
-        S.discord_name   = data.discord_name;
-        S.discord_avatar = data.discord_avatar || '';
-        // Sync points + progression depuis serveur
-        if (data.pts !== undefined)          S.pts          = data.pts;
-        if (data.cyclePoints !== undefined)  S.cyclePoints  = data.cyclePoints;
-        if (data.totalCycles !== undefined)  S.totalCycles  = data.totalCycles;
-        if (data.watchedLives !== undefined) S.watchedLives = data.watchedLives;
-        if (data.earned !== undefined)       S.earned       = data.earned;
+      const payload = token.split('.')[0];
+      const padded = payload + '=='.slice(0, (4 - payload.length % 4) % 4);
+      const data = JSON.parse(atob(padded.replace(/-/g,'+').replace(/_/g,'/')));
+      if (data.discord_id || data.discord_name) {
+        S.discord_id     = data.discord_id || '';
+        S.discord_name   = data.discord_name || '';
+        S.discord_avatar = data.avatar || '';
         S.history.push({icon:'🎮', label:`Discord connecté : ${S.discord_name}`, pts:0, ts:new Date().toISOString()});
         addNotif('🎮', 'Discord connecté !', `Bienvenue ${S.discord_name} 👋`);
         save(); render();
         showToast(`Connecté en tant que ${S.discord_name} ✓`);
-        await updatePushSubscription();
+        try { await updatePushSubscription(); } catch(e) {}
       }
-    } catch(e) { showToast('Erreur de connexion Discord'); }
-    // Nettoyer l'URL
+    } catch(e) {
+      // Fallback: appeler /api/me
+      try {
+        const r = await fetch(`/api/me?token=${encodeURIComponent(token)}`);
+        const data = await r.json();
+        if (data.discord_id) {
+          S.discord_id = data.discord_id;
+          S.discord_name = data.discord_name;
+          S.discord_avatar = data.discord_avatar || '';
+          save(); render();
+          showToast(`Connecté en tant que ${S.discord_name} ✓`);
+        }
+      } catch(e2) { showToast('Erreur de connexion Discord'); }
+    }
     history.replaceState(null, '', '/');
     return;
   }
   if (hash.includes('discord-error')) {
-    showToast('Erreur Discord — réessaie');
+    const msgMatch = hash.match(/msg=([^&]+)/);
+    const errMsg = msgMatch ? decodeURIComponent(msgMatch[1]) : 'Réessaie';
+    showToast('Erreur Discord — ' + errMsg);
     history.replaceState(null, '', '/');
   }
 }

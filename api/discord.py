@@ -179,13 +179,14 @@ class handler(BaseHTTPRequestHandler):
             if discord_avatar:
                 discord_avatar = f"https://cdn.discordapp.com/avatars/{discord_id}/{discord_avatar}.png"
 
-            # Vérifier membership serveur si GUILD_ID configuré
-            guild_member = None
-            if DISCORD_GUILD_ID:
-                guild_member = discord_get_guild_member(access_token, DISCORD_GUILD_ID)
-
-            # Créer / mettre à jour profil
-            member = get_or_create_member(discord_id, discord_name, discord_avatar, guild_member)
+            # Sauvegarder le profil (non bloquant)
+            try:
+                guild_member = None
+                if DISCORD_GUILD_ID:
+                    guild_member = discord_get_guild_member(access_token, DISCORD_GUILD_ID)
+                get_or_create_member(discord_id, discord_name, discord_avatar, guild_member)
+            except:
+                pass  # Ne bloque pas la connexion
 
             # Générer token de session
             token = make_token({
@@ -198,7 +199,7 @@ class handler(BaseHTTPRequestHandler):
             self._redirect(f"{APP_URL}#token={token}")
 
         except Exception as e:
-            self._redirect(f"{APP_URL}#discord-error&msg={str(e)[:50]}")
+            self._redirect(f"{APP_URL}#discord-error&msg={str(e)[:80]}")
 
     def _redirect(self, url):
         self.send_response(302)
