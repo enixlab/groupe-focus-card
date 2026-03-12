@@ -16,7 +16,8 @@
     { "src": "/api/admin",    "dest": "/api/admin.py" },
     { "src": "/api/discord",  "dest": "/api/discord.py" },
     { "src": "/api/me",       "dest": "/api/me.py" },
-    { "src": "/api/live",     "dest": "/api/live.py" },
+    { "src": "/api/live",         "dest": "/api/live.py" },
+    { "src": "/api/wallet_push", "dest": "/api/wallet_push.py" },
     { "src": "/(.*)",         "dest": "/index.html" }
   ]
 }

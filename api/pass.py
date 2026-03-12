@@ -61,14 +61,19 @@ def build_pass_json(name, pts_int, cycle, level):
     prog_bar = "".join(["●" if i < cycle_pts else "○" for i in range(10)])
     next_reward = 10 - cycle_pts
 
+    serial = f"FOCUS-{name[:10]}-{pts_int}-{cycle}"
+    auth_token = hashlib.sha256(f"{serial}-{TEAM_ID}-MF2026".encode()).hexdigest()
+
     return {
         "formatVersion": 1,
         "passTypeIdentifier": PASS_TYPE_ID,
-        "serialNumber": f"FOCUS-{name[:10]}-{pts_int}-{cycle}",
+        "serialNumber": serial,
         "teamIdentifier": TEAM_ID,
         "organizationName": "Mentalite Focus",
         "description": "Carte de fidelite Mentalite Focus",
         "logoText": "MENTALITE FOCUS",
+        "webServiceURL": f"{APP_URL}/api/wallet_push",
+        "authenticationToken": auth_token,
 
         "backgroundColor": "rgb(42, 32, 0)",
         "foregroundColor": "rgb(240, 208, 96)",
