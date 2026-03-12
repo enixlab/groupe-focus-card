@@ -105,6 +105,18 @@ def build_pass_json(name, pts_int, cycle, level):
                     "value": progress
                 }
             ],
+            "auxiliaryFields": [
+                {
+                    "key": "website",
+                    "label": "MA CARTE",
+                    "value": "groupe-focus-card.vercel.app"
+                },
+                {
+                    "key": "discord_front",
+                    "label": "DISCORD",
+                    "value": "discord.gg/AerNKK5zYF"
+                }
+            ],
             "backFields": [
                 {
                     "key": "card_link",
@@ -115,8 +127,8 @@ def build_pass_json(name, pts_int, cycle, level):
                 {
                     "key": "discord",
                     "label": "DISCORD FOCUS",
-                    "value": "Rejoindre le serveur Discord",
-                    "attributedValue": "<a href='https://discord.gg/focus'>Rejoindre le Discord Focus</a>"
+                    "value": "https://discord.gg/AerNKK5zYF",
+                    "attributedValue": "<a href='https://discord.gg/AerNKK5zYF'>Rejoindre le Discord Focus</a>"
                 },
                 {
                     "key": "join",
