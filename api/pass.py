@@ -137,14 +137,7 @@ def build_pass_json(name, pts_int, cycle, level):
             ]
         },
 
-        "barcodes": [
-            {
-                "format": "PKBarcodeFormatCode128",
-                "message": f"FOCUS-{name[:10]}",
-                "messageEncoding": "iso-8859-1",
-                "altText": f"{name} - {level}"
-            }
-        ],
+        "suppressStripShine": True,
     }
 
 
