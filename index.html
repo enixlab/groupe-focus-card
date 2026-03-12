@@ -1199,8 +1199,8 @@ function completeCycle() {
 // DISCORD OAuth2
 // ═══════════════════════════════════════════════════
 function connectDiscord() {
-  // Affiche le modal de connexion Discord
-  showDiscordLogin();
+  // Redirige vers Discord OAuth2
+  window.location.href = '/api/discord';
 }
 
 async function handleDiscordCallback() {
