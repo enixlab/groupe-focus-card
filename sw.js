@@ -1,4 +1,4 @@
-const CACHE = 'focus-v4';
+const CACHE = 'focus-v5';
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
@@ -12,7 +12,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.url.includes('/api/')) return;
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/'))));
+  e.respondWith(fetch(e.request).then(r => { if (r.ok) { caches.open(CACHE).then(c => c.put(e.request, r.clone())); } return r; }).catch(() => caches.match(e.request).then(r => r || caches.match('/'))));
 });
 
 self.addEventListener('push', e => {
