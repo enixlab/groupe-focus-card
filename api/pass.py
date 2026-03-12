@@ -139,10 +139,10 @@ def build_pass_json(name, pts_int, cycle, level):
 
         "barcodes": [
             {
-                "format": "PKBarcodeFormatQR",
-                "message": member_url,
+                "format": "PKBarcodeFormatCode128",
+                "message": f"FOCUS-{name[:10]}",
                 "messageEncoding": "iso-8859-1",
-                "altText": f"{name} - {pts_int} pts"
+                "altText": f"{name} - {level}"
             }
         ],
     }
