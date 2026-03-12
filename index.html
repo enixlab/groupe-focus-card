@@ -2123,6 +2123,20 @@ async function checkLiveBadge() {
   } catch(e) {}
 }
 
+// Auto-login depuis Apple Wallet (paramètres URL)
+(function walletAutoLogin(){
+  const p = new URLSearchParams(window.location.search);
+  const wn = p.get('wallet_name');
+  if(wn && !S.name) {
+    S.name = wn;
+    S.pts = parseInt(p.get('wallet_pts')||'0');
+    S.totalCycles = Math.max(0, parseInt(p.get('wallet_cycle')||'1') - 1);
+    S.cyclePoints = S.pts % 10;
+    save();
+    // Nettoyer l'URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
 render();
 firstLaunch();
 initSW();

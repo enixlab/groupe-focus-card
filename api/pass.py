@@ -24,7 +24,8 @@ def generate_pass(name, pts, cycle, level, serial):
     pts_int   = int(pts) if str(pts).isdigit() else 0
     cycle_pts = pts_int % 10
     progress  = f"{cycle_pts}/10"
-    member_url = APP_URL
+    from urllib.parse import quote
+    member_url = f"{APP_URL}?wallet_name={quote(name)}&wallet_pts={pts_int}&wallet_cycle={cycle}&wallet_level={quote(level)}"
 
     payload_dict = {
         "barcodeValue": member_url,
