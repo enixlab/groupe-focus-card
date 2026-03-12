@@ -92,9 +92,9 @@ def build_pass_json(name, pts_int, cycle, level):
             ],
             "secondaryFields": [
                 {
-                    "key": "hint",
-                    "label": "PLUS D'INFOS AU DOS",
-                    "value": "(avec le bouton ···)"
+                    "key": "website",
+                    "label": "MA CARTE",
+                    "value": "groupe-focus-card.vercel.app"
                 }
             ],
             "auxiliaryFields": [
@@ -146,14 +146,7 @@ def build_pass_json(name, pts_int, cycle, level):
             ]
         },
 
-        "barcodes": [
-            {
-                "format": "PKBarcodeFormatQR",
-                "message": member_url,
-                "messageEncoding": "iso-8859-1",
-                "altText": f"FOCUS-{name[:10]}"
-            }
-        ],
+        "suppressStripShine": False,
     }
 
 
