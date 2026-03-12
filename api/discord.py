@@ -162,7 +162,7 @@ class handler(BaseHTTPRequestHandler):
                 "redirect_uri":  REDIRECT_URI,
                 "response_type": "code",
                 "scope":         "identify guilds.members.read",
-                "prompt":        "none"
+                "prompt":        "consent"
             })
             self._redirect("https://discord.com/oauth2/authorize?" + params)
             return
