@@ -482,6 +482,9 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
           <div class="dc-sub">Groupe Focus · Discord</div>
         </div>
         <div class="dc-status"><div class="dc-status-dot"></div> ACTIF</div>
+        <div onclick="disconnectDiscord()" style="cursor:pointer;margin-left:8px;width:28px;height:28px;border-radius:50%;background:rgba(255,59,48,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;" title="Déconnexion">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
       </div>
 
       <!-- NOTIF BANNER -->
@@ -1198,6 +1201,15 @@ function completeCycle() {
 // ═══════════════════════════════════════════════════
 // DISCORD OAuth2
 // ═══════════════════════════════════════════════════
+function disconnectDiscord() {
+  S.discord_id = '';
+  S.discord_name = '';
+  S.discord_avatar = '';
+  localStorage.removeItem('mf4_discord_token');
+  save(); render();
+  showToast('Discord deconnecte');
+}
+
 function connectDiscord() {
   // Redirige vers Discord OAuth2
   window.location.href = '/api/discord';
