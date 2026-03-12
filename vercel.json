@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "name": "groupe-focus-card",
+  "builds": [
+    { "src": "index.html",    "use": "@vercel/static" },
+    { "src": "sw.js",         "use": "@vercel/static" },
+    { "src": "manifest.json", "use": "@vercel/static" },
+    { "src": "api/*.py",      "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/sw.js",        "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/" } },
+    { "src": "/manifest.json","dest": "/manifest.json" },
+    { "src": "/api/pass",     "dest": "/api/pass.py" },
+    { "src": "/api/subscribe","dest": "/api/subscribe.py" },
+    { "src": "/api/push",     "dest": "/api/push.py" },
+    { "src": "/api/admin",    "dest": "/api/admin.py" },
+    { "src": "/api/discord",  "dest": "/api/discord.py" },
+    { "src": "/api/me",       "dest": "/api/me.py" },
+    { "src": "/api/live",     "dest": "/api/live.py" },
+    { "src": "/(.*)",         "dest": "/index.html" }
+  ]
+}

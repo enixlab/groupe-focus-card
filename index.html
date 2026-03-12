@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mentalité Focus — Carte Fidélité</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#C9A227">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Focus Card">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9A227; --gold2:#A67C00; --gold3:#F0D060; --gold4:#E8C04A;
+  --black:#0a0a0a; --dark:#1a1a1a;
+  --grey:#888; --grey2:#bbb; --grey3:#e8e8e8; --grey4:#f5f5f5;
+  --white:#ffffff; --green:#00C875; --red:#FF3B30; --blue:#5865F2;
+  --shadow:0 20px 60px rgba(0,0,0,0.12),0 4px 16px rgba(0,0,0,0.08);
+  --shadow-card:0 32px 80px rgba(0,0,0,0.18),0 8px 24px rgba(201,162,39,0.15);
+  --ease:cubic-bezier(0.25,0.46,0.45,0.94);
+  --spring:cubic-bezier(0.16,1,0.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif;}
+.app{width:100%;max-width:430px;height:100vh;margin:0 auto;display:flex;flex-direction:column;position:relative;overflow:hidden;background:#fff;}
+
+/* STATUS BAR */
+.status-bar{padding:12px 20px 8px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.status-logo{font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--black);}
+.status-logo span{color:var(--gold);}
+.status-pts{display:flex;align-items:center;gap:8px;}
+.pts-pill{background:var(--black);color:var(--white);padding:5px 14px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;}
+.pts-pill strong{color:var(--gold);}
+.notif-ico{width:32px;height:32px;border-radius:50%;background:var(--grey4);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:background .2s;}
+.notif-ico:hover{background:var(--grey3);}
+.notif-red{position:absolute;top:0;right:0;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #fff;display:none;}
+
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;}
+.scroll::-webkit-scrollbar{display:none;}
+.page{display:none;flex-direction:column;}
+.page.active{display:flex;}
+.section-title{font-size:16px;font-weight:800;color:var(--black);margin-bottom:12px;letter-spacing:-.2px;}
+.section-title span{color:var(--gold);}
+
+/* ═══ CARTE PAGE ═══ */
+.carte-page{padding:8px 20px 24px;gap:0;}
+.card-scene{perspective:1400px;margin-bottom:24px;cursor:pointer;}
+.card-flipper{position:relative;transform-style:preserve-3d;transition:transform .7s var(--spring);border-radius:20px;}
+.card-flipper.flipped{transform:rotateY(180deg);}
+.card-front,.card-back{border-radius:20px;overflow:hidden;box-shadow:var(--shadow-card);backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+.card-front{
+  background:linear-gradient(135deg,#0a0800 0%,#1f1600 35%,#2a1e00 60%,#1a1000 100%);
+  padding:28px 26px 24px;min-height:210px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;
+}
+.card-shimmer{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(201,162,39,0.12) 50%,transparent 65%);animation:shimmer 3s ease-in-out infinite;pointer-events:none;}
+@keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
+.card-shine{position:absolute;top:-40%;right:-20%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,0.12) 0%,transparent 65%);pointer-events:none;}
+.card-front::after{content:'FOCUS';position:absolute;bottom:-14px;right:-4px;font-family:'Oswald',sans-serif;font-size:76px;font-weight:900;color:rgba(255,255,255,0.04);letter-spacing:4px;pointer-events:none;}
+.card-top-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold3),var(--gold4));}
+.cf-header{display:flex;justify-content:space-between;align-items:center;}
+.cf-brand{font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:5px;color:var(--gold);text-transform:uppercase;}
+.cf-level{font-size:8px;font-weight:700;letter-spacing:2px;padding:4px 12px;border:1px solid rgba(201,162,39,.35);color:var(--gold);border-radius:100px;background:rgba(201,162,39,.08);}
+.cf-name{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:1px;margin-top:16px;}
+.cf-discord{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.cf-discord-tag{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;}
+.cf-discord-name{font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;}
+.cf-footer{display:flex;justify-content:space-between;align-items:flex-end;}
+.cf-stat{display:flex;flex-direction:column;gap:2px;}
+.cf-stat-label{font-size:8px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;}
+.cf-stat-val{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:#fff;}
+.cf-stat-val.gold{color:var(--gold);}
+.cf-tap-hint{position:absolute;bottom:10px;right:50%;transform:translateX(50%);font-size:9px;color:rgba(255,255,255,.2);letter-spacing:2px;text-transform:uppercase;animation:hint-blink 2s ease-in-out infinite;}
+@keyframes hint-blink{0%,100%{opacity:.3}50%{opacity:.8}}
+
+/* CARD BACK */
+.card-back{position:absolute;inset:0;background:#fff;border:1px solid var(--grey3);padding:24px;transform:rotateY(180deg);display:flex;flex-direction:column;gap:16px;}
+.back-top-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold3));}
+.back-title{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--black);}
+.back-title span{color:var(--gold);}
+.back-subtitle{font-size:11px;color:var(--grey);font-weight:500;}
+.back-dots{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;}
+.bdot{aspect-ratio:1;border-radius:50%;border:2px solid var(--grey3);background:var(--grey4);display:flex;align-items:center;justify-content:center;transition:all .3s var(--spring);}
+.bdot.filled{background:var(--gold);border-color:var(--gold);box-shadow:0 2px 8px rgba(201,162,39,.4);}
+.bdot.filled::after{content:'✓';color:#fff;font-weight:900;font-size:9px;}
+.bdot.crown{background:linear-gradient(135deg,var(--gold2),var(--gold3));border-color:var(--gold3);animation:crown-pulse 1.2s ease-in-out infinite;}
+.bdot.crown::after{content:'★';color:var(--black);font-weight:900;font-size:10px;}
+@keyframes crown-pulse{0%,100%{box-shadow:0 0 8px rgba(201,162,39,.4)}50%{box-shadow:0 0 20px rgba(201,162,39,.8);transform:scale(1.1)}}
+.back-prog-wrap{display:flex;flex-direction:column;gap:6px;}
+.back-prog-row{display:flex;justify-content:space-between;font-size:11px;font-weight:600;}
+.back-prog-row strong{color:var(--gold);}
+.back-prog-row span{color:var(--grey);}
+.back-prog-bar{height:4px;background:var(--grey3);border-radius:100px;overflow:hidden;}
+.back-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold3));border-radius:100px;transition:width .8s var(--spring);}
+.back-flip-hint{font-size:9px;color:var(--grey2);text-align:center;letter-spacing:2px;text-transform:uppercase;}
+
+/* ACTION BUTTONS */
+.carte-actions{display:grid;gap:10px;margin-bottom:20px;}
+.ca-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:14px;border:none;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.5px;transition:all .2s var(--spring);}
+.ca-btn.primary{background:var(--black);color:#fff;}
+.ca-btn.primary:active{background:var(--dark);}
+.ca-btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold),var(--gold3));color:#000;font-size:13px;letter-spacing:1px;}
+.ca-btn.discord{background:var(--blue);color:#fff;}
+.ca-btn.discord:active{background:#4752c4;}
+.ca-btn.secondary{background:var(--grey4);color:var(--black);border:1px solid var(--grey3);}
+.ca-btn.secondary:active{background:var(--grey3);}
+.ca-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat-box{background:var(--grey4);border-radius:14px;padding:14px 10px;text-align:center;}
+.sb-val{font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:var(--black);}
+.sb-val.gold{color:var(--gold);}
+.sb-label{font-size:9px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+/* LIVES */
+.lives-list{display:flex;flex-direction:column;gap:1px;border-radius:14px;overflow:hidden;border:1px solid var(--grey3);}
+.live-item{background:#fff;padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;position:relative;}
+.live-item:not(:last-child){border-bottom:1px solid var(--grey4);}
+.live-item:active{background:var(--grey4);}
+.live-item.done{opacity:.45;pointer-events:none;}
+.live-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.live-dot.live{background:var(--green);box-shadow:0 0 8px rgba(0,200,117,.5);animation:pulse-dot 1s infinite;}
+.live-dot.ended{background:var(--grey3);}
+.live-dot.scheduled{background:var(--gold);}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.live-info{flex:1;min-width:0;}
+.live-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--black);}
+.live-meta{font-size:10px;color:var(--grey);margin-top:2px;font-weight:500;}
+.live-row-end{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.live-badge{font-size:9px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:100px;text-transform:uppercase;}
+.live-badge.live{background:rgba(0,200,117,.1);color:var(--green);}
+.live-badge.ended{background:var(--grey4);color:var(--grey);}
+.live-badge.scheduled{background:rgba(201,162,39,.1);color:var(--gold);}
+.live-badge.done{background:rgba(201,162,39,.1);color:var(--gold);}
+.live-notify-btn{width:26px;height:26px;border-radius:50%;background:rgba(201,162,39,.1);border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+.live-notify-btn:active{background:rgba(201,162,39,.25);}
+.live-notify-btn.active{background:var(--gold);color:#fff;}
+
+/* ═══ OFFRES PAGE ═══ */
+.offres-page{padding:16px 20px 24px;gap:20px;}
+.offer-hero{
+  background:linear-gradient(135deg,#0a0800 0%,#1f1600 60%,#2a1e00 100%);
+  border-radius:18px;padding:20px;position:relative;overflow:hidden;
+  box-shadow:0 16px 40px rgba(0,0,0,.15),0 4px 12px rgba(201,162,39,.1);
+}
+.offer-hero::before{content:'OFFRES';position:absolute;bottom:-12px;right:-4px;font-family:'Oswald',sans-serif;font-size:60px;font-weight:900;color:rgba(255,255,255,.03);letter-spacing:4px;}
+.oh-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold3));}
+.oh-tag{font-size:9px;font-weight:800;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
+.oh-title{font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;}
+.oh-sub{font-size:11px;color:rgba(255,255,255,.5);line-height:1.5;}
+
+.offer-card{background:#fff;border:1px solid var(--grey3);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;}
+.offer-card.flash{border-color:var(--gold);background:linear-gradient(135deg,#fffdf5,#fff);}
+.oc-top-bar{height:3px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold3));}
+.oc-body{padding:16px;}
+.oc-emoji{font-size:28px;margin-bottom:8px;}
+.oc-title{font-size:15px;font-weight:800;color:var(--black);margin-bottom:4px;}
+.oc-desc{font-size:12px;color:var(--grey);line-height:1.5;margin-bottom:12px;}
+.oc-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.oc-timer{display:flex;align-items:center;gap:6px;background:rgba(255,59,48,.08);color:var(--red);border:1px solid rgba(255,59,48,.2);padding:6px 12px;border-radius:100px;font-size:11px;font-weight:700;}
+.oc-code-wrap{background:var(--grey4);border:1px dashed var(--grey3);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.oc-code{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:var(--gold2);letter-spacing:3px;}
+.oc-copy-btn{font-size:11px;font-weight:700;color:var(--gold2);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:8px;background:rgba(201,162,39,.1);}
+.oc-cta{flex:1;padding:10px 16px;background:var(--gold);color:var(--black);border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s var(--spring);}
+.oc-cta:active{transform:scale(.97);}
+.flash-badge{position:absolute;top:12px;right:12px;background:var(--red);color:#fff;font-size:9px;font-weight:800;letter-spacing:1px;padding:4px 10px;border-radius:6px;text-transform:uppercase;}
+
+/* ═══ CONCOURS PAGE ═══ */
+.concours-page{padding:16px 20px 24px;gap:20px;}
+.contest-card{background:#fff;border:1px solid var(--grey3);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.cc-hero{background:linear-gradient(135deg,#0a0800,#1f1600);padding:18px;position:relative;overflow:hidden;}
+.cc-hero::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.2),transparent 70%);}
+.cc-emoji{font-size:32px;margin-bottom:6px;}
+.cc-title{font-family:'Oswald',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:.5px;margin-bottom:2px;}
+.cc-prize{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:1px;}
+.cc-body{padding:14px;}
+.cc-desc{font-size:12px;color:var(--grey);line-height:1.6;margin-bottom:12px;}
+.cc-how{background:var(--grey4);border-radius:10px;padding:12px;}
+.cc-how-title{font-size:11px;font-weight:800;color:var(--black);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.cc-how-text{font-size:11px;color:var(--dark);line-height:1.5;}
+.cc-footer{padding:0 14px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cc-ends{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--grey);}
+.cc-ends .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-dot 1.5s infinite;}
+.cc-participate{flex:1;padding:11px 16px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s var(--spring);}
+.cc-participated{flex:1;padding:11px 16px;background:rgba(0,200,117,.1);color:var(--green);border:1px solid rgba(0,200,117,.3);border-radius:10px;font-size:12px;font-weight:800;cursor:default;}
+
+/* ═══ REWARDS PAGE ═══ */
+.rewards-page{padding:16px 20px 24px;gap:20px;}
+.reward-card{background:#fff;border:1px solid var(--grey3);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.reward-card.next{border-color:var(--gold);background:linear-gradient(135deg,#fffdf5,#fff);}
+.rc-icon{font-size:28px;flex-shrink:0;}
+.rc-body{flex:1;}
+.rc-name{font-size:13px;font-weight:700;color:var(--black);margin-bottom:3px;}
+.rc-desc{font-size:11px;color:var(--grey);line-height:1.4;}
+.rc-badge{font-size:9px;font-weight:700;letter-spacing:.5px;padding:5px 12px;border-radius:100px;flex-shrink:0;text-transform:uppercase;}
+.rc-badge.next{background:var(--gold);color:var(--black);}
+.rc-badge.done{background:rgba(0,200,117,.1);color:var(--green);border:1px solid rgba(0,200,117,.3);}
+.rc-badge.locked{background:var(--grey4);color:var(--grey2);}
+
+/* ═══ HISTORIQUE PAGE ═══ */
+.hist-page{padding:16px 20px 24px;gap:20px;}
+.hist-list{display:flex;flex-direction:column;gap:1px;border-radius:14px;overflow:hidden;border:1px solid var(--grey3);}
+.hist-item{background:#fff;padding:13px 14px;display:flex;align-items:center;gap:12px;}
+.hist-item:not(:last-child){border-bottom:1px solid var(--grey4);}
+.hi-icon{font-size:16px;flex-shrink:0;}
+.hi-body{flex:1;}
+.hi-label{font-size:13px;font-weight:600;color:var(--black);}
+.hi-date{font-size:10px;color:var(--grey);margin-top:2px;font-weight:500;}
+.hi-pts{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--gold);}
+
+/* ═══ PAGE LIVE ═══ */
+.live-page{padding:0 0 24px;gap:0;}
+.live-hero{background:var(--black);padding:20px 20px 24px;position:relative;overflow:hidden;}
+.live-hero::after{content:'LIVE';position:absolute;bottom:-16px;right:-4px;font-family:'Oswald',sans-serif;font-size:80px;font-weight:900;color:rgba(255,255,255,.04);letter-spacing:4px;pointer-events:none;}
+.lh-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#FF0000,#FF4444,#FF0000);}
+.lh-status{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.lh-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:live-pulse 1s ease-in-out infinite;}
+@keyframes live-pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,59,48,.4)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(255,59,48,0)}}
+.lh-status-text{font-size:10px;font-weight:800;letter-spacing:3px;color:var(--red);text-transform:uppercase;}
+.lh-status-text.offline{color:var(--grey);}
+.lh-title{font-family:'Oswald',sans-serif;font-size:24px;font-weight:900;color:#fff;letter-spacing:.5px;margin-bottom:4px;}
+.lh-sub{font-size:12px;color:rgba(255,255,255,.45);}
+.lh-count{display:flex;align-items:center;gap:6px;margin-top:10px;}
+.lh-count-ico{font-size:12px;}
+.lh-count-txt{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);}
+.lh-count-num{font-size:12px;font-weight:800;color:#fff;}
+
+/* Preview player */
+.live-preview-wrap{margin:16px 20px;position:relative;}
+.live-preview-box{background:var(--black);border-radius:16px;overflow:hidden;position:relative;aspect-ratio:16/9;}
+.live-preview-box iframe{width:100%;height:100%;border:none;display:block;}
+.live-preview-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);border-radius:16px;}
+.lpo-icon{font-size:48px;}
+.lpo-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:#fff;text-align:center;}
+.lpo-sub{font-size:13px;color:rgba(255,255,255,.55);text-align:center;max-width:240px;line-height:1.5;}
+.lpo-btn{background:var(--red);color:#fff;border:none;border-radius:100px;padding:13px 28px;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+.lpo-btn:active{transform:scale(.96);}
+.lpo-btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold3));}
+
+/* Countdown */
+.live-countdown{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);border-radius:10px;padding:6px 12px;display:flex;align-items:center;gap:6px;z-index:5;}
+.lcd-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:live-pulse 1s ease-in-out infinite;}
+.lcd-time{font-size:15px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;min-width:40px;}
+.lcd-label{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px;}
+
+/* Paywall */
+.live-paywall{background:linear-gradient(135deg,#0a0800,#1f1600);border-radius:16px;margin:0 20px 16px;padding:24px;text-align:center;position:relative;overflow:hidden;}
+.live-paywall::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold2),var(--gold3));}
+.lpw-icon{font-size:36px;margin-bottom:12px;}
+.lpw-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:#fff;margin-bottom:6px;}
+.lpw-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.5;margin-bottom:20px;}
+.lpw-price{font-family:'Oswald',sans-serif;font-size:36px;font-weight:900;color:var(--gold);margin-bottom:4px;}
+.lpw-price-sub{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:20px;}
+.lpw-btn{display:block;width:100%;background:linear-gradient(135deg,var(--gold2),var(--gold3));color:var(--black);border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:900;cursor:pointer;letter-spacing:.5px;}
+.lpw-btn:active{transform:scale(.98);}
+.lpw-no{font-size:11px;color:rgba(255,255,255,.25);margin-top:10px;cursor:pointer;}
+
+/* Bloc résumé (après live) */
+.live-summary{margin:0 20px 16px;background:var(--grey4);border-radius:16px;padding:20px;}
+.ls-title{font-size:14px;font-weight:800;color:var(--black);margin-bottom:10px;}
+.ls-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:13px;color:var(--grey);}
+.ls-item::before{content:'→';color:var(--gold);font-weight:800;flex-shrink:0;}
+.ls-lock{margin-top:12px;font-size:12px;color:var(--grey);display:flex;align-items:center;gap:6px;}
+.ls-lock-ico{font-size:14px;}
+
+/* Prochain live */
+.live-next{margin:16px 20px 0;background:var(--grey4);border-radius:16px;padding:20px;}
+.ln-label{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--grey);text-transform:uppercase;margin-bottom:6px;}
+.ln-title{font-size:16px;font-weight:800;color:var(--black);margin-bottom:4px;}
+.ln-date{font-size:13px;color:var(--grey);margin-bottom:16px;}
+.ln-notif-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--black);color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;}
+.ln-notif-btn:active{transform:scale(.98);}
+.ln-notif-btn.done{background:var(--grey3);color:var(--grey);}
+
+/* ═══ BOTTOM NAV ═══ */
+.bottom-nav{flex-shrink:0;display:flex;background:#fff;border-top:1px solid var(--grey3);padding:8px 6px 20px;gap:2px;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 2px;cursor:pointer;border:none;background:none;border-radius:12px;transition:all .2s;color:var(--grey2);position:relative;}
+.nav-btn.active{color:var(--gold);background:rgba(201,162,39,.08);}
+.nav-btn svg{width:20px;height:20px;}
+.nav-label{font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.nav-badge{position:absolute;top:4px;right:calc(50% - 16px);min-width:16px;height:16px;background:var(--red);color:#fff;border-radius:100px;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 3px;display:none;}
+
+/* ═══ MODALS / OVERLAYS ═══ */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,0.55);backdrop-filter:blur(12px);display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;animation:overlay-in .3s ease;}
+@keyframes overlay-in{from{opacity:0}to{opacity:1}}
+.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:430px;padding:20px 20px 40px;animation:sheet-up .45s var(--spring);position:relative;overflow:hidden;max-height:90vh;overflow-y:auto;}
+.sheet::-webkit-scrollbar{display:none;}
+.sheet::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold3));}
+@keyframes sheet-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:4px;background:var(--grey3);border-radius:100px;margin:0 auto 20px;}
+.sheet-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;letter-spacing:1px;margin-bottom:4px;}
+.sheet-title span{color:var(--gold);}
+.sheet-sub{font-size:12px;color:var(--grey);margin-bottom:20px;line-height:1.5;}
+
+/* WALLET */
+.wallet-card-preview{
+  background:linear-gradient(135deg,#0a0800 0%,#1f1600 35%,#2a1e00 60%,#1a1000 100%);
+  border-radius:18px;padding:24px 22px 20px;min-height:180px;display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;margin-bottom:20px;
+  box-shadow:0 24px 60px rgba(0,0,0,.25),0 4px 16px rgba(201,162,39,.15);
+}
+.wallet-card-preview::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(201,162,39,0.08) 50%,transparent 65%);}
+.wallet-card-preview::after{content:'FOCUS';position:absolute;bottom:-10px;right:-4px;font-family:'Oswald',sans-serif;font-size:60px;font-weight:900;color:rgba(255,255,255,0.03);letter-spacing:4px;}
+.wcp-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold3));}
+.wcp-header{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
+.wcp-brand{font-family:'Oswald',sans-serif;font-size:9px;font-weight:700;letter-spacing:4px;color:var(--gold);text-transform:uppercase;}
+.wcp-chip{width:30px;height:22px;border-radius:4px;background:linear-gradient(135deg,var(--gold2),var(--gold4));opacity:.6;}
+.wcp-name{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:1px;position:relative;z-index:1;}
+.wcp-dots{display:flex;gap:6px;margin-top:8px;position:relative;z-index:1;}
+.wcp-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);background:transparent;}
+.wcp-dot.filled{background:var(--gold);border-color:var(--gold);}
+.wcp-footer{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;}
+.wcp-stat{display:flex;flex-direction:column;gap:1px;}
+.wcp-stat-l{font-size:7px;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase;}
+.wcp-stat-v{font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;color:#fff;}
+.wcp-stat-v.gold{color:var(--gold);}
+.wcp-qr{width:40px;height:40px;background:rgba(255,255,255,.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.wallet-actions{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.wa-btn{display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;border:none;cursor:pointer;font-size:13px;font-weight:700;text-align:left;transition:all .2s var(--spring);}
+.wa-btn.dl{background:var(--black);color:#fff;}
+.wa-btn.share{background:var(--grey4);color:var(--black);border:1px solid var(--grey3);}
+.wa-btn-ico{font-size:22px;width:36px;text-align:center;flex-shrink:0;}
+.wa-btn-txt{flex:1;}
+.wa-btn-title{font-size:13px;font-weight:700;}
+.wa-btn-sub{font-size:11px;opacity:.6;margin-top:2px;font-weight:500;}
+.install-steps{background:var(--grey4);border-radius:16px;padding:16px;margin-bottom:10px;}
+.install-title{font-size:12px;font-weight:800;color:var(--black);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.install-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.install-step:last-child{margin-bottom:0;}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--gold);color:var(--black);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-txt{font-size:12px;color:var(--dark);line-height:1.5;}
+.step-txt strong{color:var(--gold2);}
+
+/* NOTIF DRAWER */
+.notif-overlay{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;}
+.notif-overlay.open{display:flex;animation:overlay-in .25s ease;}
+.notif-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:430px;max-height:75vh;display:flex;flex-direction:column;animation:sheet-up .4s var(--spring);}
+.ns-header{padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--grey4);}
+.ns-header h2{font-size:17px;font-weight:800;flex:1;}
+.ns-close{width:28px;height:28px;border-radius:50%;background:var(--grey4);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--grey);}
+.ns-list{flex:1;overflow-y:auto;padding:8px 0;}
+.ns-item{padding:12px 20px;display:flex;gap:12px;cursor:pointer;transition:background .15s;}
+.ns-item:active{background:var(--grey4);}
+.ns-item.unread{background:rgba(201,162,39,.05);}
+.ns-emoji{font-size:20px;flex-shrink:0;}
+.ns-body .ns-title{font-size:13px;font-weight:700;color:var(--black);margin-bottom:3px;}
+.ns-body .ns-text{font-size:11px;color:var(--grey);line-height:1.5;}
+.ns-body .ns-time{font-size:9px;color:var(--grey2);margin-top:4px;font-weight:500;}
+
+/* NOTIF BANNER */
+.notif-banner{background:linear-gradient(135deg,#fffdf5,#fff9e6);border:1px solid rgba(201,162,39,.3);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.nb-icon{font-size:22px;flex-shrink:0;}
+.nb-body{flex:1;}
+.nb-title{font-size:12px;font-weight:800;color:var(--black);margin-bottom:2px;}
+.nb-sub{font-size:10px;color:var(--grey);line-height:1.4;}
+.nb-btn{background:var(--gold);color:var(--black);border:none;border-radius:100px;padding:7px 14px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
+/* DISCORD CONNECT BANNER */
+.discord-banner{background:linear-gradient(135deg,#3c4373,#2d3250);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;transition:all .2s var(--spring);}
+.discord-banner:active{transform:scale(.98);}
+.db-icon{font-size:22px;flex-shrink:0;}
+.db-body{flex:1;}
+.db-title{font-size:12px;font-weight:800;color:#fff;margin-bottom:2px;}
+.db-sub{font-size:10px;color:rgba(255,255,255,.6);line-height:1.4;}
+.db-btn{background:#5865F2;color:#fff;border:none;border-radius:100px;padding:7px 14px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.discord-connected{background:linear-gradient(135deg,#1a2e1a,#0d1f0d);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.dc-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid rgba(88,101,242,.4);}
+.dc-info{flex:1;}
+.dc-name{font-size:12px;font-weight:800;color:#fff;}
+.dc-sub{font-size:10px;color:rgba(255,255,255,.5);}
+.dc-status{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--green);}
+.dc-status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-dot 2s infinite;}
+
+/* UNLOCK SCREEN */
+#unlockScreen{position:fixed;inset:0;z-index:80;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px;overflow:hidden;}
+#unlockScreen.open{display:flex;animation:unlock-in .5s var(--spring);}
+@keyframes unlock-in{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+#particleCanvas{position:absolute;inset:0;pointer-events:none;}
+.unlock-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.15) 0%,transparent 65%);animation:breathe 2s ease-in-out infinite;pointer-events:none;}
+@keyframes breathe{0%,100%{transform:scale(.9)}50%{transform:scale(1.1)}}
+.unlock-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:360px;}
+.unlock-tag{font-size:9px;font-weight:800;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;animation:fade-up .5s var(--spring) .15s both;}
+.unlock-icon{font-size:72px;margin-bottom:14px;animation:icon-pop .6s var(--spring) .05s both;filter:drop-shadow(0 8px 24px rgba(201,162,39,.4));}
+@keyframes icon-pop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.unlock-title{font-family:'Oswald',sans-serif;font-size:clamp(28px,8vw,40px);font-weight:900;line-height:1;letter-spacing:.5px;margin-bottom:8px;animation:fade-up .5s var(--spring) .2s both;}
+.unlock-title em{color:var(--gold);font-style:normal;}
+.unlock-sub{font-size:13px;color:var(--grey);line-height:1.7;max-width:280px;margin-bottom:22px;animation:fade-up .5s var(--spring) .3s both;}
+.exclusive-card{width:100%;background:#fff;border:1px solid var(--grey3);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px;animation:fade-up .6s var(--spring) .4s both;}
+.ex-thumb{height:130px;background:linear-gradient(135deg,#1a1200,#2e2000);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.ex-thumb::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(201,162,39,.2),transparent 60%);}
+.ex-play-btn{width:54px;height:54px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:0 0 32px rgba(201,162,39,.6);animation:play-breathe 2s ease-in-out infinite;position:relative;z-index:1;}
+@keyframes play-breathe{0%,100%{box-shadow:0 0 20px rgba(201,162,39,.4)}50%{box-shadow:0 0 44px rgba(201,162,39,.8)}}
+.ex-dur{position:absolute;bottom:10px;right:12px;font-size:10px;font-weight:700;background:rgba(0,0,0,.65);color:var(--gold);padding:3px 8px;border-radius:6px;}
+.ex-exclusive-badge{position:absolute;top:10px;left:12px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--gold);color:var(--black);padding:4px 10px;border-radius:6px;}
+.ex-info{padding:14px;}
+.ex-tag{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px;}
+.ex-title{font-size:14px;font-weight:800;color:var(--black);margin-bottom:6px;line-height:1.3;}
+.ex-meta{display:flex;gap:14px;font-size:11px;color:var(--grey);font-weight:500;}
+.unlock-btn{width:100%;padding:16px;background:var(--gold);color:var(--black);font-size:14px;font-weight:900;letter-spacing:1px;border:none;border-radius:14px;cursor:pointer;transition:all .2s var(--spring);box-shadow:0 8px 24px rgba(201,162,39,.3);animation:fade-up .5s var(--spring) .55s both;}
+.unlock-skip{font-size:11px;color:var(--grey2);cursor:pointer;margin-top:12px;letter-spacing:.5px;animation:fade-up .5s var(--spring) .65s both;}
+
+/* ═══ ADMIN PANEL ═══ */
+#adminPanel{display:none;position:fixed;inset:0;z-index:100;background:#0a0a0a;overflow-y:auto;}
+#adminPanel.open{display:block;}
+.admin-header{background:linear-gradient(135deg,#0a0800,#1f1600);padding:20px;border-bottom:1px solid rgba(201,162,39,.2);position:sticky;top:0;z-index:10;}
+.admin-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:#fff;letter-spacing:2px;}
+.admin-title span{color:var(--gold);}
+.admin-close{float:right;background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.admin-body{padding:20px;display:flex;flex-direction:column;gap:24px;}
+.admin-section{background:#1a1a1a;border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,.06);}
+.admin-section-title{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
+.admin-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.as-box{background:#0a0a0a;border-radius:12px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,.05);}
+.as-val{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:var(--gold);}
+.as-label{font-size:9px;font-weight:600;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.admin-form{display:flex;flex-direction:column;gap:10px;}
+.admin-input{background:#0a0a0a;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .2s;}
+.admin-input:focus{border-color:var(--gold);}
+.admin-input::placeholder{color:#444;}
+.admin-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.admin-select{background:#0a0a0a;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;color:#fff;font-size:13px;outline:none;width:100%;cursor:pointer;}
+.admin-btn{padding:13px;border-radius:12px;border:none;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s var(--spring);letter-spacing:.5px;}
+.admin-btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;}
+.admin-btn.push{background:#5865F2;color:#fff;}
+.admin-btn.danger{background:rgba(255,59,48,.15);color:var(--red);border:1px solid rgba(255,59,48,.3);}
+.admin-list{display:flex;flex-direction:column;gap:8px;}
+.admin-item{background:#0a0a0a;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:10px;}
+.admin-item-info{flex:1;}
+.admin-item-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px;}
+.admin-item-sub{font-size:10px;color:#666;}
+.admin-del{background:none;border:none;color:#666;cursor:pointer;font-size:14px;padding:4px;}
+.admin-del:hover{color:var(--red);}
+.push-result{background:rgba(0,200,117,.1);border:1px solid rgba(0,200,117,.3);border-radius:10px;padding:12px;font-size:12px;color:var(--green);font-weight:700;display:none;}
+.admin-discord-info{background:rgba(88,101,242,.1);border:1px solid rgba(88,101,242,.3);border-radius:12px;padding:14px;}
+.adi-title{font-size:11px;font-weight:800;color:#5865F2;letter-spacing:1px;margin-bottom:6px;}
+.adi-text{font-size:11px;color:#888;line-height:1.6;}
+.adi-text a{color:#5865F2;}
+.adi-code{font-family:'Oswald',sans-serif;font-size:13px;color:var(--gold);background:#0a0a0a;padding:8px 12px;border-radius:8px;margin-top:6px;word-break:break-all;}
+
+/* EMPTY / TOAST */
+.empty-state{text-align:center;padding:32px 20px;color:var(--grey);font-size:13px;font-weight:500;}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--black);color:#fff;padding:12px 22px;border-radius:100px;font-size:12px;font-weight:600;opacity:0;transition:all .35s var(--spring);z-index:99;pointer-events:none;white-space:nowrap;max-width:calc(100% - 40px);text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-logo">MENTALITÉ <span>FOCUS</span></div>
+    <div class="status-pts">
+      <div class="pts-pill"><strong id="topPts">0</strong> pts</div>
+      <div class="notif-ico" onclick="openNotifs()">🔔<div class="notif-red" id="notifRed"></div></div>
+    </div>
+  </div>
+
+  <div class="scroll">
+
+    <!-- ═══ PAGE : CARTE ═══ -->
+    <div class="page active carte-page" id="page-carte">
+
+      <!-- DISCORD BANNER -->
+      <div id="discordBanner" class="discord-banner" onclick="connectDiscord()" style="display:none">
+        <div class="db-icon">🎮</div>
+        <div class="db-body">
+          <div class="db-title">Connecte ton Discord</div>
+          <div class="db-sub">Lie ton compte Groupe Focus et reçois tes points automatiquement</div>
+        </div>
+        <button class="db-btn">Lier</button>
+      </div>
+
+      <!-- DISCORD CONNECTED -->
+      <div id="discordConnected" class="discord-connected" style="display:none">
+        <div class="dc-avatar" id="dcAvatar">🎮</div>
+        <div class="dc-info">
+          <div class="dc-name" id="dcName">Connecté</div>
+          <div class="dc-sub">Groupe Focus · Discord</div>
+        </div>
+        <div class="dc-status"><div class="dc-status-dot"></div> ACTIF</div>
+      </div>
+
+      <!-- NOTIF BANNER -->
+      <div class="notif-banner" id="notifBanner" style="display:none">
+        <div class="nb-icon">🔔</div>
+        <div class="nb-body">
+          <div class="nb-title">Ne rate aucun live</div>
+          <div class="nb-sub">Active les notifications pour être alerté quand un live commence.</div>
+        </div>
+        <button class="nb-btn" onclick="requestNotifPermission()">Activer</button>
+      </div>
+
+      <!-- CARD -->
+      <div class="card-scene" onclick="flipCard()">
+        <div class="card-flipper" id="cardFlipper">
+          <div class="card-front">
+            <div class="card-top-bar"></div>
+            <div class="card-shimmer"></div>
+            <div class="card-shine"></div>
+            <div class="cf-header">
+              <div class="cf-brand">Mentalité Focus</div>
+              <div class="cf-level" id="cardLevel">MEMBRE</div>
+            </div>
+            <div>
+              <div class="cf-name" id="cardName">MEMBRE</div>
+              <div class="cf-discord" id="cfDiscord" style="display:none">
+                <div class="cf-discord-tag">DISCORD</div>
+                <div class="cf-discord-name" id="cfDiscordName"></div>
+              </div>
+            </div>
+            <div class="cf-footer">
+              <div class="cf-stat"><div class="cf-stat-label">Cycle</div><div class="cf-stat-val" id="cardCycle">#1</div></div>
+              <div class="cf-stat" style="text-align:center"><div class="cf-stat-label">Lives</div><div class="cf-stat-val" id="cardLives">0</div></div>
+              <div class="cf-stat" style="text-align:right"><div class="cf-stat-label">Points</div><div class="cf-stat-val gold" id="cardTotal">0</div></div>
+            </div>
+            <div class="cf-tap-hint">Appuie pour voir ta progression</div>
+          </div>
+          <div class="card-back">
+            <div class="back-top-bar"></div>
+            <div class="back-title">Ma <span>Progression</span></div>
+            <div class="back-subtitle">10 lives = 1 contenu exclusif débloqué</div>
+            <div class="back-dots" id="backDots"></div>
+            <div class="back-prog-wrap">
+              <div class="back-prog-row">
+                <span id="backProgMsg">Regarde un live pour commencer</span>
+                <strong id="backProgPct">0%</strong>
+              </div>
+              <div class="back-prog-bar"><div class="back-prog-fill" id="backProgFill" style="width:0%"></div></div>
+            </div>
+            <div class="back-flip-hint">Appuie pour retourner la carte</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="carte-actions">
+        <div class="ca-row">
+          <button class="ca-btn secondary" onclick="openWallet()" style="font-size:11px;">💳 Apple Wallet</button>
+          <button class="ca-btn secondary" onclick="shareCard()" style="font-size:11px;">↗ Partager</button>
+        </div>
+        <button class="ca-btn secondary" id="installHomeBtn" onclick="showInstallSteps()" style="background:var(--black);color:var(--gold);border:1.5px solid var(--gold);font-size:12px;display:none;">
+          📲 Ajouter sur l'écran d'accueil
+        </button>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-box"><div class="sb-val gold" id="statPts">0</div><div class="sb-label">Points</div></div>
+        <div class="stat-box"><div class="sb-val" id="statCycles">0</div><div class="sb-label">Cycles</div></div>
+        <div class="stat-box"><div class="sb-val" id="statLives">0</div><div class="sb-label">Lives</div></div>
+      </div>
+
+      <!-- LIVES -->
+      <div class="section-title">Lives du <span>groupe</span></div>
+      <div class="lives-list" id="livesList"></div>
+
+    </div>
+
+    <!-- ═══ PAGE : OFFRES ═══ -->
+    <div class="page offres-page" id="page-offres">
+      <div class="offer-hero">
+        <div class="oh-bar"></div>
+        <div class="oh-tag">⚡ EXCLUSIF MEMBRES</div>
+        <div class="oh-title">Offres & Promos</div>
+        <div class="oh-sub">Réservé aux membres actifs du Groupe Focus</div>
+      </div>
+      <div id="offersList"><div class="empty-state">Chargement des offres...</div></div>
+    </div>
+
+    <!-- ═══ PAGE : CONCOURS ═══ -->
+    <div class="page concours-page" id="page-concours">
+      <div class="section-title">Concours <span>actifs</span></div>
+      <div id="contestsList"><div class="empty-state">Chargement des concours...</div></div>
+    </div>
+
+    <!-- ═══ PAGE : REWARDS ═══ -->
+    <div class="page rewards-page" id="page-rewards">
+      <div class="section-title">Tous les <span>rewards</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;" id="allRewards"></div>
+      <div class="section-title" style="margin-top:8px">Mes <span>contenus</span> débloqués</div>
+      <div id="earnedRewards"></div>
+    </div>
+
+    <!-- ═══ PAGE : HISTORIQUE ═══ -->
+    <div class="page hist-page" id="page-hist">
+      <div class="section-title">Mon <span>activité</span></div>
+      <div class="hist-list" id="histList"></div>
+    </div>
+
+    <!-- ═══ PAGE : LIVE ═══ -->
+    <div class="page live-page" id="page-live">
+
+      <!-- Hero statut -->
+      <div class="live-hero" id="liveHero">
+        <div class="lh-bar"></div>
+        <div class="lh-status">
+          <div class="lh-dot" id="liveDot" style="display:none"></div>
+          <div class="lh-status-text offline" id="liveStatusText">HORS LIGNE</div>
+        </div>
+        <div class="lh-title" id="liveTitleHero">Prochains lives</div>
+        <div class="lh-sub" id="liveSubHero">Les membres Focus ont accès à tous les lives en direct et en replay.</div>
+        <div class="lh-count" id="liveCountRow" style="display:none">
+          <div class="lh-count-ico">👥</div>
+          <div class="lh-count-txt">Membres connectés :</div>
+          <div class="lh-count-num" id="liveCountNum">—</div>
+        </div>
+      </div>
+
+      <!-- Zone player / aperçu -->
+      <div class="live-preview-wrap" id="livePlayerWrap" style="display:none">
+        <div class="live-preview-box" id="livePreviewBox">
+          <!-- Overlay initial : bouton "Voir l'aperçu" -->
+          <div class="live-preview-overlay" id="liveInitOverlay">
+            <div class="lpo-icon">🔴</div>
+            <div class="lpo-title">Live en cours</div>
+            <div class="lpo-sub">5 minutes d'aperçu gratuit. Une seule fois par jour.</div>
+            <button class="lpo-btn" onclick="requestPreview()">Voir l'aperçu gratuit</button>
+          </div>
+          <!-- Iframe stream (injecté dynamiquement) -->
+          <div id="liveIframeWrap" style="display:none;width:100%;height:100%;position:relative;">
+            <div class="live-countdown" id="liveCountdown" style="display:none">
+              <div class="lcd-dot"></div>
+              <div class="lcd-time" id="liveCountdownTime">3:00</div>
+              <div class="lcd-label">APERÇU</div>
+            </div>
+            <iframe id="liveIframe" allowfullscreen allow="autoplay"></iframe>
+          </div>
+          <!-- Overlay bloqué : déjà utilisé / IP bloqué -->
+          <div class="live-preview-overlay" id="liveBlockedOverlay" style="display:none">
+            <div class="lpo-icon">🔒</div>
+            <div class="lpo-title" id="liveBlockedTitle">Aperçu déjà utilisé</div>
+            <div class="lpo-sub" id="liveBlockedSub">Rejoins Focus pour accéder au live complet.</div>
+            <button class="lpo-btn gold" onclick="openJoinLink()">Rejoindre Focus — 9,90€/mois</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paywall (affiché après les 3 min ou si bloqué) -->
+      <div class="live-paywall" id="livePaywall" style="display:none">
+        <div class="lpw-icon">🎯</div>
+        <div class="lpw-title">Le live continue...</div>
+        <div class="lpw-sub">Tes 5 minutes d'aperçu sont terminées. Rejoins Focus pour accéder à tous les lives en direct, les replays et la communauté.</div>
+        <div class="lpw-price">9,90€<span style="font-size:16px;font-weight:500">/mois</span></div>
+        <div class="lpw-price-sub">Sans engagement · Résilie quand tu veux</div>
+        <button class="lpw-btn" onclick="openJoinLink()">🚀 Accéder au live complet</button>
+        <div class="lpw-no" onclick="this.parentElement.style.display='none'">Continuer sans accès complet</div>
+      </div>
+
+      <!-- Résumé du dernier live -->
+      <div class="live-summary" id="liveSummaryBlock" style="display:none">
+        <div class="ls-title">📋 Résumé — dernier live</div>
+        <div id="liveSummaryItems"></div>
+        <div class="ls-lock"><span class="ls-lock-ico">🔒</span> Replay complet réservé aux membres Focus</div>
+        <button style="width:100%;margin-top:14px;background:var(--black);color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;" onclick="openJoinLink()">Voir le replay complet</button>
+      </div>
+
+      <!-- Prochain live (si pas de live en cours) -->
+      <div class="live-next" id="liveNextBlock">
+        <div class="ln-label">Prochain live</div>
+        <div class="ln-title" id="liveNextTitle">Live Focus — Ce soir</div>
+        <div class="ln-date" id="liveNextDate">Presque tous les soirs · Groupe Focus</div>
+        <button class="ln-notif-btn" id="liveNotifBtn" onclick="subscribeToLiveNotifs()">
+          🔔 Me notifier quand ça commence
+        </button>
+      </div>
+
+      <!-- Ce que tu rates -->
+      <div style="padding:16px 20px 0;">
+        <div class="section-title">Ce que les membres <span>reçoivent</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:22px;">📱</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;">Notification avant chaque live</div>
+              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Reçois l'alerte sur ton téléphone dès que le live démarre</div>
+            </div>
+          </div>
+          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:22px;">🎬</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;">Replay complet illimité</div>
+              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Tous les lives précédents disponibles à tout moment</div>
+            </div>
+          </div>
+          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:22px;">💬</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;">Chat membres + Q&A en direct</div>
+              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Pose tes questions en direct · Réseau d'entrepreneurs</div>
+            </div>
+          </div>
+          <button style="width:100%;background:var(--black);color:#fff;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;margin-top:4px;letter-spacing:.3px;" onclick="openJoinLink()">🚀 Rejoindre Focus — 9,90€/mois</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="goPage('carte',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      <span class="nav-label">Carte</span>
+    </button>
+    <button class="nav-btn" id="navLive" onclick="goPage('live',this);loadLivePage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
+      <span class="nav-label" id="navLiveLabel">Live</span>
+      <div class="nav-badge" id="badgeLive" style="background:var(--red);"></div>
+    </button>
+    <button class="nav-btn" id="navOffres" onclick="goPage('offres',this);loadOffers()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      <span class="nav-label">Offres</span>
+      <div class="nav-badge" id="badgeOffres"></div>
+    </button>
+    <button class="nav-btn" id="navConcours" onclick="goPage('concours',this);loadContests()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+      <span class="nav-label">Concours</span>
+      <div class="nav-badge" id="badgeConcours"></div>
+    </button>
+    <button class="nav-btn" onclick="goPage('rewards',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span class="nav-label">Rewards</span>
+    </button>
+    <button class="nav-btn" onclick="goPage('hist',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span class="nav-label">Historique</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- WALLET OVERLAY -->
+<div class="overlay" id="walletOverlay" onclick="if(event.target===this)closeWallet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Ta <span>carte digitale</span></div>
+    <div class="sheet-sub">Ajoute-la à ton téléphone pour l'avoir toujours avec toi.</div>
+    <div class="wallet-card-preview">
+      <div class="wcp-bar"></div>
+      <div class="wcp-header">
+        <div class="wcp-brand">Mentalité Focus</div>
+        <div class="wcp-chip"></div>
+      </div>
+      <div class="wcp-name" id="wcpName">MEMBRE</div>
+      <div class="wcp-dots" id="wcpDots"></div>
+      <div class="wcp-footer">
+        <div class="wcp-stat"><div class="wcp-stat-l">Points</div><div class="wcp-stat-v gold" id="wcpPts">0</div></div>
+        <div class="wcp-stat"><div class="wcp-stat-l">Cycle</div><div class="wcp-stat-v" id="wcpCycle">#1</div></div>
+        <div class="wcp-qr">🎯</div>
+      </div>
+    </div>
+    <div class="wallet-actions">
+      <button class="wa-btn dl" onclick="downloadAppleWallet()">
+        <div class="wa-btn-ico">🍎</div>
+        <div class="wa-btn-txt"><div class="wa-btn-title">Apple Wallet</div><div class="wa-btn-sub">iPhone — ajouter la carte</div></div>
+      </button>
+      <button class="wa-btn share" onclick="downloadCardPNG()">
+        <div class="wa-btn-ico">🖼️</div>
+        <div class="wa-btn-txt"><div class="wa-btn-title">Télécharger l'image</div><div class="wa-btn-sub">PNG — partager ou sauvegarder</div></div>
+      </button>
+      <button class="wa-btn share" onclick="shareCard()">
+        <div class="wa-btn-ico">↗</div>
+        <div class="wa-btn-txt"><div class="wa-btn-title">Partager ma carte</div><div class="wa-btn-sub">Envoie le lien à quelqu'un</div></div>
+      </button>
+    </div>
+    <div class="install-steps" id="installStepsWallet" style="display:none">
+      <div class="install-title">📲 Ajouter sur l'écran d'accueil</div>
+      <div class="install-step"><div class="step-num">1</div><div class="step-txt">Appuie sur <strong>Partager ↗</strong> en bas de Safari</div></div>
+      <div class="install-step"><div class="step-num">2</div><div class="step-txt">Choisis <strong>Sur l'écran d'accueil</strong></div></div>
+      <div class="install-step"><div class="step-num">3</div><div class="step-txt">Tape <strong>Ajouter</strong> — l'app apparaît sur ton écran !</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF DRAWER -->
+<div class="notif-overlay" id="notifOverlay" onclick="if(event.target===this)closeNotifs()">
+  <div class="notif-sheet">
+    <div class="ns-header">
+      <div style="font-size:18px">🔔</div>
+      <h2>Notifications</h2>
+      <div class="ns-close" onclick="closeNotifs()">✕</div>
+    </div>
+    <div class="ns-list" id="notifList"></div>
+  </div>
+</div>
+
+<!-- UNLOCK SCREEN -->
+<div id="unlockScreen">
+  <canvas id="particleCanvas"></canvas>
+  <div class="unlock-glow"></div>
+  <div class="unlock-inner">
+    <div class="unlock-tag">🔓 Contenu débloqué</div>
+    <div class="unlock-icon" id="unlockIcon">🎓</div>
+    <div class="unlock-title">Cycle <em>complété</em> !</div>
+    <div class="unlock-sub" id="unlockSubtitle">Tu as regardé 10 lives. Ton contenu exclusif est prêt.</div>
+    <div class="exclusive-card" id="exclusiveCard">
+      <div class="ex-thumb">
+        <div class="ex-play-btn">▶</div>
+        <div class="ex-dur" id="exDur">47:32</div>
+        <div class="ex-exclusive-badge">EXCLUSIF</div>
+      </div>
+      <div class="ex-info">
+        <div class="ex-tag" id="exTag">MASTERCLASS</div>
+        <div class="ex-title" id="exTitle">Masterclass Secrète</div>
+        <div class="ex-meta"><span id="exHost">Focus</span></div>
+      </div>
+    </div>
+    <button class="unlock-btn" onclick="closeUnlock()">✅ Accéder au contenu</button>
+    <div class="unlock-skip" onclick="closeUnlock()">Continuer plus tard</div>
+  </div>
+</div>
+
+<!-- DISCORD LOGIN MODAL -->
+<div class="overlay" id="discordLoginOverlay" onclick="if(event.target===this)closeDiscordLogin()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🎮 Ton <span>espace Focus</span></div>
+    <div class="sheet-sub">Entre ton pseudo Discord pour accéder à ta carte personnalisée, tes points et tes contenus exclusifs.</div>
+
+    <div style="background:linear-gradient(135deg,#2d3250,#3c4373);border-radius:16px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:2px;margin-bottom:10px;">TON PSEUDO DISCORD</div>
+      <input id="discordNameInput" type="text" placeholder="ex: Thomas, focus_membre, Karim2026..."
+        style="width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:14px;color:#fff;font-size:15px;font-weight:600;outline:none;font-family:'Inter',sans-serif;"
+        onkeydown="if(event.key==='Enter')submitDiscordLogin()"
+      />
+      <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:8px;">Le pseudo visible dans le serveur Groupe Focus</div>
+    </div>
+
+    <button onclick="submitDiscordLogin()" style="width:100%;padding:16px;background:linear-gradient(135deg,#5865F2,#7289da);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.5px;">
+      🎮 Accéder à mon espace Focus
+    </button>
+    <div style="font-size:10px;color:var(--grey);text-align:center;margin-top:12px;line-height:1.5;">
+      Tes données sont privées et sécurisées.<br>Chaque membre a son propre espace unique.
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="admin-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="admin-title">⚙️ ADMIN <span>FOCUS</span></div>
+      <button class="admin-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div style="font-size:10px;color:#666;margin-top:4px;letter-spacing:1px;">PANNEAU DE GESTION — CONFIDENTIEL</div>
+  </div>
+  <div class="admin-body">
+
+    <!-- STATS -->
+    <div class="admin-section">
+      <div class="admin-section-title">📊 Statistiques</div>
+      <div class="admin-stats">
+        <div class="as-box"><div class="as-val" id="adminTotalSubs">–</div><div class="as-label">Abonnés Push</div></div>
+        <div class="as-box"><div class="as-val" id="adminActiveOffers">–</div><div class="as-label">Offres Actives</div></div>
+        <div class="as-box"><div class="as-val" id="adminActiveContests">–</div><div class="as-label">Concours Actifs</div></div>
+        <div class="as-box"><div class="as-val" id="adminElite">–</div><div class="as-label">Membres ÉLITE</div></div>
+      </div>
+      <button class="admin-btn gold" style="width:100%;margin-top:12px;" onclick="loadAdminStats()">🔄 Actualiser</button>
+    </div>
+
+    <!-- PUSH TOUS -->
+    <div class="admin-section">
+      <div class="admin-section-title">🔔 Envoyer une notification</div>
+      <div class="admin-form">
+        <input class="admin-input" id="pushTitle" placeholder="Titre (ex: 🔴 LIVE maintenant !)" />
+        <input class="admin-input" id="pushBody"  placeholder="Message..." />
+        <input class="admin-input" id="pushUrl"   placeholder="URL (optionnel, défaut: /)" />
+        <select class="admin-select" id="pushTier">
+          <option value="ALL">Tous les abonnés</option>
+          <option value="ACTIF">ACTIF et +</option>
+          <option value="AVANCÉ">AVANCÉ et +</option>
+          <option value="EXPERT">EXPERT et +</option>
+          <option value="ÉLITE">ÉLITE seulement</option>
+        </select>
+        <button class="admin-btn push" onclick="sendAdminPush()">📤 Envoyer à TOUS</button>
+        <div class="push-result" id="pushResult"></div>
+      </div>
+    </div>
+
+    <!-- OFFRE FLASH -->
+    <div class="admin-section">
+      <div class="admin-section-title">⚡ Créer une offre flash</div>
+      <div class="admin-form">
+        <div class="admin-row">
+          <input class="admin-input" id="offerEmoji" placeholder="Emoji 🎁" />
+          <input class="admin-input" id="offerHours" type="number" placeholder="Durée (heures)" value="24" />
+        </div>
+        <input class="admin-input" id="offerTitle" placeholder="Titre de l'offre" />
+        <input class="admin-input" id="offerDesc"  placeholder="Description..." />
+        <input class="admin-input" id="offerCode"  placeholder="Code promo (optionnel)" />
+        <input class="admin-input" id="offerLink"  placeholder="Lien (optionnel)" />
+        <button class="admin-btn gold" onclick="createOffer()">✅ Publier l'offre</button>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:10px;color:#666;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">Offres en cours</div>
+        <div class="admin-list" id="adminOffersList"><div style="font-size:11px;color:#444;text-align:center;padding:10px;">Aucune offre active</div></div>
+      </div>
+    </div>
+
+    <!-- CONCOURS -->
+    <div class="admin-section">
+      <div class="admin-section-title">🏆 Créer un concours</div>
+      <div class="admin-form">
+        <div class="admin-row">
+          <input class="admin-input" id="contestEmoji" placeholder="Emoji 🏆" />
+          <input class="admin-input" id="contestDays" type="number" placeholder="Durée (jours)" value="7" />
+        </div>
+        <input class="admin-input" id="contestTitle"  placeholder="Titre du concours" />
+        <input class="admin-input" id="contestPrize"  placeholder="Le gain (ex: Coaching 1h offert)" />
+        <input class="admin-input" id="contestDesc"   placeholder="Description..." />
+        <input class="admin-input" id="contestHowTo"  placeholder="Comment participer ?" />
+        <button class="admin-btn gold" onclick="createContest()">✅ Lancer le concours</button>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:10px;color:#666;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">Concours en cours</div>
+        <div class="admin-list" id="adminContestsList"><div style="font-size:11px;color:#444;text-align:center;padding:10px;">Aucun concours actif</div></div>
+      </div>
+    </div>
+
+    <!-- DISCORD INFO -->
+    <div class="admin-section">
+      <div class="admin-section-title">🎮 Connexion Discord</div>
+      <div class="admin-discord-info">
+        <div class="adi-title">Comment connecter le Discord Groupe Focus</div>
+        <div class="adi-text">
+          1. Crée une app sur <a href="https://discord.com/developers/applications" target="_blank">discord.com/developers</a><br>
+          2. Copie <strong>Client ID</strong> et <strong>Client Secret</strong><br>
+          3. Ajoute l'URL de redirect dans OAuth2 :
+          <div class="adi-code">https://groupe-focus-card.vercel.app/api/discord</div>
+          4. Remplace DISCORD_CLIENT_ID dans le code<br>
+          <strong style="color:var(--gold);">En attendant : les membres entrent leur pseudo Discord manuellement.</strong>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <div style="font-size:10px;color:#666;margin-bottom:6px;">Lien de connexion Discord (pour toi) :</div>
+        <div class="adi-code" id="discordAuthUrl" style="font-size:10px;cursor:pointer;" onclick="copyDiscordUrl()">
+          Clique pour copier le lien Discord OAuth2
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════
+const VAPID_PUBLIC   = 'BGLaGgbn1cT1xOKxGFr6_saEp2e_HRvzYcJ-ac1QjG9_33K6v_aPFCYC9IWoXaXEH2Y-kDmL93ItnzpEPIHlb4c';
+const ADMIN_SECRET   = 'MF2026FOCUS';
+const DISCORD_CLIENT = ''; // Laisse vide — OAuth2 géré par /api/discord côté serveur
+const APP_URL        = location.origin;
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const DEFAULT_STATE = {
+  name:'MEMBRE', pts:0, cyclePoints:0, totalCycles:0,
+  watchedLives:[], earned:[], history:[], notifications:[],
+  discord_id:'', discord_name:'', discord_avatar:'',
+  contested:[], notifEnabled:false
+};
+let S = JSON.parse(localStorage.getItem('mf4_state') || 'null') || {...DEFAULT_STATE};
+const save = () => localStorage.setItem('mf4_state', JSON.stringify(S));
+
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+const TIERS = [
+  {name:'MEMBRE',  min:0,   color:'#888'},
+  {name:'ACTIF',   min:10,  color:'#C9A227'},
+  {name:'AVANCÉ',  min:30,  color:'#F0D060'},
+  {name:'EXPERT',  min:60,  color:'#A67C00'},
+  {name:'ÉLITE',   min:100, color:'#FFD700'}
+];
+
+const REWARDS = [
+  {id:'r1', icon:'🎓', name:'Masterclass Secrète',  desc:'47 min de contenu exclusif sur la mentalité gagnante', content:{tag:'MASTERCLASS',title:'Masterclass Secrète Focus',dur:'47:32',host:'Focus',icon:'🎓'}},
+  {id:'r2', icon:'🤝', name:'Coaching 1:1 Privé',    desc:'30 min de coaching privé avec Focus', content:{tag:'COACHING',title:'Coaching Privé 30min',dur:'30 min',host:'Focus',icon:'🤝'}},
+  {id:'r3', icon:'🛠️', name:'Pack Outils Ecom',      desc:'Accès 30j aux outils exclusifs e-commerce', content:{tag:'OUTILS',title:'Pack Outils Ecom',dur:'30 jours',host:'Focus',icon:'🛠️'}},
+  {id:'r4', icon:'📦', name:'Kit SMMA Complet',       desc:'Templates, scripts et ressources SMMA', content:{tag:'KIT',title:'Kit SMMA Complet',dur:'Accès illimité',host:'Focus',icon:'📦'}},
+  {id:'r5', icon:'🔍', name:'Audit Gratuit',          desc:'Audit de ton business par Focus en direct', content:{tag:'AUDIT',title:'Audit Business Live',dur:'60 min',host:'Focus',icon:'🔍'}},
+  {id:'r6', icon:'👑', name:'Accès VIP',              desc:'Canal VIP Discord + ressources premium', content:{tag:'VIP',title:'Accès VIP Discord',dur:'Permanent',host:'Focus',icon:'👑'}}
+];
+
+const LIVES = [
+  {id:'l1', title:'Comment passer à 10k€/mois',          host:'Focus', status:'live',      viewers:247, ts:'2026-03-11T20:00:00Z'},
+  {id:'l2', title:'Mindset élite — les règles du jeu',    host:'Focus', status:'scheduled', viewers:0,   ts:'2026-03-13T19:00:00Z'},
+  {id:'l3', title:'Construire son offre irrésistible',    host:'Focus', status:'ended',     viewers:189, ts:'2026-03-09T20:00:00Z'},
+  {id:'l4', title:'Les secrets des top vendeurs',         host:'Focus', status:'ended',     viewers:312, ts:'2026-03-07T19:30:00Z'},
+  {id:'l5', title:'Automatiser pour scaler',             host:'Focus', status:'ended',     viewers:156, ts:'2026-03-05T20:00:00Z'},
+  {id:'l6', title:'Cold outreach qui convertit à 40%',   host:'Focus', status:'ended',     viewers:201, ts:'2026-03-03T19:00:00Z'},
+  {id:'l7', title:'Personal branding 2026',              host:'Focus', status:'ended',     viewers:178, ts:'2026-03-01T20:00:00Z'},
+  {id:'l8', title:'Closer ses premiers clients',          host:'Focus', status:'ended',     viewers:298, ts:'2026-02-27T19:30:00Z'},
+  {id:'l9', title:'Systèmes qui génèrent du cash 24/7',  host:'Focus', status:'ended',     viewers:221, ts:'2026-02-25T20:00:00Z'}
+];
+
+// ═══════════════════════════════════════════════════
+// TIER LOGIC
+// ═══════════════════════════════════════════════════
+function getTier(pts) {
+  let t = TIERS[0];
+  for (const tier of TIERS) if (pts >= tier.min) t = tier;
+  return t;
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function render() {
+  const tier = getTier(S.pts);
+  document.getElementById('topPts').textContent      = S.pts;
+  document.getElementById('cardName').textContent    = S.name;
+  document.getElementById('cardLevel').textContent   = tier.name;
+  document.getElementById('cardCycle').textContent   = '#' + (S.totalCycles + 1);
+  document.getElementById('cardLives').textContent   = S.watchedLives.length;
+  document.getElementById('cardTotal').textContent   = S.pts;
+  document.getElementById('statPts').textContent     = S.pts;
+  document.getElementById('statCycles').textContent  = S.totalCycles;
+  document.getElementById('statLives').textContent   = S.watchedLives.length;
+  // Back dots
+  const dots = document.getElementById('backDots');
+  dots.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const d = document.createElement('div');
+    d.className = 'bdot' + (i < S.cyclePoints ? (i === 9 ? ' crown' : ' filled') : '');
+    dots.appendChild(d);
+  }
+  const pct = Math.round((S.cyclePoints/10)*100);
+  document.getElementById('backProgPct').textContent = pct + '%';
+  document.getElementById('backProgFill').style.width = pct + '%';
+  document.getElementById('backProgMsg').textContent = S.cyclePoints > 0
+    ? `${S.cyclePoints}/10 lives regardés`
+    : 'Regarde un live pour commencer';
+  // Discord
+  if (S.discord_name) {
+    document.getElementById('discordBanner').style.display    = 'none';
+    document.getElementById('discordConnected').style.display = 'flex';
+    document.getElementById('dcAvatar').textContent           = S.discord_name.slice(0,2).toUpperCase();
+    document.getElementById('dcName').textContent             = S.discord_name;
+    document.getElementById('cfDiscord').style.display        = 'flex';
+    document.getElementById('cfDiscordName').textContent      = S.discord_name;
+  } else {
+    document.getElementById('discordBanner').style.display    = 'flex';
+    document.getElementById('discordConnected').style.display = 'none';
+    document.getElementById('cfDiscord').style.display        = 'none';
+  }
+  // Unread notifs
+  const unread = S.notifications.filter(n => !n.read).length;
+  document.getElementById('notifRed').style.display = unread > 0 ? 'block' : 'none';
+  // Lives
+  renderLives();
+  renderRewards();
+  renderHistory();
+  // Notif banner
+  if ('Notification' in window && Notification.permission === 'default') {
+    document.getElementById('notifBanner').style.display = 'flex';
+  } else {
+    document.getElementById('notifBanner').style.display = 'none';
+  }
+}
+
+function renderLives() {
+  const el = document.getElementById('livesList');
+  el.innerHTML = LIVES.map(l => {
+    const watched = S.watchedLives.includes(l.id);
+    const lbl     = l.status === 'live' ? 'EN DIRECT' : l.status === 'scheduled' ? 'BIENTÔT' : 'REPLAY';
+    const date    = new Date(l.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    const viewers = l.viewers > 0 ? `${l.viewers} pers.` : '';
+    return `<div class="live-item ${watched?'done':''}" onclick="watchLive('${l.id}')">
+      <div class="live-dot ${l.status}"></div>
+      <div class="live-info">
+        <div class="live-title">${l.title}</div>
+        <div class="live-meta">${l.host} · ${date}${viewers?' · '+viewers:''}</div>
+      </div>
+      <div class="live-row-end">
+        <div class="live-badge ${l.status}${watched?' done':''}">${watched?'✓ VU':lbl}</div>
+        ${l.status==='scheduled'?`<button class="live-notify-btn ${S.notifications.find(n=>n.liveId===l.id)?'active':''}" onclick="setLiveAlert(event,'${l.id}')">🔔</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRewards() {
+  const all = document.getElementById('allRewards');
+  const nextIdx = Math.min(S.totalCycles, REWARDS.length - 1);
+  all.innerHTML = REWARDS.map((r, i) => {
+    const earned = S.earned.includes(r.id);
+    const isNext = !earned && i === nextIdx;
+    return `<div class="reward-card ${isNext?'next':''}">
+      <div class="rc-icon">${r.icon}</div>
+      <div class="rc-body">
+        <div class="rc-name">${r.name}</div>
+        <div class="rc-desc">${r.desc}</div>
+      </div>
+      <div class="rc-badge ${earned?'done':isNext?'next':'locked'}">${earned?'✓ Obtenu':isNext?'Prochain':'Verrouillé'}</div>
+    </div>`;
+  }).join('');
+  const earned = document.getElementById('earnedRewards');
+  const mine = REWARDS.filter(r => S.earned.includes(r.id));
+  earned.innerHTML = mine.length ? mine.map(r=>`<div class="reward-card" style="border-color:var(--green);">
+    <div class="rc-icon">${r.icon}</div>
+    <div class="rc-body"><div class="rc-name">${r.name}</div><div class="rc-desc">${r.desc}</div></div>
+    <div class="rc-badge done">✓</div>
+  </div>`).join('') : `<div class="empty-state">Regarde 10 lives pour débloquer ton premier reward 🎯</div>`;
+}
+
+function renderHistory() {
+  const el = document.getElementById('histList');
+  if (!S.history.length) { el.innerHTML = '<div class="empty-state">Aucune activité pour l\'instant</div>'; return; }
+  el.innerHTML = [...S.history].reverse().slice(0,20).map(h=>`
+    <div class="hist-item">
+      <div class="hi-icon">${h.icon}</div>
+      <div class="hi-body">
+        <div class="hi-label">${h.label}</div>
+        <div class="hi-date">${new Date(h.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      ${h.pts?`<div class="hi-pts">+${h.pts}</div>`:''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.querySelector('.scroll').scrollTop = 0;
+}
+
+// ═══════════════════════════════════════════════════
+// CARD FLIP
+// ═══════════════════════════════════════════════════
+function flipCard() {
+  document.getElementById('cardFlipper').classList.toggle('flipped');
+}
+
+// ═══════════════════════════════════════════════════
+// LIVE WATCH
+// ═══════════════════════════════════════════════════
+let watchTimer = null;
+function watchLive(id) {
+  if (S.watchedLives.includes(id)) return;
+  const live = LIVES.find(l => l.id === id);
+  if (!live || live.status === 'scheduled') return;
+  showToast('▶ Lecture en cours… +1 point dans 2s');
+  watchTimer = setTimeout(() => {
+    S.watchedLives.push(id);
+    S.pts++;
+    S.cyclePoints++;
+    S.history.push({icon:'📺', label:`Live regardé : ${live.title}`, pts:1, ts:new Date().toISOString()});
+    // Local notif
+    addNotif('📺', 'Live regardé !', `+1 point — ${live.title}`);
+    if (S.cyclePoints >= 10) completeCycle();
+    save(); render();
+    showToast('+1 point gagné ✓');
+  }, 2000);
+}
+
+function completeCycle() {
+  S.cyclePoints = 0;
+  S.totalCycles++;
+  const rewardIdx = (S.totalCycles - 1) % REWARDS.length;
+  const reward    = REWARDS[rewardIdx];
+  if (!S.earned.includes(reward.id)) S.earned.push(reward.id);
+  S.history.push({icon:'🔓', label:`Cycle #${S.totalCycles} complété — ${reward.name} débloqué !`, pts:0, ts:new Date().toISOString()});
+  addNotif('🔓', 'Cycle complété !', `Tu as débloqué : ${reward.name}`);
+  save();
+  setTimeout(() => showUnlock(reward), 400);
+}
+
+// ═══════════════════════════════════════════════════
+// DISCORD OAuth2
+// ═══════════════════════════════════════════════════
+function connectDiscord() {
+  // Affiche le modal de connexion Discord
+  showDiscordLogin();
+}
+
+async function handleDiscordCallback() {
+  const hash = location.hash;
+  if (!hash) return;
+  // Token reçu après OAuth2
+  const tokenMatch = hash.match(/token=([^&]+)/);
+  if (tokenMatch) {
+    const token = decodeURIComponent(tokenMatch[1]);
+    localStorage.setItem('mf4_discord_token', token);
+    // Charger le profil depuis l'API
+    try {
+      const r    = await fetch(`/api/me?token=${encodeURIComponent(token)}`);
+      const data = await r.json();
+      if (data.discord_id) {
+        // Fusionner profil serveur avec état local
+        S.discord_id     = data.discord_id;
+        S.discord_name   = data.discord_name;
+        S.discord_avatar = data.discord_avatar || '';
+        // Sync points + progression depuis serveur
+        if (data.pts !== undefined)          S.pts          = data.pts;
+        if (data.cyclePoints !== undefined)  S.cyclePoints  = data.cyclePoints;
+        if (data.totalCycles !== undefined)  S.totalCycles  = data.totalCycles;
+        if (data.watchedLives !== undefined) S.watchedLives = data.watchedLives;
+        if (data.earned !== undefined)       S.earned       = data.earned;
+        S.history.push({icon:'🎮', label:`Discord connecté : ${S.discord_name}`, pts:0, ts:new Date().toISOString()});
+        addNotif('🎮', 'Discord connecté !', `Bienvenue ${S.discord_name} 👋`);
+        save(); render();
+        showToast(`Connecté en tant que ${S.discord_name} ✓`);
+        await updatePushSubscription();
+      }
+    } catch(e) { showToast('Erreur de connexion Discord'); }
+    // Nettoyer l'URL
+    history.replaceState(null, '', '/');
+    return;
+  }
+  if (hash.includes('discord-error')) {
+    showToast('Erreur Discord — réessaie');
+    history.replaceState(null, '', '/');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// DISCORD LOGIN MODAL
+// ═══════════════════════════════════════════════════
+function showDiscordLogin() {
+  document.getElementById('discordLoginOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('discordNameInput').focus(), 300);
+}
+function closeDiscordLogin() {
+  document.getElementById('discordLoginOverlay').classList.remove('open');
+}
+
+async function submitDiscordLogin() {
+  const name = document.getElementById('discordNameInput').value.trim();
+  if (!name) { showToast('Entre ton pseudo Discord'); return; }
+  showToast('Connexion en cours...');
+  try {
+    const r    = await fetch('/api/me', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'login_name', discord_name: name})
+    });
+    const data = await r.json();
+    if (data.ok && data.token) {
+      localStorage.setItem('mf4_discord_token', data.token);
+      const m = data.member;
+      S.discord_id     = m.discord_id;
+      S.discord_name   = m.discord_name;
+      S.discord_avatar = m.discord_avatar || '';
+      // Sync données serveur
+      if (m.pts !== undefined)          S.pts          = m.pts;
+      if (m.cyclePoints !== undefined)  S.cyclePoints  = m.cyclePoints;
+      if (m.totalCycles !== undefined)  S.totalCycles  = m.totalCycles;
+      if (m.watchedLives !== undefined) S.watchedLives = m.watchedLives;
+      if (m.earned !== undefined)       S.earned       = m.earned;
+      S.history.push({icon:'🎮', label:`Connecté : ${name}`, pts:0, ts:new Date().toISOString()});
+      addNotif('🎮','Connecté !',`Bienvenue ${name} — ton espace est prêt 👋`);
+      save(); render();
+      closeDiscordLogin();
+      showToast(`Bienvenue ${name} ✓`);
+      await updatePushSubscription();
+    } else {
+      showToast('Erreur — réessaie');
+    }
+  } catch(e) {
+    showToast('Erreur de connexion');
+  }
+}
+
+async function syncWithServer() {
+  const token = localStorage.getItem('mf4_discord_token');
+  if (!token || !S.discord_id) return;
+  try {
+    await fetch('/api/me', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        token,
+        pts:          S.pts,
+        cyclePoints:  S.cyclePoints,
+        totalCycles:  S.totalCycles,
+        watchedLives: S.watchedLives,
+        earned:       S.earned,
+        contested:    S.contested || []
+      })
+    });
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════
+// PUSH NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64  = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw     = window.atob(base64);
+  const arr     = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+async function requestNotifPermission() {
+  if (!('Notification' in window)) { showToast('Notifications non supportées'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    document.getElementById('notifBanner').style.display = 'none';
+    showToast('Notifications activées ✓');
+    await registerPushSubscription();
+  } else {
+    showToast('Permission refusée');
+  }
+}
+
+async function registerPushSubscription() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+    });
+    const tier = getTier(S.pts).name;
+    await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        subscription:  sub.toJSON(),
+        discord_id:    S.discord_id,
+        discord_name:  S.discord_name,
+        tier:          tier
+      })
+    });
+    S.notifEnabled = true;
+    save();
+  } catch(e) { console.log('Push registration failed:', e); }
+}
+
+async function updatePushSubscription() {
+  if (!S.notifEnabled) return;
+  await registerPushSubscription();
+}
+
+// ═══════════════════════════════════════════════════
+// LOCAL NOTIFS
+// ═══════════════════════════════════════════════════
+function addNotif(emoji, title, text) {
+  S.notifications.unshift({id: Date.now(), emoji, title, text, read: false, ts: new Date().toISOString()});
+  if (S.notifications.length > 50) S.notifications = S.notifications.slice(0, 50);
+  document.getElementById('notifRed').style.display = 'block';
+}
+
+function openNotifs() {
+  const el = document.getElementById('notifList');
+  el.innerHTML = S.notifications.length
+    ? S.notifications.map(n => `<div class="ns-item ${n.read?'':'unread'}" onclick="markRead(${n.id})">
+        <div class="ns-emoji">${n.emoji}</div>
+        <div class="ns-body">
+          <div class="ns-title">${n.title}</div>
+          <div class="ns-text">${n.text}</div>
+          <div class="ns-time">${new Date(n.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+      </div>`).join('')
+    : '<div class="empty-state">Aucune notification</div>';
+  document.getElementById('notifOverlay').classList.add('open');
+  // Mark all read
+  S.notifications.forEach(n => n.read = true);
+  document.getElementById('notifRed').style.display = 'none';
+  save();
+}
+
+function markRead(id) {}
+function closeNotifs() { document.getElementById('notifOverlay').classList.remove('open'); }
+
+function setLiveAlert(evt, liveId) {
+  evt.stopPropagation();
+  const live = LIVES.find(l => l.id === liveId);
+  const existing = S.notifications.find(n => n.liveId === liveId);
+  if (existing) {
+    S.notifications = S.notifications.filter(n => n.liveId !== liveId);
+    showToast('Rappel annulé');
+  } else {
+    addNotif('🔔', 'Rappel activé', `Tu seras notifié pour : ${live?.title}`);
+    S.notifications[0].liveId = liveId;
+    showToast('Rappel activé 🔔');
+  }
+  save(); render();
+}
+
+// ═══════════════════════════════════════════════════
+// WALLET / INSTALL
+// ═══════════════════════════════════════════════════
+function openWallet() {
+  const wcpName  = document.getElementById('wcpName');
+  const wcpPts   = document.getElementById('wcpPts');
+  const wcpCycle = document.getElementById('wcpCycle');
+  const wcpDots  = document.getElementById('wcpDots');
+  wcpName.textContent  = S.name;
+  wcpPts.textContent   = S.pts;
+  wcpCycle.textContent = '#' + (S.totalCycles + 1);
+  wcpDots.innerHTML = Array.from({length:10}, (_,i) =>
+    `<div class="wcp-dot ${i<S.cyclePoints?'filled':''}"></div>`
+  ).join('');
+  document.getElementById('walletOverlay').classList.add('open');
+}
+
+function closeWallet() { document.getElementById('walletOverlay').classList.remove('open'); }
+
+function downloadAppleWallet() {
+  const tier = getTier(S.pts).name;
+  const url  = `/api/pass?name=${encodeURIComponent(S.name)}&pts=${S.pts}&cycle=${S.totalCycles+1}&level=${tier}`;
+  window.open(url, '_blank');
+}
+
+function downloadCardPNG() {
+  const c  = document.createElement('canvas');
+  c.width  = 375; c.height = 230;
+  const ctx = c.getContext('2d');
+  const g   = ctx.createLinearGradient(0, 0, 375, 230);
+  g.addColorStop(0, '#0a0800'); g.addColorStop(.4, '#1f1600'); g.addColorStop(1, '#0a0800');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 375, 230);
+  ctx.fillStyle = '#C9A227'; ctx.fillRect(0, 0, 375, 3);
+  ctx.fillStyle = '#C9A227'; ctx.font = 'bold 11px sans-serif';
+  ctx.letterSpacing = '3px'; ctx.fillText('MENTALITÉ FOCUS', 22, 40);
+  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.font = '9px sans-serif';
+  ctx.fillText(getTier(S.pts).name, 22, 60);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 30px sans-serif'; ctx.fillText(S.name, 22, 110);
+  ctx.fillStyle = '#C9A227'; ctx.font = 'bold 20px sans-serif'; ctx.fillText(`${S.pts} pts`, 22, 185);
+  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.font = '10px sans-serif'; ctx.fillText(`Cycle #${S.totalCycles+1}`, 22, 205);
+  const a  = document.createElement('a'); a.download = `focus-card-${S.name}.png`;
+  a.href   = c.toDataURL(); a.click();
+  showToast('Image téléchargée ✓');
+}
+
+function shareCard() {
+  const tier = getTier(S.pts).name;
+  const txt  = `🎯 Ma carte Mentalité Focus\n${S.name} · ${tier} · ${S.pts} pts\nCycle #${S.totalCycles+1} · ${S.watchedLives.length} lives\n${APP_URL}`;
+  if (navigator.share) {
+    navigator.share({title:'Ma carte Focus', text:txt, url:APP_URL}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(txt).then(()=>showToast('Carte copiée ✓')).catch(()=>{});
+  }
+}
+
+function showInstallSteps() {
+  document.getElementById('installStepsWallet').style.display = 'block';
+  openWallet();
+}
+
+// ═══════════════════════════════════════════════════
+// OFFRES
+// ═══════════════════════════════════════════════════
+async function loadOffers() {
+  const el = document.getElementById('offersList');
+  try {
+    const r = await fetch('/api/admin?action=offers');
+    const offers = await r.json();
+    const badge = document.getElementById('badgeOffres');
+    if (offers.length) {
+      badge.textContent = offers.length; badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+    if (!offers.length) {
+      el.innerHTML = '<div class="empty-state">Aucune offre en ce moment.<br>Reviens bientôt 🎁</div>';
+      return;
+    }
+    el.innerHTML = offers.map(o => {
+      const expiresIn = o.expires_at ? Math.max(0, Math.round((o.expires_at*1000 - Date.now()) / 3600000)) : null;
+      return `<div class="offer-card flash">
+        <div class="oc-top-bar"></div>
+        ${expiresIn !== null ? '<div class="flash-badge">⚡ FLASH</div>' : ''}
+        <div class="oc-body">
+          <div class="oc-emoji">${o.emoji || '🎁'}</div>
+          <div class="oc-title">${o.title}</div>
+          <div class="oc-desc">${o.description}</div>
+          ${o.code ? `<div class="oc-code-wrap"><div class="oc-code">${o.code}</div><button class="oc-copy-btn" onclick="copyCode('${o.code}')">Copier</button></div>` : ''}
+          <div class="oc-footer">
+            ${expiresIn !== null ? `<div class="oc-timer">⏱ ${expiresIn}h restantes</div>` : ''}
+            ${o.link ? `<button class="oc-cta" onclick="window.open('${o.link}','_blank')">Profiter →</button>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state">Erreur de chargement</div>';
+  }
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(()=>showToast(`Code copié : ${code}`)).catch(()=>{});
+}
+
+// ═══════════════════════════════════════════════════
+// CONCOURS
+// ═══════════════════════════════════════════════════
+async function loadContests() {
+  const el = document.getElementById('contestsList');
+  try {
+    const r = await fetch('/api/admin?action=contests');
+    const contests = await r.json();
+    const badge = document.getElementById('badgeConcours');
+    if (contests.length) {
+      badge.textContent = contests.length; badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+    if (!contests.length) {
+      el.innerHTML = '<div class="empty-state">Aucun concours actif.<br>Bientôt de nouvelles opportunités 🏆</div>';
+      return;
+    }
+    el.innerHTML = contests.map(c => {
+      const endsIn  = c.ends_at ? Math.max(0, Math.round((c.ends_at*1000 - Date.now()) / 86400000)) : null;
+      const entered = (S.contested || []).includes(c.id);
+      return `<div class="contest-card">
+        <div class="cc-hero">
+          <div class="cc-emoji">${c.emoji || '🏆'}</div>
+          <div class="cc-title">${c.title}</div>
+          ${c.prize ? `<div class="cc-prize">🎁 À gagner : ${c.prize}</div>` : ''}
+        </div>
+        <div class="cc-body">
+          <div class="cc-desc">${c.description}</div>
+          ${c.how_to ? `<div class="cc-how"><div class="cc-how-title">📋 Comment participer</div><div class="cc-how-text">${c.how_to}</div></div>` : ''}
+        </div>
+        <div class="cc-footer">
+          ${endsIn !== null ? `<div class="cc-ends"><div class="dot"></div>${endsIn}j restants</div>` : ''}
+          ${entered
+            ? `<button class="cc-participated">✅ Inscrit</button>`
+            : `<button class="cc-participate" onclick="enterContest('${c.id}')">Participer →</button>`
+          }
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state">Erreur de chargement</div>';
+  }
+}
+
+function enterContest(id) {
+  if (!S.contested) S.contested = [];
+  S.contested.push(id);
+  S.history.push({icon:'🏆', label:'Inscrit à un concours', pts:0, ts:new Date().toISOString()});
+  addNotif('🏆', 'Inscription confirmée !', 'Tu es inscrit au concours. Bonne chance !');
+  save(); render();
+  loadContests();
+  showToast('Inscription confirmée ✓');
+}
+
+// ═══════════════════════════════════════════════════
+// UNLOCK SCREEN
+// ═══════════════════════════════════════════════════
+function showUnlock(reward) {
+  document.getElementById('unlockIcon').textContent    = reward.icon;
+  document.getElementById('unlockSubtitle').textContent = `Tu as débloqué : ${reward.name}`;
+  document.getElementById('exTag').textContent          = reward.content.tag;
+  document.getElementById('exTitle').textContent        = reward.content.title;
+  document.getElementById('exHost').textContent         = reward.content.host;
+  document.getElementById('exDur').textContent          = reward.content.dur;
+  document.getElementById('unlockScreen').classList.add('open');
+  launchParticles();
+}
+
+function closeUnlock() {
+  document.getElementById('unlockScreen').classList.remove('open');
+}
+
+function launchParticles() {
+  const canvas = document.getElementById('particleCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const particles = Array.from({length:60}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - .5) * 3,
+    vy: -(Math.random() * 4 + 1),
+    r: Math.random() * 6 + 2,
+    color: ['#C9A227','#F0D060','#E8C04A','#fff','#A67C00'][Math.floor(Math.random()*5)],
+    life: 1
+  }));
+  function frame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      if (p.life <= 0) return;
+      p.x += p.vx; p.y += p.vy; p.vy += .08; p.life -= .012;
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle   = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      if (p.life > 0) alive = true;
+    });
+    if (alive) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════
+function openAdmin() {
+  document.getElementById('adminPanel').classList.add('open');
+  loadAdminStats();
+  loadAdminOffers();
+  loadAdminContests();
+  // Set Discord auth URL
+  const discordUrl = DISCORD_CLIENT !== 'VOTRE_DISCORD_CLIENT_ID'
+    ? `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT}&redirect_uri=${encodeURIComponent(APP_URL+'/api/discord')}&response_type=code&scope=identify%20guilds.members.read`
+    : 'Configurez DISCORD_CLIENT_ID dans le code';
+  document.getElementById('discordAuthUrl').textContent = discordUrl;
+}
+
+function closeAdmin() {
+  document.getElementById('adminPanel').classList.remove('open');
+}
+
+async function loadAdminStats() {
+  try {
+    const r    = await fetch(`/api/admin?secret=${ADMIN_SECRET}&action=stats`);
+    const data = await r.json();
+    document.getElementById('adminTotalSubs').textContent    = data.total_subscribers ?? '–';
+    document.getElementById('adminActiveOffers').textContent = data.active_offers ?? '–';
+    document.getElementById('adminActiveContests').textContent = data.active_contests ?? '–';
+    document.getElementById('adminElite').textContent        = data.tiers?.['ÉLITE'] ?? '0';
+  } catch(e) {}
+}
+
+async function sendAdminPush() {
+  const title = document.getElementById('pushTitle').value.trim();
+  const body  = document.getElementById('pushBody').value.trim();
+  const url   = document.getElementById('pushUrl').value.trim() || '/';
+  const tier  = document.getElementById('pushTier').value;
+  if (!title || !body) { showToast('Titre et message requis'); return; }
+  const res = await fetch('/api/push', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({secret:ADMIN_SECRET, title, body, url, tier})
+  });
+  const data = await res.json();
+  const el = document.getElementById('pushResult');
+  el.style.display = 'block';
+  el.textContent   = `✅ Envoyé à ${data.sent}/${data.total} abonnés (${data.failed} échec)`;
+  setTimeout(()=>el.style.display='none', 5000);
+}
+
+async function createOffer() {
+  const title = document.getElementById('offerTitle').value.trim();
+  const desc  = document.getElementById('offerDesc').value.trim();
+  const emoji = document.getElementById('offerEmoji').value.trim() || '🎁';
+  const code  = document.getElementById('offerCode').value.trim();
+  const link  = document.getElementById('offerLink').value.trim();
+  const hours = parseInt(document.getElementById('offerHours').value) || 24;
+  if (!title) { showToast('Titre requis'); return; }
+  const r = await fetch('/api/admin', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({secret:ADMIN_SECRET, action:'add_offer', title, description:desc, emoji, code, link, hours})
+  });
+  const data = await r.json();
+  if (data.ok) {
+    showToast('Offre publiée ✓');
+    document.getElementById('offerTitle').value = '';
+    document.getElementById('offerDesc').value  = '';
+    document.getElementById('offerCode').value  = '';
+    document.getElementById('offerLink').value  = '';
+    loadAdminOffers(); loadAdminStats();
+  }
+}
+
+async function createContest() {
+  const title  = document.getElementById('contestTitle').value.trim();
+  const prize  = document.getElementById('contestPrize').value.trim();
+  const desc   = document.getElementById('contestDesc').value.trim();
+  const howTo  = document.getElementById('contestHowTo').value.trim();
+  const emoji  = document.getElementById('contestEmoji').value.trim() || '🏆';
+  const days   = parseInt(document.getElementById('contestDays').value) || 7;
+  if (!title) { showToast('Titre requis'); return; }
+  const r = await fetch('/api/admin', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({secret:ADMIN_SECRET, action:'add_contest', title, description:desc, prize, how_to:howTo, emoji, days})
+  });
+  const data = await r.json();
+  if (data.ok) {
+    showToast('Concours lancé ✓');
+    document.getElementById('contestTitle').value  = '';
+    document.getElementById('contestPrize').value  = '';
+    document.getElementById('contestDesc').value   = '';
+    document.getElementById('contestHowTo').value  = '';
+    loadAdminContests(); loadAdminStats();
+  }
+}
+
+async function loadAdminOffers() {
+  const r  = await fetch('/api/admin?action=offers');
+  const of = await r.json();
+  const el = document.getElementById('adminOffersList');
+  el.innerHTML = of.length ? of.map(o => `
+    <div class="admin-item">
+      <div style="font-size:20px">${o.emoji||'🎁'}</div>
+      <div class="admin-item-info">
+        <div class="admin-item-title">${o.title}</div>
+        <div class="admin-item-sub">${o.code ? '🔑 '+o.code+' · ' : ''}Expire dans ${Math.round((o.expires_at*1000-Date.now())/3600000)}h</div>
+      </div>
+      <button class="admin-del" onclick="deleteOffer('${o.id}')">🗑</button>
+    </div>`).join('')
+  : '<div style="font-size:11px;color:#444;text-align:center;padding:10px;">Aucune offre active</div>';
+}
+
+async function loadAdminContests() {
+  const r  = await fetch('/api/admin?action=contests');
+  const cs = await r.json();
+  const el = document.getElementById('adminContestsList');
+  el.innerHTML = cs.length ? cs.map(c => `
+    <div class="admin-item">
+      <div style="font-size:20px">${c.emoji||'🏆'}</div>
+      <div class="admin-item-info">
+        <div class="admin-item-title">${c.title}</div>
+        <div class="admin-item-sub">🎁 ${c.prize||'–'} · Termine dans ${Math.round((c.ends_at*1000-Date.now())/86400000)}j</div>
+      </div>
+      <button class="admin-del" onclick="deleteContest('${c.id}')">🗑</button>
+    </div>`).join('')
+  : '<div style="font-size:11px;color:#444;text-align:center;padding:10px;">Aucun concours actif</div>';
+}
+
+async function deleteOffer(id) {
+  await fetch('/api/admin', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:ADMIN_SECRET,action:'delete_offer',id})});
+  showToast('Offre supprimée'); loadAdminOffers(); loadAdminStats();
+}
+async function deleteContest(id) {
+  await fetch('/api/admin', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:ADMIN_SECRET,action:'delete_contest',id})});
+  showToast('Concours supprimé'); loadAdminContests(); loadAdminStats();
+}
+
+function copyDiscordUrl() {
+  const t = document.getElementById('discordAuthUrl').textContent;
+  navigator.clipboard.writeText(t).then(()=>showToast('URL copiée ✓')).catch(()=>{});
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════
+// PWA INSTALL
+// ═══════════════════════════════════════════════════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('installHomeBtn').style.display = 'flex';
+});
+
+// ═══════════════════════════════════════════════════
+// OPEN SPACE (lien Discord)
+// ═══════════════════════════════════════════════════
+function openMySpace() {
+  if (S.discord_name) {
+    showToast(`Connecté comme ${S.discord_name} ✓`);
+  } else {
+    connectDiscord();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN TRIGGER (hash)
+// ═══════════════════════════════════════════════════
+function checkHash() {
+  if (location.hash === '#admin') openAdmin();
+}
+window.addEventListener('hashchange', checkHash);
+
+// ═══════════════════════════════════════════════════
+// FIRST LAUNCH NAME
+// ═══════════════════════════════════════════════════
+function firstLaunch() {
+  if (S.name === 'MEMBRE' && !localStorage.getItem('mf4_launched')) {
+    localStorage.setItem('mf4_launched', '1');
+    setTimeout(() => {
+      const name = prompt('Bienvenue ! Entre ton prénom pour personnaliser ta carte :');
+      if (name && name.trim()) {
+        S.name = name.trim().toUpperCase();
+        S.history.push({icon:'🎉', label:`Bienvenue ${S.name} dans le Groupe Focus !`, pts:0, ts:new Date().toISOString()});
+        addNotif('🎉', 'Bienvenue !', `Carte créée pour ${S.name}`);
+        save(); render();
+      }
+    }, 800);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// SERVICE WORKER
+// ═══════════════════════════════════════════════════
+async function initSW() {
+  if (!('serviceWorker' in navigator)) return;
+  await navigator.serviceWorker.register('/sw.js');
+  if (S.notifEnabled && Notification.permission === 'granted') {
+    await registerPushSubscription();
+  } else if ('Notification' in window && Notification.permission === 'default') {
+    document.getElementById('notifBanner').style.display = 'flex';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// BADGE COUNTERS (nav)
+// ═══════════════════════════════════════════════════
+async function loadBadges() {
+  try {
+    const [offRes, conRes] = await Promise.all([
+      fetch('/api/admin?action=offers'),
+      fetch('/api/admin?action=contests')
+    ]);
+    const offers   = await offRes.json();
+    const contests = await conRes.json();
+    const bo = document.getElementById('badgeOffres');
+    const bc = document.getElementById('badgeConcours');
+    if (offers.length)   { bo.textContent = offers.length;   bo.style.display = 'flex'; }
+    if (contests.length) { bc.textContent = contests.length; bc.style.display = 'flex'; }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// LIVE — Preview 3 min + IP/fingerprint blocking
+// ═══════════════════════════════════════════════════
+const JOIN_URL = 'https://focus-business.com';
+let liveState  = null;   // null | {active, title, stream_url, ...}
+let previewTimer = null; // setInterval handle
+
+function openJoinLink() {
+  window.open(JOIN_URL, '_blank');
+}
+
+// ── Fingerprint léger (canvas + timezone + screen) ──────────────────────────
+async function getFingerprint() {
+  try {
+    const canvas  = document.createElement('canvas');
+    const ctx     = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font      = '14px Arial';
+    ctx.fillText('Focus🔴', 2, 2);
+    const raw = [
+      canvas.toDataURL(),
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+      `${screen.width}x${screen.height}x${screen.colorDepth}`,
+      navigator.language,
+      navigator.hardwareConcurrency || ''
+    ].join('|');
+    // SHA-256 lite via SubtleCrypto
+    const enc  = new TextEncoder().encode(raw);
+    const buf  = await crypto.subtle.digest('SHA-256', enc);
+    const arr  = Array.from(new Uint8Array(buf));
+    return arr.map(b => b.toString(16).padStart(2,'0')).join('').slice(0,32);
+  } catch(e) {
+    return Math.random().toString(36).slice(2);
+  }
+}
+
+// ── Charger l'état du live (appelé au chargement de la page Live) ──────────
+async function loadLivePage() {
+  try {
+    const res  = await fetch('/api/live');
+    liveState  = await res.json();
+    renderLivePage(liveState);
+    // Badge dans la nav
+    const badge = document.getElementById('badgeLive');
+    if (liveState && liveState.active) {
+      badge.textContent = ''; badge.style.display = 'flex';
+      badge.style.width = '8px'; badge.style.height = '8px'; badge.style.padding = '0';
+      document.getElementById('navLiveLabel').style.color = 'var(--red)';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch(e) {
+    console.warn('Live API error:', e);
+  }
+}
+
+function renderLivePage(live) {
+  const isActive = live && live.active;
+
+  // Hero
+  const dot        = document.getElementById('liveDot');
+  const statusTxt  = document.getElementById('liveStatusText');
+  const titleHero  = document.getElementById('liveTitleHero');
+  const subHero    = document.getElementById('liveSubHero');
+  const countRow   = document.getElementById('liveCountRow');
+  const playerWrap = document.getElementById('livePlayerWrap');
+  const paywall    = document.getElementById('livePaywall');
+  const nextBlock  = document.getElementById('liveNextBlock');
+  const summaryBlk = document.getElementById('liveSummaryBlock');
+
+  if (isActive) {
+    dot.style.display = 'block';
+    statusTxt.textContent = '🔴 LIVE EN COURS';
+    statusTxt.classList.remove('offline');
+    titleHero.textContent = live.title || 'Live Mentalité Focus';
+    subHero.textContent = 'Le live est en cours maintenant. Aperçu gratuit : 5 minutes.';
+    countRow.style.display = 'flex';
+    playerWrap.style.display = 'block';
+    paywall.style.display = 'none';
+    nextBlock.style.display = 'none';
+    summaryBlk.style.display = 'none';
+
+    // Vérifier si preview déjà utilisé (stocké en localStorage pour feedback instantané)
+    const prevUsed = localStorage.getItem('mf_preview_used');
+    const prevTs   = parseInt(prevUsed || '0', 10);
+    if (prevTs && Date.now() - prevTs < 86400000) {
+      // Déjà utilisé aujourd'hui — montrer overlay bloqué directement
+      showBlockedOverlay('already_used', 'Aperçu déjà utilisé aujourd\'hui');
+    }
+    // Sinon l'overlay initial "Voir l'aperçu" est déjà visible
+
+  } else {
+    dot.style.display = 'none';
+    statusTxt.textContent = 'HORS LIGNE';
+    statusTxt.classList.add('offline');
+    titleHero.textContent = 'Prochain live';
+    subHero.textContent = 'Les lives ont lieu presque tous les soirs. Active les notifications pour ne rien rater.';
+    countRow.style.display = 'none';
+    playerWrap.style.display = 'none';
+    paywall.style.display = 'none';
+    nextBlock.style.display = 'block';
+
+    // Afficher résumé si disponible (dans le live.json)
+    if (live && live.last_summary) {
+      summaryBlk.style.display = 'block';
+      const container = document.getElementById('liveSummaryItems');
+      container.innerHTML = (live.last_summary || [])
+        .map(p => `<div class="ls-item">${p}</div>`).join('');
+    }
+  }
+}
+
+// ── L'utilisateur clique sur "Voir l'aperçu" ────────────────────────────────
+async function requestPreview() {
+  const btn = document.querySelector('#liveInitOverlay .lpo-btn');
+  if (btn) { btn.textContent = 'Vérification...'; btn.disabled = true; }
+
+  try {
+    const fp  = await getFingerprint();
+    const res = await fetch('/api/live', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'preview_request', fingerprint: fp })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      // Accès accordé
+      localStorage.setItem('mf_preview_used', Date.now().toString());
+      startPreview(data.stream_url, data.duration || 300);
+    } else {
+      // Bloqué
+      const msgs = {
+        no_live:      'Aucun live en cours pour le moment.',
+        already_used: 'Aperçu déjà utilisé aujourd\'hui.',
+        ip_blocked:   data.message || 'Accès suspendu suite à trop de tentatives.'
+      };
+      showBlockedOverlay(data.reason, msgs[data.reason] || data.message || 'Accès refusé.');
+    }
+  } catch(e) {
+    if (btn) { btn.textContent = 'Voir l\'aperçu gratuit'; btn.disabled = false; }
+    showToast('Erreur réseau — réessaie');
+  }
+}
+
+function showBlockedOverlay(reason, msg) {
+  document.getElementById('liveInitOverlay').style.display   = 'none';
+  document.getElementById('liveBlockedOverlay').style.display = 'flex';
+  document.getElementById('liveBlockedSub').textContent       = msg || 'Rejoins Focus pour accéder au live complet.';
+  const title = document.getElementById('liveBlockedTitle');
+  if (reason === 'ip_blocked') title.textContent = 'Accès suspendu';
+  else if (reason === 'no_live') title.textContent = 'Aucun live en cours';
+  else title.textContent = 'Aperçu déjà utilisé';
+}
+
+function startPreview(streamUrl, duration) {
+  // Cacher overlay init, montrer iframe
+  document.getElementById('liveInitOverlay').style.display  = 'none';
+  const iframeWrap = document.getElementById('liveIframeWrap');
+  iframeWrap.style.display = 'block';
+
+  // Injecter l'iframe (YouTube embed)
+  const iframe = document.getElementById('liveIframe');
+  if (streamUrl) {
+    // Convertir URL YouTube en embed si nécessaire
+    let embedUrl = streamUrl;
+    const ytMatch = streamUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    if (ytMatch) {
+      embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+    }
+    iframe.src = embedUrl;
+  } else {
+    // Pas d'URL de stream — juste afficher un placeholder
+    iframeWrap.innerHTML = `
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;flex-direction:column;gap:8px;">
+        <div style="font-size:32px;">🔴</div>
+        <div style="font-size:14px;font-weight:700;">Live en cours</div>
+        <div style="font-size:12px;color:#666;">Rejoins Discord pour voir le live complet</div>
+      </div>`;
+  }
+
+  // Démarrer le countdown
+  const countdown = document.getElementById('liveCountdown');
+  countdown.style.display = 'flex';
+  let remaining = duration;
+
+  previewTimer = setInterval(() => {
+    remaining--;
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    document.getElementById('liveCountdownTime').textContent =
+      `${m}:${s.toString().padStart(2,'0')}`;
+
+    if (remaining <= 0) {
+      clearInterval(previewTimer);
+      endPreview();
+    }
+  }, 1000);
+}
+
+function endPreview() {
+  // Couper l'iframe
+  const iframe = document.getElementById('liveIframe');
+  if (iframe) iframe.src = 'about:blank';
+  document.getElementById('liveIframeWrap').style.display = 'none';
+  document.getElementById('liveCountdown').style.display  = 'none';
+
+  // Afficher la paywall
+  document.getElementById('livePaywall').style.display = 'block';
+}
+
+// ── Notifications live ────────────────────────────────────────────────────────
+async function subscribeToLiveNotifs() {
+  const btn = document.getElementById('liveNotifBtn');
+  if (btn.classList.contains('done')) {
+    showToast('Notifications déjà activées ✓'); return;
+  }
+  // Réutiliser le système de push existant
+  if (S.notifEnabled) {
+    btn.classList.add('done');
+    btn.textContent = '✓ Notif live activée';
+    showToast('Tu seras notifié au prochain live 🔔');
+    return;
+  }
+  // Demander la permission
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      await registerPushSubscription();
+      S.notifEnabled = true; save();
+      btn.classList.add('done');
+      btn.textContent = '✓ Notif live activée';
+      showToast('Notifications activées ✓');
+    } else {
+      showToast('Autorise les notifications dans les paramètres');
+    }
+  } catch(e) {
+    showToast('Erreur activation notifications');
+  }
+}
+
+// ── Vérification live au démarrage (pour badge nav) ─────────────────────────
+async function checkLiveBadge() {
+  try {
+    const res  = await fetch('/api/live');
+    const data = await res.json();
+    if (data && data.active) {
+      const badge = document.getElementById('badgeLive');
+      badge.textContent = '';
+      badge.style.width = '8px'; badge.style.height = '8px'; badge.style.padding = '0';
+      badge.style.display = 'flex';
+      document.getElementById('navLiveLabel').style.color = 'var(--red)';
+    }
+  } catch(e) {}
+}
+
+render();
+firstLaunch();
+initSW();
+loadBadges();
+checkHash();
+checkLiveBadge();
+handleDiscordCallback();
+// Sync toutes les 5 min si connecté
+setInterval(syncWithServer, 5 * 60 * 1000);
+</script>
+</body>
+</html>

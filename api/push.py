@@ -1,0 +1,94 @@
+"""
+Push notifications vers TOUS les abonnés
+GET  /api/push?secret=MF2026FOCUS&title=...&body=...&url=/&tier=ALL
+POST /api/push { "secret":"MF2026FOCUS", "title":"...", "body":"...", "url":"/", "tier":"ALL" }
+"""
+from http.server import BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
+import json, urllib.request, base64, os, sys, time
+
+sys.path.insert(0, os.path.dirname(__file__))
+import _db
+
+PUSH_SECRET       = os.environ.get("PUSH_SECRET", "MF2026FOCUS")
+VAPID_PUBLIC      = "BGLaGgbn1cT1xOKxGFr6_saEp2e_HRvzYcJ-ac1QjG9_33K6v_aPFCYC9IWoXaXEH2Y-kDmL93ItnzpEPIHlb4c"
+VAPID_PRIVATE_B64 = "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgFLx7y_7Gr6AcadiUC2Tv7YY1TgR_bYGQVX6xhfOsWTGhRANCAAUri2hoG59XE9cTisRha-v7GhKdnvx0b82HCfmnNUIxvf99yur_2jxQmAvSFqF2lxB9mPpA5i_dyLZ86RDyB5W-H"
+
+TIERS_ORDER = {"MEMBRE":1,"ACTIF":2,"AVANCÉ":3,"EXPERT":4,"ÉLITE":5}
+
+def send_vapid_push(subscription, payload):
+    try:
+        from pywebpush import webpush
+        from cryptography.hazmat.primitives.serialization import load_der_private_key, Encoding, PrivateFormat, NoEncryption
+        priv_der     = base64.urlsafe_b64decode(VAPID_PRIVATE_B64 + "==")
+        private_key  = load_der_private_key(priv_der, password=None)
+        priv_pem     = private_key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+        webpush(
+            subscription_info=subscription,
+            data=json.dumps(payload),
+            vapid_private_key=priv_pem,
+            vapid_claims={"sub": "mailto:enix.lab.ai@gmail.com"}
+        )
+        return True
+    except: return False
+
+def push_to_all(title, body, url="/", tier_filter="ALL"):
+    subs, _ = _db.load("subscriptions.json", [])
+    if tier_filter and tier_filter != "ALL":
+        min_lvl = TIERS_ORDER.get(tier_filter, 1)
+        subs    = [s for s in subs if TIERS_ORDER.get(s.get("tier","MEMBRE"),1) >= min_lvl]
+    payload = {"title": title, "body": body, "url": url}
+    results = {"sent": 0, "failed": 0, "total": len(subs)}
+    for sub in subs:
+        clean = {k:v for k,v in sub.items() if k in ["endpoint","keys","expirationTime"]}
+        if send_vapid_push(clean, payload): results["sent"] += 1
+        else: results["failed"] += 1
+    return results
+
+class handler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        self.send_response(200); self._cors(); self.end_headers()
+
+    def do_GET(self):
+        qs     = parse_qs(urlparse(self.path).query)
+        secret = qs.get("secret",[""])[0]
+        if secret != PUSH_SECRET:
+            self.send_response(403); self.end_headers()
+            self.wfile.write(b'{"error":"forbidden"}'); return
+        result = push_to_all(
+            qs.get("title",["🔴 LIVE — Mentalité Focus"])[0],
+            qs.get("body", ["Un live est en cours !"])[0],
+            qs.get("url",  ["/"])[0],
+            qs.get("tier", ["ALL"])[0]
+        )
+        self._respond(result)
+
+    def do_POST(self):
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+            body   = json.loads(self.rfile.read(length))
+            if body.get("secret") != PUSH_SECRET:
+                self.send_response(403); self.end_headers(); return
+            result = push_to_all(
+                body.get("title","🔴 LIVE — Mentalité Focus"),
+                body.get("body", "Un live commence maintenant !"),
+                body.get("url",  "/"),
+                body.get("tier", "ALL")
+            )
+            self._respond(result)
+        except Exception as e:
+            self._respond({"error": str(e)}, 500)
+
+    def _respond(self, data, code=200):
+        body = json.dumps(data).encode()
+        self.send_response(code); self._cors()
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers(); self.wfile.write(body)
+
+    def _cors(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
+    def log_message(self, *a): pass
