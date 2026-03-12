@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import _db
 
 PUSH_SECRET      = os.environ.get("PUSH_SECRET", "MF2026FOCUS")
-PREVIEW_DURATION = 180   # secondes (3 min)
+PREVIEW_DURATION = 300   # secondes (5 min)
 BAN_THRESHOLD    = 3     # tentatives avant ban
 BAN_DURATION     = 7 * 86400  # 7 jours en secondes
 
