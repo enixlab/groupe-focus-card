@@ -634,7 +634,7 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
             <div class="lpo-icon">🔒</div>
             <div class="lpo-title" id="liveBlockedTitle">Aperçu déjà utilisé</div>
             <div class="lpo-sub" id="liveBlockedSub">Rejoins Focus pour accéder au live complet.</div>
-            <button class="lpo-btn gold" onclick="openJoinLink()">Rejoindre Focus — 9,90€/mois</button>
+            <button class="lpo-btn gold" onclick="openJoinLink()">REJOINDRE FOCUS — 9,90€/MOIS</button>
           </div>
         </div>
       </div>
@@ -646,7 +646,7 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
         <div class="lpw-sub">Tes 5 minutes d'aperçu sont terminées. Rejoins Focus pour accéder à tous les lives en direct, les replays et la communauté.</div>
         <div class="lpw-price">9,90€<span style="font-size:16px;font-weight:500">/mois</span></div>
         <div class="lpw-price-sub">Sans engagement · Résilie quand tu veux</div>
-        <button class="lpw-btn" onclick="openJoinLink()">🚀 Accéder au live complet</button>
+        <button class="lpw-btn" onclick="openJoinLink()">REJOINDRE FOCUS — 9,90€/MOIS</button>
         <div class="lpw-no" onclick="this.parentElement.style.display='none'">Continuer sans accès complet</div>
       </div>
 
@@ -670,30 +670,37 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
 
       <!-- Ce que tu rates -->
       <div style="padding:16px 20px 0;">
-        <div class="section-title">Ce que les membres <span>reçoivent</span></div>
+        <div class="section-title">Ce que les membres <span>ont</span></div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-            <div style="font-size:22px;">📱</div>
+            <div style="font-size:22px;">🔴</div>
             <div>
-              <div style="font-size:13px;font-weight:700;">Notification avant chaque live</div>
-              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Reçois l'alerte sur ton téléphone dès que le live démarre</div>
+              <div style="font-size:13px;font-weight:700;">Live complet en direct</div>
+              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Accès illimité à tous les lives · Networking, Business & E-commerce</div>
             </div>
           </div>
           <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
             <div style="font-size:22px;">🎬</div>
             <div>
-              <div style="font-size:13px;font-weight:700;">Replay complet illimité</div>
-              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Tous les lives précédents disponibles à tout moment</div>
+              <div style="font-size:13px;font-weight:700;">Tous les replays</div>
+              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Chaque live précédent disponible à tout moment · illimité</div>
             </div>
           </div>
           <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
             <div style="font-size:22px;">💬</div>
             <div>
-              <div style="font-size:13px;font-weight:700;">Chat membres + Q&A en direct</div>
-              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Pose tes questions en direct · Réseau d'entrepreneurs</div>
+              <div style="font-size:13px;font-weight:700;">Communauté + Q&A en direct</div>
+              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Chat membres · Questions répondues pendant les lives</div>
             </div>
           </div>
-          <button style="width:100%;background:var(--black);color:#fff;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;margin-top:4px;letter-spacing:.3px;" onclick="openJoinLink()">🚀 Rejoindre Focus — 9,90€/mois</button>
+          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:22px;">📦</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;">Ressources exclusives</div>
+              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Canaux 🔒 replays · communauté · ressources</div>
+            </div>
+          </div>
+          <button style="width:100%;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:900;cursor:pointer;margin-top:4px;letter-spacing:.5px;font-family:'Oswald',sans-serif;" onclick="openJoinLink()">REJOINDRE FOCUS — 9,90€/MOIS</button>
         </div>
       </div>
 
@@ -725,10 +732,6 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
     <button class="nav-btn" onclick="goPage('rewards',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       <span class="nav-label">Rewards</span>
-    </button>
-    <button class="nav-btn" onclick="goPage('hist',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      <span class="nav-label">Historique</span>
     </button>
   </div>
 
@@ -1917,7 +1920,7 @@ function renderLivePage(live) {
     const prevTs   = parseInt(prevUsed || '0', 10);
     if (prevTs && Date.now() - prevTs < 86400000) {
       // Déjà utilisé aujourd'hui — montrer overlay bloqué directement
-      showBlockedOverlay('already_used', 'Aperçu déjà utilisé aujourd\'hui');
+      showBlockedOverlay('already_used', 'Aperçu déjà utilisé aujourd\'hui. 1 aperçu gratuit par 24h — impossible à contourner.');
     }
     // Sinon l'overlay initial "Voir l'aperçu" est déjà visible
 
@@ -1964,8 +1967,8 @@ async function requestPreview() {
       // Bloqué
       const msgs = {
         no_live:      'Aucun live en cours pour le moment.',
-        already_used: 'Aperçu déjà utilisé aujourd\'hui.',
-        ip_blocked:   data.message || 'Accès suspendu suite à trop de tentatives.'
+        already_used: 'Aperçu déjà utilisé aujourd\'hui. 1 aperçu gratuit par 24h — impossible à contourner.',
+        ip_blocked:   data.message || 'Trop de tentatives. Accès suspendu 7 jours.'
       };
       showBlockedOverlay(data.reason, msgs[data.reason] || data.message || 'Accès refusé.');
     }
@@ -1982,7 +1985,7 @@ function showBlockedOverlay(reason, msg) {
   const title = document.getElementById('liveBlockedTitle');
   if (reason === 'ip_blocked') title.textContent = 'Accès suspendu';
   else if (reason === 'no_live') title.textContent = 'Aucun live en cours';
-  else title.textContent = 'Aperçu déjà utilisé';
+  else title.textContent = 'Accès refusé';
 }
 
 function startPreview(streamUrl, duration) {
