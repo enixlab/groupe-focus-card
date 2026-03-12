@@ -130,7 +130,7 @@ async def on_member_join(member):
             "Cette semaine, les membres ont eu accès à plusieurs lives sur :\n"
             "• Comment structurer ton premier business en ligne\n"
             "• Les méthodes pour dépasser les 5K€/mois\n"
-            "• Q&A direct avec Adil\n\n"
+            "• Q&A en direct avec la communauté\n\n"
             "**Tu as raté tout ça.**\n\n"
             f"[Rejoindre Focus pour ne plus rien rater]({JOIN_URL})"
         )
@@ -184,7 +184,7 @@ async def cmd_live(ctx, *, args: str = ""):
     # 2) Push notification vers TOUS les abonnés carte
     await send_card_push(
         title=f"🔴 LIVE — {title}",
-        body="Adil est en direct. Aperçu gratuit 3 min → ouvre ta carte Focus.",
+        body="Live en direct. Aperçu gratuit 5 min → ouvre ta carte Focus.",
         url="/?tab=live",
         tier="ALL"
     )
@@ -200,11 +200,11 @@ async def cmd_live(ctx, *, args: str = ""):
         embed.description = (
             "**Le live vient de démarrer.**\n\n"
             f"👥 **{nb} membres** connectés en ce moment\n\n"
-            "✅ Aperçu gratuit : **3 premières minutes** disponibles sur ta carte\n"
+            "✅ Aperçu gratuit : **5 premières minutes** disponibles sur ta carte\n"
             "🔒 Live complet → membres uniquement\n\n"
             f"[🃏 Voir l'aperçu sur ma carte]({CARD_URL}/?tab=live)  ·  [🚀 Rejoindre Focus]({JOIN_URL})"
         )
-        embed.set_footer(text="Après 3 min, le live continue uniquement pour les membres.")
+        embed.set_footer(text="Après 5 min, le live continue uniquement pour les membres.")
         msg = await apercu_ch.send(embed=embed)
         apercu_msg_id = msg.id
 
@@ -215,14 +215,14 @@ async def cmd_live(ctx, *, args: str = ""):
     print(f"[BOT] Live démarré : {title}")
 
 async def post_cutoff(channel, title: str):
-    """Poste le message de coupure 3 min après le début du live."""
-    await asyncio.sleep(180)  # 3 minutes
+    """Poste le message de coupure 5 min après le début du live."""
+    await asyncio.sleep(300)  # 5 minutes
     embed = discord.Embed(
-        title="⛔ Aperçu terminé",
+        title="⛔ Aperçu terminé — 5 minutes écoulées",
         color=0x333333
     )
     embed.description = (
-        f"Les **3 premières minutes** de « **{title}** » sont écoulées.\n\n"
+        f"Les **5 premières minutes** de « **{title}** » sont écoulées.\n\n"
         "**Le live continue pour les membres.**\n\n"
         f"→ [Rejoindre Focus à 9,90€/mois]({JOIN_URL})\n"
         f"→ [Obtenir ta carte fidélité]({CARD_URL})"
