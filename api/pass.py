@@ -125,7 +125,7 @@ def generate_pass(name, pts, cycle, level, serial):
     payload = json.dumps({
         "barcodeValue": member_url,
         "barcodeFormat": "PDF417",
-        "colorPreset": "dark",
+        "colorPreset": "orange",
         "title": "MENTALITE FOCUS",
         "label": name[:20],
         "value": f"{progress} pts  •  Cycle #{cycle}  •  {level}",
