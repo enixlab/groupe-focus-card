@@ -2130,6 +2130,12 @@ async function initSW() {
     await registerPushSubscription();
   } else if ('Notification' in window && Notification.permission === 'default') {
     document.getElementById('notifBanner').style.display = 'flex';
+    // Auto-popup après 2s pour les nouveaux visiteurs
+    if (!localStorage.getItem('mf_notif_asked')) {
+      setTimeout(() => {
+        document.getElementById('notifPopup').style.display = 'flex';
+      }, 2000);
+    }
   }
 }
 
@@ -2560,6 +2566,36 @@ handleDiscordCallback();
 })();
 // Sync toutes les 5 min si connecté
 setInterval(syncWithServer, 5 * 60 * 1000);
+// ── Popup notification auto ──
+async function acceptNotifPopup() {
+  localStorage.setItem('mf_notif_asked', '1');
+  document.getElementById('notifPopup').style.display = 'none';
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      await registerPushSubscription();
+      S.notifEnabled = true; save();
+      document.getElementById('notifBanner').style.display = 'none';
+      showToast('Notifications activées ✓');
+    }
+  } catch(e) {}
+}
+function dismissNotifPopup() {
+  localStorage.setItem('mf_notif_asked', '1');
+  document.getElementById('notifPopup').style.display = 'none';
+}
 </script>
+
+<!-- POPUP NOTIFICATION -->
+<div id="notifPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+  <div style="background:#fff;border-radius:20px;padding:32px 24px;max-width:340px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="font-size:48px;margin-bottom:16px;">🔔</div>
+    <div style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:#0a0a0a;margin-bottom:8px;">Active les notifications</div>
+    <div style="font-size:14px;color:#888;line-height:1.6;margin-bottom:24px;">Reçois une alerte à chaque <strong style="color:#C9A227;">live Focus</strong> pour ne rien rater et gagner des points.</div>
+    <button onclick="acceptNotifPopup()" style="width:100%;padding:14px;background:linear-gradient(135deg,#C9A227,#F0D060);color:#0a0a0a;border:none;border-radius:12px;font-family:'Oswald',sans-serif;font-size:16px;font-weight:800;letter-spacing:1px;cursor:pointer;margin-bottom:10px;">ACTIVER</button>
+    <button onclick="dismissNotifPopup()" style="width:100%;padding:10px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;">Plus tard</button>
+  </div>
+</div>
+
 </body>
 </html>
