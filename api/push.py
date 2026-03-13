@@ -22,14 +22,10 @@ def send_vapid_push(subscription, payload):
     global _last_push_error
     try:
         from pywebpush import webpush
-        from cryptography.hazmat.primitives.serialization import load_der_private_key, Encoding, PrivateFormat, NoEncryption
-        priv_der     = base64.urlsafe_b64decode(VAPID_PRIVATE_B64 + "==")
-        private_key  = load_der_private_key(priv_der, password=None)
-        priv_pem     = private_key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
         webpush(
             subscription_info=subscription,
             data=json.dumps(payload),
-            vapid_private_key=priv_pem,
+            vapid_private_key=VAPID_PRIVATE_B64,
             vapid_claims={"sub": "mailto:enix.lab.ai@gmail.com"}
         )
         return True
