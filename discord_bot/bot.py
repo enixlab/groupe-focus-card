@@ -175,43 +175,39 @@ async def cmd_live(ctx, *, args: str = ""):
     stream_url = parts[1].strip() if len(parts) > 1 else ""
 
     global current_live, apercu_msg_id
-    already_notified = current_live is not None and current_live.get("notif_sent")
 
     current_live = {
         "title":      title,
         "stream_url": stream_url,
         "start_ts":   time.time(),
         "host":       ctx.author.display_name,
-        "notif_sent": True,
     }
 
     # 1) Notifier l'API carte
     await notify_live_api("start", title=title, stream_url=stream_url)
 
-    # 2) Push notification — UNIQUEMENT si pas déjà envoyée par auto-détection
-    if not already_notified:
-        host = ctx.author.display_name
-        await send_card_push(
-            title=f"🔴 EN DIRECT — {title}",
-            body=f"Par {host} — Rejoins maintenant",
-            url="/?tab=live",
-            tier="ALL"
-        )
+    # 2) Push notification Focus Card — TOUJOURS envoyer
+    host = ctx.author.display_name
+    await send_card_push(
+        title=f"🔴 {title}",
+        body=f"Par {host} — Rejoins maintenant",
+        url="/?tab=live",
+        tier="ALL"
+    )
+    print(f"[BOT] Push envoyée : {title}")
 
     # 3) Post dans #aperçu-live
-    if not already_notified:
-        apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
-        if apercu_ch:
-            host = ctx.author.display_name
-            embed = discord.Embed(color=0xC9A227)
-            embed.description = (
-                f"🔴 **EN DIRECT MAINTENANT**\n\n"
-                f"**{title}**\n"
-                f"🎙️ Par **{host}**\n\n"
-                f"[Rejoindre le live]({JOIN_URL})"
-            )
-            msg = await apercu_ch.send(embed=embed)
-            apercu_msg_id = msg.id
+    apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
+    if apercu_ch:
+        embed = discord.Embed(color=0xC9A227)
+        embed.description = (
+            f"🔴 **EN DIRECT MAINTENANT**\n\n"
+            f"**{title}**\n"
+            f"🎙️ Par **{host}**\n\n"
+            f"[Rejoindre le live]({JOIN_URL})"
+        )
+        msg = await apercu_ch.send(embed=embed)
+        apercu_msg_id = msg.id
 
     await ctx.message.delete()
     await update_lives_channel()
@@ -626,33 +622,11 @@ async def on_voice_state_update(member, before, after):
             "stream_url": "",
             "start_ts":   time.time(),
             "host":       member.display_name,
-            "notif_sent": True,  # Marquer que la notif a été envoyée
         }
 
-        # 1) Notifier l'API carte
+        # Juste notifier l'API (pas de push — attendre !live pour le vrai titre)
         await notify_live_api("start", title=title)
-
-        # 2) Push notification (1 seule fois)
-        host = member.display_name
-        await send_card_push(
-            title=f"🔴 EN DIRECT — {title}",
-            body=f"Par {host} — Rejoins maintenant",
-            url="/?tab=live",
-            tier="ALL"
-        )
-
-        # 3) Post dans #aperçu-live
-        apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
-        if apercu_ch:
-            embed = discord.Embed(color=0xC9A227)
-            embed.description = (
-                f"🔴 **EN DIRECT MAINTENANT**\n\n"
-                f"**{title}**\n"
-                f"🎙️ Par **{host}**\n\n"
-                f"[Rejoindre le live]({JOIN_URL})"
-            )
-            msg = await apercu_ch.send(embed=embed)
-            apercu_msg_id = msg.id
+        print(f"[BOT] Auto-détection : live créé, en attente de !live pour la push")
 
     # Détecter le STOP : quitte le vocal OU arrête le stream
     just_left = was_in_voice and not now_in_voice
