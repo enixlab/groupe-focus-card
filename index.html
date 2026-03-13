@@ -714,89 +714,13 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
     </div>
 
     <!-- ═══ PAGE : LIVE ═══ -->
-    <div class="page live-page" id="page-live">
+    <div class="page live-page" id="page-live" style="padding:8px 20px 24px;">
 
-      <!-- Hero statut -->
-      <div class="live-hero" id="liveHero">
-        <div class="lh-bar"></div>
-        <div class="lh-status">
-          <div class="lh-dot" id="liveDot" style="display:none"></div>
-          <div class="lh-status-text offline" id="liveStatusText">HORS LIGNE</div>
-        </div>
-        <div class="lh-title" id="liveTitleHero">Prochains lives</div>
-        <div class="lh-sub" id="liveSubHero">Les membres Focus ont accès à tous les lives en direct et en replay.</div>
-        <div class="lh-count" id="liveCountRow" style="display:none">
-          <div class="lh-count-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <div class="lh-count-txt">Membres connectés :</div>
-          <div class="lh-count-num" id="liveCountNum">—</div>
-        </div>
-      </div>
+      <!-- Titre -->
+      <div class="section-title" style="margin-bottom:16px;">Lives <span>Focus</span></div>
 
-      <!-- Zone live info -->
-      <div class="live-preview-wrap" id="livePlayerWrap" style="display:none">
-        <div class="live-preview-box" id="livePreviewBox">
-          <div class="live-preview-overlay" id="liveInitOverlay">
-            <div class="lpo-icon"><svg width="52" height="52" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#FF3B30" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="#FF3B30"/></svg></div>
-            <div class="lpo-title">Live en cours</div>
-            <div class="lpo-sub">Réservé aux membres Focus.</div>
-            <button class="lpo-btn gold" onclick="openJoinLink()">REJOINDRE FOCUS — 9,90€/MOIS</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Résumé du dernier live -->
-      <div class="live-summary" id="liveSummaryBlock" style="display:none">
-        <div class="ls-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="margin-right:6px;vertical-align:-2px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Résumé — dernier live</div>
-        <div id="liveSummaryItems"></div>
-        <div class="ls-lock"><span class="ls-lock-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> Replay complet réservé aux membres Focus</div>
-        <button style="width:100%;margin-top:14px;background:var(--black);color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;" onclick="openJoinLink()">Voir le replay complet</button>
-      </div>
-
-      <!-- Prochain live (si pas de live en cours) -->
-      <div class="live-next" id="liveNextBlock">
-        <div class="ln-label">Prochain live</div>
-        <div class="ln-title" id="liveNextTitle">Live Focus — Ce soir</div>
-        <div class="ln-date" id="liveNextDate">Presque tous les soirs · Groupe Focus</div>
-        <button class="ln-notif-btn" id="liveNotifBtn" onclick="subscribeToLiveNotifs()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Me notifier quand ça commence
-        </button>
-      </div>
-
-      <!-- Ce que tu rates -->
-      <div style="padding:16px 20px 0;">
-        <div class="section-title">Ce que les membres <span>ont</span></div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:#FF3B30;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></div>
-            <div>
-              <div style="font-size:13px;font-weight:700;">Live complet en direct</div>
-              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Accès illimité à tous les lives · Networking, Business & E-commerce</div>
-            </div>
-          </div>
-          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:var(--black);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
-            <div>
-              <div style="font-size:13px;font-weight:700;">Tous les replays</div>
-              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Chaque live précédent disponible à tout moment · illimité</div>
-            </div>
-          </div>
-          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:#5865F2;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-            <div>
-              <div style="font-size:13px;font-weight:700;">Communauté + Q&A en direct</div>
-              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Chat membres · Questions répondues pendant les lives</div>
-            </div>
-          </div>
-          <div style="background:var(--grey4);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:var(--gold2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
-            <div>
-              <div style="font-size:13px;font-weight:700;">Ressources exclusives</div>
-              <div style="font-size:11px;color:var(--grey);margin-top:2px;">Replays · Communauté · Outils · Accès membres uniquement</div>
-            </div>
-          </div>
-          <button style="width:100%;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:900;cursor:pointer;margin-top:4px;letter-spacing:.5px;font-family:'Oswald',sans-serif;" onclick="openJoinLink()">REJOINDRE FOCUS — 9,90€/MOIS</button>
-        </div>
-      </div>
+      <!-- Lives chargés dynamiquement -->
+      <div id="livePageList"></div>
 
     </div>
 
@@ -1233,26 +1157,61 @@ function render() {
 function renderLives() {
   const el = document.getElementById('livesList');
   if (!LIVES.length) {
-    el.innerHTML = '<div class="empty-state">Aucun live pour le moment. Les lives apparaîtront ici automatiquement.</div>';
+    el.innerHTML = '<div class="empty-state">Aucun live pour le moment.</div>';
     return;
   }
-  el.innerHTML = LIVES.map(l => {
-    const watched = S.watchedLives.includes(l.id);
-    const lbl     = l.status === 'live' ? 'EN DIRECT' : l.status === 'scheduled' ? 'BIENTÔT' : 'REPLAY';
-    const date    = new Date(l.ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-    const viewers = l.viewers > 0 ? `${l.viewers} pers.` : '';
-    return `<div class="live-item ${watched?'done':''}" onclick="watchLive('${l.id}')">
-      <div class="live-dot ${l.status}"></div>
-      <div class="live-info">
-        <div class="live-title">${l.title}</div>
-        <div class="live-meta">${l.host} · ${date}${viewers?' · '+viewers:''}</div>
+
+  // Séparer : en direct, à venir, terminés
+  const live = LIVES.filter(l => l.status === 'live');
+  const scheduled = LIVES.filter(l => l.status === 'scheduled');
+  const ended = LIVES.filter(l => l.status === 'ended');
+  const watched = id => S.watchedLives.includes(id);
+
+  let html = '';
+
+  // EN DIRECT — gros bouton cliquable qui redirige vers Discord
+  live.forEach(l => {
+    html += `<div onclick="watchLive('${l.id}')" style="background:linear-gradient(135deg,#C9A227,#F0D060);border-radius:16px;padding:20px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:14px;">
+      <div style="width:12px;height:12px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:700;color:rgba(0,0,0,.5);letter-spacing:3px;">🔴 EN DIRECT</div>
+        <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:#0a0a0a;margin-top:4px;">${l.title}</div>
+        <div style="font-size:13px;color:rgba(0,0,0,.6);margin-top:2px;">🎙️ ${l.host}</div>
       </div>
-      <div class="live-row-end">
-        <div class="live-badge ${l.status}${watched?' done':''}">${watched?'✓ VU':lbl}</div>
-        ${l.status==='scheduled'?`<button class="live-notify-btn ${S.notifications.find(n=>n.liveId===l.id)?'active':''}" onclick="setLiveAlert(event,'${l.id}')" style="display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>`:''}
-      </div>
+      <div style="background:#0a0a0a;color:#fff;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:800;letter-spacing:1px;white-space:nowrap;">REJOINDRE →</div>
     </div>`;
-  }).join('');
+  });
+
+  // À VENIR
+  scheduled.forEach(l => {
+    const d = new Date(l.ts);
+    const dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    html += `<div style="background:#fff;border:1px solid var(--grey3);border-radius:14px;padding:16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
+      <div style="width:10px;height:10px;border-radius:50%;background:#C9A227;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:700;color:var(--black);">${l.title}</div>
+        <div style="font-size:12px;color:var(--grey);margin-top:2px;">🎙️ ${l.host} · 📅 ${dateStr}</div>
+      </div>
+      <div style="background:var(--grey4);color:var(--gold);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:1px;">BIENTÔT</div>
+    </div>`;
+  });
+
+  // TERMINÉS
+  ended.forEach(l => {
+    const d = new Date(l.ts);
+    const dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+    const isWatched = watched(l.id);
+    html += `<div style="background:${isWatched?'#f8f8f5':'#fff'};border:1px solid var(--grey3);border-radius:14px;padding:14px 16px;margin-bottom:6px;display:flex;align-items:center;gap:12px;${isWatched?'opacity:.6;':''}">
+      <div style="width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:var(--black);">${l.title}</div>
+        <div style="font-size:11px;color:var(--grey);margin-top:2px;">🎙️ ${l.host} · ${dateStr}</div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:${isWatched?'var(--green)':'var(--grey)'};letter-spacing:1px;">${isWatched?'✓ VU':'TERMINÉ'}</div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
 }
 
 function renderRewards() {
@@ -2186,67 +2145,98 @@ async function getFingerprint() {
 
 // ── Charger l'état du live (appelé au chargement de la page Live) ──────────
 async function loadLivePage() {
+  const el = document.getElementById('livePageList');
+  el.innerHTML = '<div style="text-align:center;color:var(--grey);padding:40px 0;">Chargement...</div>';
   try {
-    const res  = await fetch('/api/live');
-    liveState  = await res.json();
-    renderLivePage(liveState);
-    // Badge dans la nav
+    const res = await fetch('/api/live');
+    const data = await res.json();
+    const current = data.current || {};
+    const history = data.history || [];
+
+    // Badge nav
     const badge = document.getElementById('badgeLive');
-    if (liveState && liveState.active) {
+    if (current.active) {
       badge.textContent = ''; badge.style.display = 'flex';
       badge.style.width = '8px'; badge.style.height = '8px'; badge.style.padding = '0';
       document.getElementById('navLiveLabel').style.color = 'var(--red)';
     } else {
       badge.style.display = 'none';
+      document.getElementById('navLiveLabel').style.color = '';
     }
+
+    // Séparer les lives
+    const livesNow = current.active ? [current] : [];
+    const scheduled = history.filter(l => l.status === 'scheduled').sort((a,b) => a.started_at - b.started_at);
+    const ended = history.filter(l => l.status === 'ended').sort((a,b) => b.ended_at - a.ended_at);
+
+    let html = '';
+
+    // EN DIRECT
+    if (livesNow.length) {
+      html += '<div style="font-family:Oswald,sans-serif;font-size:13px;font-weight:700;color:var(--red);letter-spacing:3px;margin-bottom:10px;">🔴 EN DIRECT</div>';
+      livesNow.forEach(l => {
+        html += `<div onclick="watchLive('live_now')" style="background:linear-gradient(135deg,#C9A227,#F0D060);border-radius:16px;padding:20px;margin-bottom:16px;cursor:pointer;display:flex;align-items:center;gap:14px;">
+          <div style="width:14px;height:14px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-family:Oswald,sans-serif;font-size:20px;font-weight:700;color:#0a0a0a;">${l.title || 'Live Focus'}</div>
+            <div style="font-size:13px;color:rgba(0,0,0,.6);margin-top:4px;">🎙️ ${l.host || 'Focus'}</div>
+          </div>
+          <div style="background:#0a0a0a;color:#fff;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:800;letter-spacing:1px;white-space:nowrap;">REJOINDRE →</div>
+        </div>`;
+      });
+    }
+
+    // À VENIR
+    if (scheduled.length) {
+      html += '<div style="font-family:Oswald,sans-serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:3px;margin:8px 0 10px;">📅 À VENIR</div>';
+      scheduled.forEach(l => {
+        const d = new Date((l.scheduled_at || l.started_at) * 1000);
+        const dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+        html += `<div style="background:#fff;border:1px solid var(--grey3);border-radius:14px;padding:16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;color:var(--black);">${l.title}</div>
+            <div style="font-size:12px;color:var(--grey);margin-top:2px;">🎙️ ${l.host || 'Focus'} · 📅 ${dateStr}</div>
+          </div>
+          <div style="background:var(--grey4);color:var(--gold);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:1px;">BIENTÔT</div>
+        </div>`;
+      });
+    }
+
+    // TERMINÉS
+    if (ended.length) {
+      html += '<div style="font-family:Oswald,sans-serif;font-size:13px;font-weight:700;color:var(--grey);letter-spacing:3px;margin:16px 0 10px;">TERMINÉS</div>';
+      ended.forEach(l => {
+        const d = new Date((l.ended_at || l.started_at) * 1000);
+        const dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+        html += `<div style="background:#fff;border:1px solid var(--grey3);border-radius:14px;padding:14px 16px;margin-bottom:6px;display:flex;align-items:center;gap:12px;opacity:.6;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--black);">${l.title}</div>
+            <div style="font-size:11px;color:var(--grey);margin-top:2px;">🎙️ ${l.host || 'Focus'} · ${dateStr}</div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--grey);letter-spacing:1px;">TERMINÉ</div>
+        </div>`;
+      });
+    }
+
+    // Aucun live
+    if (!livesNow.length && !scheduled.length && !ended.length) {
+      html = '<div style="text-align:center;color:var(--grey);padding:60px 0;font-size:15px;">Aucun live pour le moment.<br><span style="font-size:13px;color:var(--gold);">Rejoins le Discord pour être notifié.</span></div>';
+    }
+
+    // Bouton Discord en bas
+    html += `<div style="margin-top:20px;text-align:center;">
+      <a href="https://discord.gg/NZ56mPMJ" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;letter-spacing:1px;">
+        <svg width="18" height="14" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.4 37.4 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 5 59.6 59.6 0 00.4 45a.3.3 0 00.1.2 58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42.1 42.1 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4c.4-.3.7-.6 1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.6.2.2 0 00-.1.4 47.2 47.2 0 003.6 5.8.2.2 0 00.3.1A58.7 58.7 0 0070 45.2a.3.3 0 00.1-.2c1.6-16.7-2.7-31.2-11.4-44.1zM23.7 37c-3.8 0-7-3.5-7-7.8s3.1-7.8 7-7.8 7.1 3.5 7 7.8c0 4.3-3.1 7.8-7 7.8zm25.8 0c-3.9 0-7-3.5-7-7.8s3-7.8 7-7.8 7 3.5 7 7.8c0 4.3-3.1 7.8-7 7.8z"/></svg>
+        REJOINDRE LE DISCORD
+      </a>
+    </div>`;
+
+    el.innerHTML = html;
   } catch(e) {
     console.warn('Live API error:', e);
-  }
-}
-
-function renderLivePage(live) {
-  const isActive = live && live.active;
-
-  // Hero
-  const dot        = document.getElementById('liveDot');
-  const statusTxt  = document.getElementById('liveStatusText');
-  const titleHero  = document.getElementById('liveTitleHero');
-  const subHero    = document.getElementById('liveSubHero');
-  const countRow   = document.getElementById('liveCountRow');
-  const playerWrap = document.getElementById('livePlayerWrap');
-  const paywall    = document.getElementById('livePaywall');
-  const nextBlock  = document.getElementById('liveNextBlock');
-  const summaryBlk = document.getElementById('liveSummaryBlock');
-
-  if (isActive) {
-    dot.style.display = 'block';
-    statusTxt.textContent = 'LIVE EN COURS';
-    statusTxt.classList.remove('offline');
-    titleHero.textContent = live.title || 'Live Mentalité Focus';
-    subHero.textContent = 'Un live est en cours maintenant.';
-    countRow.style.display = 'flex';
-    playerWrap.style.display = 'block';
-    nextBlock.style.display = 'none';
-    summaryBlk.style.display = 'none';
-
-  } else {
-    dot.style.display = 'none';
-    statusTxt.textContent = 'HORS LIGNE';
-    statusTxt.classList.add('offline');
-    titleHero.textContent = 'Prochain live';
-    subHero.textContent = 'Les lives ont lieu presque tous les soirs. Active les notifications pour ne rien rater.';
-    countRow.style.display = 'none';
-    playerWrap.style.display = 'none';
-    paywall.style.display = 'none';
-    nextBlock.style.display = 'block';
-
-    // Afficher résumé si disponible (dans le live.json)
-    if (live && live.last_summary) {
-      summaryBlk.style.display = 'block';
-      const container = document.getElementById('liveSummaryItems');
-      container.innerHTML = (live.last_summary || [])
-        .map(p => `<div class="ls-item">${p}</div>`).join('');
-    }
+    el.innerHTML = '<div style="text-align:center;color:var(--grey);padding:40px 0;">Erreur de chargement.</div>';
   }
 }
 
