@@ -1079,11 +1079,12 @@ function render() {
   renderLives();
   renderRewards();
   renderHistory();
-  // Notif banner
-  if ('Notification' in window && Notification.permission === 'default') {
-    document.getElementById('notifBanner').style.display = 'flex';
+  // Notif banner — toujours afficher si pas encore autorisé
+  const notifB = document.getElementById('notifBanner');
+  if ('Notification' in window && Notification.permission === 'granted') {
+    notifB.style.display = 'none';
   } else {
-    document.getElementById('notifBanner').style.display = 'none';
+    notifB.style.display = 'flex';
   }
 }
 
@@ -1373,14 +1374,23 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 async function requestNotifPermission() {
-  if (!('Notification' in window)) { showToast('Notifications non supportées'); return; }
+  // Sur iOS, les notifications ne marchent qu'en mode PWA (ajouté à l'écran d'accueil)
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (!('Notification' in window)) {
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !isStandalone) {
+      showToast('Ajoute la carte sur ton ecran d\'accueil d\'abord (Partager → Ecran d\'accueil)');
+    } else {
+      showToast('Notifications non supportees sur ce navigateur');
+    }
+    return;
+  }
   const perm = await Notification.requestPermission();
   if (perm === 'granted') {
     document.getElementById('notifBanner').style.display = 'none';
-    showToast('Notifications activées ✓');
+    showToast('Notifications activees ✓');
     await registerPushSubscription();
   } else {
-    showToast('Permission refusée');
+    showToast('Permission refusee');
   }
 }
 
