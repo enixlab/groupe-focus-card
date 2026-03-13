@@ -529,7 +529,7 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
       </div>
     </div>
     <div onclick="watchLive('live_now')" style="background:#0a0a0a;color:#fff;padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap;cursor:pointer;">REJOINDRE →</div>
-    <div id="endLiveBtnBanner" onclick="event.stopPropagation();endLiveNow()" style="display:none;background:#FF3B30;color:#fff;padding:8px 12px;border-radius:10px;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap;cursor:pointer;margin-left:4px;">CLÔTURER</div>
+    <div id="endLiveBtnBanner" onclick="event.stopPropagation();endLiveNow()" style="display:none;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.15);color:rgba(0,0,0,.5);font-size:14px;font-weight:900;cursor:pointer;align-items:center;justify-content:center;margin-left:4px;">✕</div>
   </div>
 
   <div class="scroll">
@@ -2264,7 +2264,7 @@ async function loadLivePage() {
     if (livesNow.length) {
       html += '<div style="font-family:Oswald,sans-serif;font-size:13px;font-weight:700;color:var(--red);letter-spacing:3px;margin-bottom:10px;">🔴 EN DIRECT</div>';
       livesNow.forEach(l => {
-        const adminBtn = isAppAdmin() ? `<div onclick="event.stopPropagation();endLiveNow()" style="background:#FF3B30;color:#fff;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:800;letter-spacing:1px;white-space:nowrap;cursor:pointer;margin-top:8px;">CLÔTURER LE LIVE</div>` : '';
+        const adminBtn = isAppAdmin() ? `<div onclick="event.stopPropagation();endLiveNow()" style="text-align:center;margin-top:10px;font-size:12px;color:rgba(0,0,0,.4);cursor:pointer;text-decoration:underline;">Terminer le live</div>` : '';
         html += `<div style="background:linear-gradient(135deg,#C9A227,#F0D060);border-radius:16px;padding:20px;margin-bottom:16px;">
           <div onclick="watchLive('live_now')" style="display:flex;align-items:center;gap:14px;cursor:pointer;">
             <div style="width:14px;height:14px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
@@ -2337,6 +2337,14 @@ function loadRadar() {
   if (radarActive) {
     sw.classList.add('on');
     fetchNearby();
+    // Auto-refresh toutes les 15 secondes
+    if (!window._radarInterval) {
+      window._radarInterval = setInterval(() => {
+        if (radarActive && document.getElementById('page-radar').classList.contains('active')) {
+          fetchNearby();
+        }
+      }, 15000);
+    }
   }
 }
 
@@ -2582,7 +2590,7 @@ async function checkLiveBadge() {
         document.getElementById('liveBannerHost').textContent = current.host || 'Focus';
         // Bouton clôturer pour admin
         const endBtn = document.getElementById('endLiveBtnBanner');
-        if (endBtn) endBtn.style.display = isAppAdmin() ? 'block' : 'none';
+        if (endBtn) endBtn.style.display = isAppAdmin() ? 'flex' : 'none';
       }
     } else {
       // Pas de live → masquer banner et badge
