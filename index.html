@@ -631,9 +631,11 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
         <div class="stat-box"><div class="sb-val" id="statCycles">0</div><div class="sb-label">Cycles</div></div>
       </div>
 
-      <!-- LIVES -->
-      <div class="section-title">Lives du <span>groupe</span></div>
-      <div class="lives-list" id="livesList"></div>
+      <!-- LIVES (masqué si pas connecté Discord) -->
+      <div id="livesSection" style="display:none;">
+        <div class="section-title">Lives du <span>groupe</span></div>
+        <div class="lives-list" id="livesList"></div>
+      </div>
 
     </div>
 
@@ -1152,7 +1154,8 @@ function render() {
   // Unread notifs
   const unread = S.notifications.filter(n => !n.read).length;
   document.getElementById('notifRed').style.display = unread > 0 ? 'block' : 'none';
-  // Lives
+  // Lives — masquer si pas connecté Discord
+  document.getElementById('livesSection').style.display = S.discord_name ? 'block' : 'none';
   renderLives();
   renderRewards();
   renderHistory();
@@ -2199,6 +2202,15 @@ async function getFingerprint() {
 // ── Charger l'état du live (appelé au chargement de la page Live) ──────────
 async function loadLivePage() {
   const el = document.getElementById('livePageList');
+  if (!S.discord_name) {
+    el.innerHTML = `<div style="text-align:center;padding:60px 20px;">
+      <div style="font-size:48px;margin-bottom:16px;">🔗</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--black);margin-bottom:8px;">Connecte ton Discord</div>
+      <div style="font-size:14px;color:var(--grey);line-height:1.6;margin-bottom:20px;">Connecte ton compte Discord pour accéder aux lives du groupe Focus.</div>
+      <button onclick="goPage('carte',document.querySelector('.nav-btn'));connectDiscord()" style="background:linear-gradient(135deg,#5865F2,#4752C4);color:#fff;border:none;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">Connecter Discord</button>
+    </div>`;
+    return;
+  }
   el.innerHTML = '<div style="text-align:center;color:var(--grey);padding:40px 0;">Chargement...</div>';
   try {
     const res = await fetch('/api/live');
