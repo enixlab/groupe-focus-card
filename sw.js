@@ -23,8 +23,8 @@ self.addEventListener('push', e => {
   };
   e.waitUntil(self.registration.showNotification(d.title, {
     body: d.body,
-    icon: '/manifest.json',
-    badge: '/manifest.json',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     vibrate: [300, 100, 300, 100, 600],
     tag: d.tag || 'focus-notif',
     renotify: true,
