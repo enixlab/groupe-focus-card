@@ -40,7 +40,8 @@ def discord_exchange_code(code):
     }).encode()
     req = urllib.request.Request(
         "https://discord.com/api/oauth2/token", data=data,
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
+        headers={"Content-Type": "application/x-www-form-urlencoded",
+                 "User-Agent": "Mozilla/5.0 (compatible; FocusCard/1.0)"}
     )
     try:
         with urllib.request.urlopen(req) as r:
@@ -52,7 +53,8 @@ def discord_exchange_code(code):
 def discord_get_user(access_token):
     req = urllib.request.Request(
         "https://discord.com/api/users/@me",
-        headers={"Authorization": f"Bearer {access_token}"}
+        headers={"Authorization": f"Bearer {access_token}",
+                 "User-Agent": "Mozilla/5.0 (compatible; FocusCard/1.0)"}
     )
     with urllib.request.urlopen(req) as r:
         return json.loads(r.read())
