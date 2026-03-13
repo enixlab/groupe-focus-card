@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus — Présentation</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:#ffffff;color:#1a1400;font-family:'Inter',sans-serif;}
+
+.slides{width:100%;height:100vh;position:relative;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .8s ease;pointer-events:none;}
+.slide.active{opacity:1;pointer-events:all;}
+
+/* Gold accents */
+.gold{color:#C9A227;}
+.gold-line{position:absolute;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,#C9A227,#F0D060,#C9A227,transparent);}
+.gold-line.top{top:0;}
+.gold-line.bottom{bottom:0;}
+
+/* SLIDE 1 — TITRE */
+.s1-f{font-family:'Oswald',sans-serif;font-size:180px;font-weight:900;color:#C9A227;letter-spacing:15px;line-height:1;margin-bottom:20px;}
+.s1-sub{font-size:28px;font-weight:700;letter-spacing:8px;color:#8B7530;text-transform:uppercase;margin-bottom:50px;}
+.s1-sep{width:400px;height:2px;background:linear-gradient(90deg,transparent,#C9A227,transparent);margin-bottom:50px;}
+.s1-msg{font-family:'Oswald',sans-serif;font-size:52px;font-weight:700;color:#1a1400;letter-spacing:2px;}
+.s1-hint{font-size:18px;color:#A08840;margin-top:40px;letter-spacing:3px;}
+
+/* SLIDE 2 — QR CODES */
+.s2-title{font-family:'Oswald',sans-serif;font-size:56px;font-weight:900;color:#C9A227;letter-spacing:8px;margin-bottom:50px;}
+.qr-row{display:flex;gap:120px;align-items:flex-start;}
+.qr-card{background:#f5f0e0;border:2px solid #C9A227;border-radius:24px;padding:40px 50px;display:flex;flex-direction:column;align-items:center;gap:20px;min-width:380px;}
+.qr-box{background:#fff;padding:18px;border-radius:12px;}
+.qr-box canvas{display:block;}
+.qr-num{font-family:'Oswald',sans-serif;font-size:40px;font-weight:900;color:#C9A227;}
+.qr-label{font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;letter-spacing:3px;color:#1a1400;}
+.qr-desc{text-align:center;color:#6B5520;font-size:16px;line-height:1.8;}
+.qr-url{font-size:12px;color:#A08840;margin-top:10px;letter-spacing:1px;}
+.qr-arrow{font-size:80px;color:#C9A227;align-self:center;margin-top:80px;}
+.s2-bottom{font-size:18px;color:#8B7530;margin-top:50px;letter-spacing:2px;}
+
+/* SLIDE 3 — QUESTIONS */
+.s3-f{font-family:'Oswald',sans-serif;font-size:120px;font-weight:900;color:#C9A227;letter-spacing:10px;margin-bottom:30px;}
+.s3-q{font-family:'Oswald',sans-serif;font-size:72px;font-weight:900;color:#1a1400;letter-spacing:4px;margin-bottom:30px;}
+.s3-sep{width:300px;height:2px;background:linear-gradient(90deg,transparent,#C9A227,transparent);margin-bottom:40px;}
+.s3-lines{text-align:center;color:#6B5520;font-size:22px;line-height:2;}
+.s3-lines strong{color:#C9A227;}
+.s3-qr-row{display:flex;gap:60px;margin-top:50px;}
+.s3-qr{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.s3-qr-box{background:#fff;padding:10px;border-radius:8px;}
+.s3-qr-label{font-size:13px;color:#8B7530;}
+
+/* NAV */
+.nav{position:fixed;bottom:30px;right:40px;display:flex;gap:12px;z-index:100;}
+.nav-dot{width:14px;height:14px;border-radius:50%;background:#d4c8a0;cursor:pointer;transition:all .3s;}
+.nav-dot.active{background:#C9A227;transform:scale(1.3);}
+.nav-hint{position:fixed;bottom:30px;left:40px;font-size:13px;color:#b0a070;letter-spacing:1px;}
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 768px) {
+  .s1-f{font-size:72px;letter-spacing:6px;}
+  .s1-sub{font-size:14px;letter-spacing:4px;margin-bottom:24px;}
+  .s1-sep{width:200px;margin-bottom:24px;}
+  .s1-msg{font-size:22px;letter-spacing:1px;padding:0 20px;text-align:center;}
+  .s1-hint{font-size:12px;letter-spacing:2px;margin-top:24px;}
+
+  .s2-title{font-size:32px;letter-spacing:4px;margin-bottom:24px;}
+  .qr-row{flex-direction:column;gap:20px;align-items:center;padding:0 16px;}
+  .qr-card{min-width:auto;width:85vw;max-width:340px;padding:20px 24px;gap:12px;}
+  .qr-arrow{display:none;}
+  .qr-num{font-size:28px;}
+  .qr-label{font-size:18px;letter-spacing:2px;}
+  .qr-desc{font-size:13px;line-height:1.6;}
+  .qr-url{font-size:11px;}
+  .s2-bottom{font-size:13px;margin-top:20px;}
+
+  .s3-f{font-size:56px;letter-spacing:4px;margin-bottom:16px;}
+  .s3-q{font-size:32px;letter-spacing:2px;margin-bottom:16px;}
+  .s3-sep{width:160px;margin-bottom:20px;}
+  .s3-lines{font-size:15px;line-height:1.8;padding:0 20px;}
+  .s3-qr-row{gap:30px;margin-top:24px;}
+
+  .nav{bottom:16px;right:20px;}
+  .nav-hint{bottom:16px;left:20px;font-size:11px;}
+}
+
+@media (max-width: 480px) {
+  .s1-f{font-size:52px;}
+  .s1-msg{font-size:18px;}
+  .s2-title{font-size:26px;}
+  .qr-card{padding:16px 18px;}
+  .s3-f{font-size:40px;}
+  .s3-q{font-size:24px;}
+  .s3-lines{font-size:13px;}
+}
+
+/* Slide 2 scroll on small screens */
+@media (max-height: 700px) {
+  .slide{overflow-y:auto;justify-content:flex-start;padding:30px 0;}
+}
+</style>
+</head>
+<body>
+
+<div class="slides" id="slides">
+
+  <!-- SLIDE 1 : TITRE -->
+  <div class="slide active" id="s1">
+    <div class="gold-line top"></div>
+    <div class="s1-f">FOCUS</div>
+    <div class="s1-sub">Votre carte de fidélité digitale</div>
+    <div class="s1-sep"></div>
+    <div class="s1-msg">2 QR Codes. 30 secondes. C'est tout.</div>
+    <div class="s1-hint">SCANNEZ — AJOUTEZ — PROFITEZ</div>
+    <div class="gold-line bottom"></div>
+  </div>
+
+  <!-- SLIDE 2 : QR CODES -->
+  <div class="slide" id="s2">
+    <div class="gold-line top"></div>
+    <div class="s2-title">SCANNEZ</div>
+    <div class="qr-row">
+      <div class="qr-card">
+        <div class="qr-num">①</div>
+        <div class="qr-box"><canvas id="qr1"></canvas></div>
+        <div class="qr-label">DISCORD</div>
+        <div class="qr-desc">
+          Rejoignez le serveur Focus<br>
+          Connectez votre compte<br>
+          Accédez aux lives en direct
+        </div>
+        <div class="qr-url">discord.gg/NZ56mPMJ</div>
+      </div>
+
+      <div class="qr-arrow">→</div>
+
+      <div class="qr-card">
+        <div class="qr-num">②</div>
+        <div class="qr-box"><canvas id="qr2"></canvas></div>
+        <div class="qr-label">CARTE FOCUS</div>
+        <div class="qr-desc">
+          Ajoutez la carte dans votre Wallet<br>
+          Installez l'app sur votre écran<br>
+          Radar · Lives · Points · Rewards
+        </div>
+        <div class="qr-url">groupe-focus-card.vercel.app</div>
+      </div>
+    </div>
+    <div class="s2-bottom">Tout le reste est intuitif. Explorez.</div>
+    <div class="gold-line bottom"></div>
+  </div>
+
+  <!-- SLIDE 3 : QUESTIONS -->
+  <div class="slide" id="s3">
+    <div class="gold-line top"></div>
+    <div class="s3-f">FOCUS</div>
+    <div class="s3-q">DES QUESTIONS ?</div>
+    <div class="s3-sep"></div>
+    <div class="s3-lines">
+      Tout est déjà sur votre téléphone.<br>
+      <strong>Carte · Wallet · Lives · Radar · Points · Rewards</strong><br><br>
+      On est là pour répondre.
+    </div>
+    <div class="gold-line bottom"></div>
+  </div>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-dot active" onclick="go(0)"></div>
+  <div class="nav-dot" onclick="go(1)"></div>
+  <div class="nav-dot" onclick="go(2)"></div>
+</div>
+<div class="nav-hint">← → ou clic pour naviguer</div>
+
+<script>
+// QR codes
+function genQR(canvasId, url, size) {
+  var qr = qrcode(0, 'H');
+  qr.addData(url);
+  qr.make();
+  var c = document.getElementById(canvasId);
+  var ctx = c.getContext('2d');
+  var count = qr.getModuleCount();
+  var cellSize = Math.floor(size / count);
+  c.width = cellSize * count;
+  c.height = cellSize * count;
+  for (var row = 0; row < count; row++) {
+    for (var col = 0; col < count; col++) {
+      ctx.fillStyle = qr.isDark(row, col) ? '#1a1400' : '#ffffff';
+      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+    }
+  }
+}
+
+var qrSize = window.innerWidth < 768 ? 160 : 240;
+genQR('qr1', 'https://discord.gg/NZ56mPMJ', qrSize);
+genQR('qr2', 'https://groupe-focus-card.vercel.app', qrSize);
+
+// Navigation
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.nav-dot');
+
+function go(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') go(current + 1);
+  if (e.key === 'ArrowLeft') go(current - 1);
+});
+
+document.addEventListener('click', e => {
+  if (e.target.closest('.nav-dot')) return;
+  if (e.clientX > window.innerWidth / 2) go(current + 1);
+  else go(current - 1);
+});
+
+// Swipe tactile
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>50){dx<0?go(current+1):go(current-1);}
+},{passive:true});
+</script>
+</body>
+</html>
