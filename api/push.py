@@ -16,7 +16,10 @@ VAPID_PRIVATE_B64 = os.environ.get("VAPID_PRIVATE_KEY", "MIGHAgEAMBMGByqGSM49AgE
 
 TIERS_ORDER = {"MEMBRE":1,"ACTIF":2,"AVANCÉ":3,"EXPERT":4,"ÉLITE":5}
 
+_last_push_error = ""
+
 def send_vapid_push(subscription, payload):
+    global _last_push_error
     try:
         from pywebpush import webpush
         from cryptography.hazmat.primitives.serialization import load_der_private_key, Encoding, PrivateFormat, NoEncryption
@@ -30,7 +33,9 @@ def send_vapid_push(subscription, payload):
             vapid_claims={"sub": "mailto:enix.lab.ai@gmail.com"}
         )
         return True
-    except: return False
+    except Exception as e:
+        _last_push_error = str(e)[:200]
+        return False
 
 def push_to_all(title, body, url="/", tier_filter="ALL"):
     subs, _ = _db.load("subscriptions.json", [])
@@ -43,6 +48,8 @@ def push_to_all(title, body, url="/", tier_filter="ALL"):
         clean = {k:v for k,v in sub.items() if k in ["endpoint","keys","expirationTime"]}
         if send_vapid_push(clean, payload): results["sent"] += 1
         else: results["failed"] += 1
+    if _last_push_error:
+        results["last_error"] = _last_push_error
     return results
 
 class handler(BaseHTTPRequestHandler):
