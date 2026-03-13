@@ -8,7 +8,8 @@
     { "src": "icon-192.png",  "use": "@vercel/static" },
     { "src": "icon-512.png",  "use": "@vercel/static" },
     { "src": "apple-touch-icon.png", "use": "@vercel/static" },
-    { "src": "api/*.py",      "use": "@vercel/python" }
+    { "src": "api/*.py",      "use": "@vercel/python" },
+    { "src": "presentation_focus.html", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/sw.js",        "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/" } },
@@ -25,6 +26,7 @@
     { "src": "/api/gpass",        "dest": "/api/gpass.py" },
     { "src": "/api/wallet_push/(.*)", "dest": "/api/wallet_push.py" },
     { "src": "/api/wallet_push", "dest": "/api/wallet_push.py" },
+    { "src": "/presentation_focus.html", "dest": "/presentation_focus.html" },
     { "src": "/(.*)",         "dest": "/index.html" }
   ]
 }
