@@ -140,15 +140,15 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
 /* ═══ OFFRES PAGE ═══ */
 .offres-page{padding:16px 20px 24px;gap:20px;}
 .offer-hero{
-  background:linear-gradient(135deg,#0a0800 0%,#1f1600 60%,#2a1e00 100%);
-  border-radius:18px;padding:20px;position:relative;overflow:hidden;
-  box-shadow:0 16px 40px rgba(0,0,0,.15),0 4px 12px rgba(201,162,39,.1);
+  background:linear-gradient(135deg,#fffdf5 0%,#f5edd0 60%,#efe3b8 100%);
+  border:1px solid var(--gold);border-radius:18px;padding:20px;position:relative;overflow:hidden;
+  box-shadow:0 8px 24px rgba(201,162,39,.12);
 }
-.offer-hero::before{content:'OFFRES';position:absolute;bottom:-12px;right:-4px;font-family:'Oswald',sans-serif;font-size:60px;font-weight:900;color:rgba(255,255,255,.03);letter-spacing:4px;}
+.offer-hero::before{content:'OFFRES';position:absolute;bottom:-12px;right:-4px;font-family:'Oswald',sans-serif;font-size:60px;font-weight:900;color:rgba(201,162,39,.06);letter-spacing:4px;}
 .oh-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold3));}
-.oh-tag{font-size:9px;font-weight:800;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
-.oh-title{font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;}
-.oh-sub{font-size:11px;color:rgba(255,255,255,.5);line-height:1.5;}
+.oh-tag{font-size:9px;font-weight:800;letter-spacing:4px;color:var(--gold2);text-transform:uppercase;margin-bottom:6px;}
+.oh-title{font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:var(--black);margin-bottom:4px;}
+.oh-sub{font-size:11px;color:var(--grey);line-height:1.5;}
 
 .offer-card{background:#fff;border:1px solid var(--grey3);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;}
 .offer-card.flash{border-color:var(--gold);background:linear-gradient(135deg,#fffdf5,#fff);}
@@ -169,11 +169,11 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
 /* ═══ CONCOURS PAGE ═══ */
 .concours-page{padding:16px 20px 24px;gap:20px;}
 .contest-card{background:#fff;border:1px solid var(--grey3);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);}
-.cc-hero{background:linear-gradient(135deg,#0a0800,#1f1600);padding:18px;position:relative;overflow:hidden;}
-.cc-hero::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.2),transparent 70%);}
+.cc-hero{background:linear-gradient(135deg,#fffdf5,#f5edd0);padding:18px;position:relative;overflow:hidden;border-bottom:1px solid rgba(201,162,39,.2);}
+.cc-hero::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.15),transparent 70%);}
 .cc-emoji{font-size:32px;margin-bottom:6px;}
-.cc-title{font-family:'Oswald',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:.5px;margin-bottom:2px;}
-.cc-prize{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:1px;}
+.cc-title{font-family:'Oswald',sans-serif;font-size:18px;font-weight:900;color:var(--black);letter-spacing:.5px;margin-bottom:2px;}
+.cc-prize{font-size:11px;color:var(--gold2);font-weight:700;letter-spacing:1px;}
 .cc-body{padding:14px;}
 .cc-desc{font-size:12px;color:var(--grey);line-height:1.6;margin-bottom:12px;}
 .cc-how{background:var(--grey4);border-radius:10px;padding:12px;}
