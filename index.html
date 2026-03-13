@@ -1149,7 +1149,12 @@ function render() {
   if (S.discord_name) {
     document.getElementById('discordBanner').style.display    = 'none';
     document.getElementById('discordConnected').style.display = 'flex';
-    document.getElementById('dcAvatar').textContent           = S.discord_name.slice(0,2).toUpperCase();
+    const dcAv = document.getElementById('dcAvatar');
+    if (S.discord_avatar && S.discord_id) {
+      dcAv.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${S.discord_id}/${S.discord_avatar}.png?size=72" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${S.discord_name.slice(0,2).toUpperCase()}'">`;
+    } else {
+      dcAv.textContent = S.discord_name.slice(0,2).toUpperCase();
+    }
     document.getElementById('dcName').textContent             = S.discord_name;
     document.getElementById('cfDiscord').style.display        = 'flex';
     document.getElementById('cfDiscordName').textContent      = S.discord_name;
@@ -2395,7 +2400,7 @@ async function registerPosition(lat, lng) {
         action: 'register',
         discord_id: S.discord_id || 'anon',
         name: S.discord_name || S.name || 'Membre',
-        avatar: S.discord_avatar || '',
+        avatar: (S.discord_avatar && S.discord_id) ? `https://cdn.discordapp.com/avatars/${S.discord_id}/${S.discord_avatar}.png?size=128` : '',
         tier: getTier(S.pts).name || 'MEMBRE',
         lat, lng
       })
