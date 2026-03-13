@@ -487,12 +487,22 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
         </div>
       </div>
 
+      <!-- INSTALL PWA BANNER (iOS Safari) -->
+      <div class="notif-banner" id="installBanner" style="display:none">
+        <div class="nb-icon" style="font-size:24px;">📲</div>
+        <div class="nb-body">
+          <div class="nb-title">Installe la carte sur ton tel</div>
+          <div class="nb-sub">Appuie sur <strong style="font-size:16px;">⬆️</strong> en bas de Safari puis <strong>"Sur l'ecran d'accueil"</strong></div>
+        </div>
+        <button class="nb-btn" onclick="document.getElementById('installBanner').style.display='none';localStorage.setItem('mf4_install_dismissed','1')">OK</button>
+      </div>
+
       <!-- NOTIF BANNER -->
       <div class="notif-banner" id="notifBanner" style="display:none">
         <div class="nb-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
         <div class="nb-body">
           <div class="nb-title">Ne rate aucun live</div>
-          <div class="nb-sub">Active les notifications pour être alerté quand un live commence.</div>
+          <div class="nb-sub">Active les notifications pour etre alerte quand un live commence.</div>
         </div>
         <button class="nb-btn" onclick="requestNotifPermission()">Activer</button>
       </div>
@@ -1079,11 +1089,21 @@ function render() {
   renderLives();
   renderRewards();
   renderHistory();
-  // Notif banner — toujours afficher si pas encore autorisé
+  // Install & Notif banners
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  const installB = document.getElementById('installBanner');
   const notifB = document.getElementById('notifBanner');
-  if ('Notification' in window && Notification.permission === 'granted') {
+
+  if (isIOS && !isStandalone && !localStorage.getItem('mf4_install_dismissed')) {
+    // iOS Safari — montrer guide installation
+    installB.style.display = 'flex';
+    notifB.style.display = 'none';
+  } else if ('Notification' in window && Notification.permission === 'granted') {
+    installB.style.display = 'none';
     notifB.style.display = 'none';
   } else {
+    installB.style.display = 'none';
     notifB.style.display = 'flex';
   }
 }
@@ -2204,6 +2224,19 @@ loadBadges();
 checkHash();
 checkLiveBadge();
 handleDiscordCallback();
+// Auto-request notifications en mode PWA (standalone)
+(async function() {
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (isStandalone && 'Notification' in window && Notification.permission === 'default') {
+    await new Promise(r => setTimeout(r, 1500));
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+      document.getElementById('notifBanner').style.display = 'none';
+      showToast('Notifications activees ✓');
+      await registerPushSubscription();
+    }
+  }
+})();
 // Sync toutes les 5 min si connecté
 setInterval(syncWithServer, 5 * 60 * 1000);
 </script>
