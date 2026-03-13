@@ -519,6 +519,16 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
     </div>
   </div>
 
+  <!-- BANNER LIVE EN COURS (visible sur toutes les pages) -->
+  <div id="liveBannerTop" onclick="watchLive('live_now')" style="display:none;background:linear-gradient(135deg,#C9A227,#F0D060);padding:10px 20px;cursor:pointer;align-items:center;gap:10px;flex-shrink:0;">
+    <div style="width:10px;height:10px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
+    <div style="flex:1;">
+      <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:800;color:rgba(0,0,0,.5);letter-spacing:2px;">🔴 EN DIRECT</div>
+      <div style="font-size:14px;font-weight:700;color:#0a0a0a;"><span id="liveBannerTitle">Live</span> · <span id="liveBannerHost" style="opacity:.7;">Focus</span></div>
+    </div>
+    <div style="background:#0a0a0a;color:#fff;padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap;">REJOINDRE →</div>
+  </div>
+
   <div class="scroll">
 
     <!-- ═══ PAGE : CARTE ═══ -->
@@ -1292,8 +1302,19 @@ function flipCard() {
 // ═══════════════════════════════════════════════════
 let watchTimer = null;
 function watchLive(id) {
+  // Cas spécial : bouton "REJOINDRE" sur la page Live (pas dans le tableau LIVES)
+  if (id === 'live_now') {
+    window.open('https://discord.com/channels/1481745584602742847/1481750393233866762', '_blank');
+    showToast('🔴 Rejoins le live sur Discord');
+    return;
+  }
+
   const live = LIVES.find(l => l.id === id);
-  if (!live) return;
+  if (!live) {
+    // Fallback : ouvrir le vocal Discord
+    window.open('https://discord.com/channels/1481745584602742847/1481750393233866762', '_blank');
+    return;
+  }
 
   // Si scheduled → pas encore dispo
   if (live.status === 'scheduled') {
@@ -2531,12 +2552,21 @@ async function checkLiveBadge() {
   try {
     const res  = await fetch('/api/live');
     const data = await res.json();
-    if (data && data.active) {
+    const current = data.current || data;
+    if (current && current.active) {
+      // Badge nav
       const badge = document.getElementById('badgeLive');
       badge.textContent = '';
       badge.style.width = '8px'; badge.style.height = '8px'; badge.style.padding = '0';
       badge.style.display = 'flex';
       document.getElementById('navLiveLabel').style.color = 'var(--red)';
+      // Banner live en haut de l'app (visible sur toutes les pages)
+      const banner = document.getElementById('liveBannerTop');
+      if (banner && S.discord_name) {
+        banner.style.display = 'flex';
+        document.getElementById('liveBannerTitle').textContent = current.title || 'Live en cours';
+        document.getElementById('liveBannerHost').textContent = current.host || 'Focus';
+      }
     }
   } catch(e) {}
 }
@@ -2562,6 +2592,8 @@ initSW();
 loadBadges();
 checkHash();
 checkLiveBadge();
+// Vérifier le live toutes les 30 secondes
+setInterval(checkLiveBadge, 30000);
 handleDiscordCallback();
 // Auto-request notifications en mode PWA (standalone)
 (async function() {
