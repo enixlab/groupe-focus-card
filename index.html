@@ -520,13 +520,16 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
   </div>
 
   <!-- BANNER LIVE EN COURS (visible sur toutes les pages) -->
-  <div id="liveBannerTop" onclick="watchLive('live_now')" style="display:none;background:linear-gradient(135deg,#C9A227,#F0D060);padding:10px 20px;cursor:pointer;align-items:center;gap:10px;flex-shrink:0;">
-    <div style="width:10px;height:10px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
-    <div style="flex:1;">
-      <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:800;color:rgba(0,0,0,.5);letter-spacing:2px;">🔴 EN DIRECT</div>
-      <div style="font-size:14px;font-weight:700;color:#0a0a0a;"><span id="liveBannerTitle">Live</span> · <span id="liveBannerHost" style="opacity:.7;">Focus</span></div>
+  <div id="liveBannerTop" style="display:none;background:linear-gradient(135deg,#C9A227,#F0D060);padding:10px 20px;align-items:center;gap:10px;flex-shrink:0;">
+    <div onclick="watchLive('live_now')" style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;">
+      <div style="width:10px;height:10px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:13px;font-weight:800;color:rgba(0,0,0,.5);letter-spacing:2px;">🔴 EN DIRECT</div>
+        <div style="font-size:14px;font-weight:700;color:#0a0a0a;"><span id="liveBannerTitle">Live</span> · <span id="liveBannerHost" style="opacity:.7;">Focus</span></div>
+      </div>
     </div>
-    <div style="background:#0a0a0a;color:#fff;padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap;">REJOINDRE →</div>
+    <div onclick="watchLive('live_now')" style="background:#0a0a0a;color:#fff;padding:8px 14px;border-radius:10px;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap;cursor:pointer;">REJOINDRE →</div>
+    <div id="endLiveBtnBanner" onclick="event.stopPropagation();endLiveNow()" style="display:none;background:#FF3B30;color:#fff;padding:8px 12px;border-radius:10px;font-size:11px;font-weight:800;letter-spacing:1px;white-space:nowrap;cursor:pointer;margin-left:4px;">CLÔTURER</div>
   </div>
 
   <div class="scroll">
@@ -2261,13 +2264,17 @@ async function loadLivePage() {
     if (livesNow.length) {
       html += '<div style="font-family:Oswald,sans-serif;font-size:13px;font-weight:700;color:var(--red);letter-spacing:3px;margin-bottom:10px;">🔴 EN DIRECT</div>';
       livesNow.forEach(l => {
-        html += `<div onclick="watchLive('live_now')" style="background:linear-gradient(135deg,#C9A227,#F0D060);border-radius:16px;padding:20px;margin-bottom:16px;cursor:pointer;display:flex;align-items:center;gap:14px;">
-          <div style="width:14px;height:14px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
-          <div style="flex:1;">
-            <div style="font-family:Oswald,sans-serif;font-size:20px;font-weight:700;color:#0a0a0a;">${l.title || 'Live Focus'}</div>
-            <div style="font-size:13px;color:rgba(0,0,0,.6);margin-top:4px;">🎙️ ${l.host || 'Focus'}</div>
+        const adminBtn = isAppAdmin() ? `<div onclick="event.stopPropagation();endLiveNow()" style="background:#FF3B30;color:#fff;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:800;letter-spacing:1px;white-space:nowrap;cursor:pointer;margin-top:8px;">CLÔTURER LE LIVE</div>` : '';
+        html += `<div style="background:linear-gradient(135deg,#C9A227,#F0D060);border-radius:16px;padding:20px;margin-bottom:16px;">
+          <div onclick="watchLive('live_now')" style="display:flex;align-items:center;gap:14px;cursor:pointer;">
+            <div style="width:14px;height:14px;border-radius:50%;background:#ff0000;animation:pulse 1.5s infinite;flex-shrink:0;"></div>
+            <div style="flex:1;">
+              <div style="font-family:Oswald,sans-serif;font-size:20px;font-weight:700;color:#0a0a0a;">${l.title || 'Live Focus'}</div>
+              <div style="font-size:13px;color:rgba(0,0,0,.6);margin-top:4px;">🎙️ ${l.host || 'Focus'}</div>
+            </div>
+            <div style="background:#0a0a0a;color:#fff;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:800;letter-spacing:1px;white-space:nowrap;">REJOINDRE →</div>
           </div>
-          <div style="background:#0a0a0a;color:#fff;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:800;letter-spacing:1px;white-space:nowrap;">REJOINDRE →</div>
+          ${adminBtn}
         </div>`;
       });
     }
@@ -2548,27 +2555,61 @@ async function subscribeToLiveNotifs() {
 }
 
 // ── Vérification live au démarrage (pour badge nav) ─────────────────────────
+// IDs Discord des admins qui peuvent clôturer un live
+const ADMIN_DISCORD_IDS = ['1159440493575405689'];
+
+function isAppAdmin() {
+  return ADMIN_DISCORD_IDS.includes(S.discord_id) || S.discord_name === 'nass rs4';
+}
+
 async function checkLiveBadge() {
   try {
     const res  = await fetch('/api/live');
     const data = await res.json();
     const current = data.current || data;
+    const banner = document.getElementById('liveBannerTop');
+    const badge = document.getElementById('badgeLive');
     if (current && current.active) {
       // Badge nav
-      const badge = document.getElementById('badgeLive');
       badge.textContent = '';
       badge.style.width = '8px'; badge.style.height = '8px'; badge.style.padding = '0';
       badge.style.display = 'flex';
       document.getElementById('navLiveLabel').style.color = 'var(--red)';
-      // Banner live en haut de l'app (visible sur toutes les pages)
-      const banner = document.getElementById('liveBannerTop');
+      // Banner live
       if (banner && S.discord_name) {
         banner.style.display = 'flex';
         document.getElementById('liveBannerTitle').textContent = current.title || 'Live en cours';
         document.getElementById('liveBannerHost').textContent = current.host || 'Focus';
+        // Bouton clôturer pour admin
+        const endBtn = document.getElementById('endLiveBtnBanner');
+        if (endBtn) endBtn.style.display = isAppAdmin() ? 'block' : 'none';
       }
+    } else {
+      // Pas de live → masquer banner et badge
+      if (banner) banner.style.display = 'none';
+      badge.style.display = 'none';
+      document.getElementById('navLiveLabel').style.color = '';
     }
   } catch(e) {}
+}
+
+async function endLiveNow() {
+  if (!confirm('Clôturer le live en cours ?')) return;
+  try {
+    await fetch('/api/live', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({secret: ADMIN_SECRET, action: 'end'})
+    });
+    document.getElementById('liveBannerTop').style.display = 'none';
+    document.getElementById('badgeLive').style.display = 'none';
+    document.getElementById('navLiveLabel').style.color = '';
+    showToast('Live clôturé ✓');
+    // Refresh la page live si on y est
+    if (document.getElementById('page-live').classList.contains('active')) loadLivePage();
+  } catch(e) {
+    showToast('Erreur — réessaie');
+  }
 }
 
 // Auto-login depuis Apple Wallet (paramètres URL)
