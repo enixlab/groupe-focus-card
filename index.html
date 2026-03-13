@@ -1255,6 +1255,36 @@ async function handleDiscordCallback() {
     history.replaceState(null, '', '/');
     return;
   }
+  // Code reçu — échange côté client (fallback si serveur bloqué)
+  const codeMatch = hash.match(/discord-code=([^&]+)/);
+  if (codeMatch) {
+    const code = decodeURIComponent(codeMatch[1]);
+    history.replaceState(null, '', '/');
+    showToast('Connexion Discord en cours...');
+    try {
+      const r = await fetch('/api/discord', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code})
+      });
+      const data = await r.json();
+      if (data.token && data.discord_id) {
+        localStorage.setItem('mf4_discord_token', data.token);
+        S.discord_id     = data.discord_id;
+        S.discord_name   = data.discord_name || '';
+        S.discord_avatar = data.avatar || '';
+        S.history.push({icon:'🎮', label:`Discord connecté : ${S.discord_name}`, pts:0, ts:new Date().toISOString()});
+        save(); render();
+        showToast(`Connecté en tant que ${S.discord_name} ✓`);
+        try { await updatePushSubscription(); } catch(e) {}
+      } else {
+        showToast('Erreur Discord — ' + (data.error || 'réessaie'));
+      }
+    } catch(e) {
+      showToast('Erreur de connexion Discord');
+    }
+    return;
+  }
   if (hash.includes('discord-error')) {
     const msgMatch = hash.match(/msg=([^&]+)/);
     const errMsg = msgMatch ? decodeURIComponent(msgMatch[1]) : 'Réessaie';
