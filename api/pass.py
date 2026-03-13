@@ -26,7 +26,7 @@ _wwdr_pem = _load_file("wwdr.pem")
 
 # Charger les assets PNG
 _assets = {}
-for _fname in ["icon.png", "icon@2x.png", "logo.png", "logo@2x.png", "strip.png", "strip@2x.png"]:
+for _fname in ["icon.png", "icon@2x.png", "logo.png", "logo@2x.png", "strip.png", "strip@2x.png", "thumbnail.png", "thumbnail@2x.png", "footer.png", "footer@2x.png"]:
     data = _load_file(_fname)
     if data:
         _assets[_fname] = data
@@ -69,15 +69,15 @@ def build_pass_json(name, pts_int, cycle, level):
         "passTypeIdentifier": PASS_TYPE_ID,
         "serialNumber": serial,
         "teamIdentifier": TEAM_ID,
-        "organizationName": "Mentalite Focus",
-        "description": "Carte de fidelite Mentalite Focus",
-        "logoText": "MENTALITE FOCUS",
+        "organizationName": "Focus",
+        "description": "Carte Focus",
+        "logoText": "",
         "webServiceURL": f"{APP_URL}/api/wallet_push",
         "authenticationToken": auth_token,
 
-        "backgroundColor": "rgb(42, 32, 0)",
-        "foregroundColor": "rgb(240, 208, 96)",
-        "labelColor": "rgb(180, 150, 60)",
+        "backgroundColor": "rgb(215, 175, 50)",
+        "foregroundColor": "rgb(255, 255, 255)",
+        "labelColor": "rgb(90, 70, 15)",
 
         "storeCard": {
             "headerFields": [
@@ -88,18 +88,12 @@ def build_pass_json(name, pts_int, cycle, level):
                     "textAlignment": "PKTextAlignmentRight"
                 }
             ],
-            "primaryFields": [
+            "primaryFields": [],
+            "secondaryFields": [
                 {
                     "key": "name",
                     "label": "CARTE DE",
                     "value": name
-                }
-            ],
-            "secondaryFields": [
-                {
-                    "key": "website",
-                    "label": "MA CARTE",
-                    "value": "groupe-focus-card.vercel.app"
                 }
             ],
             "auxiliaryFields": [
@@ -122,43 +116,29 @@ def build_pass_json(name, pts_int, cycle, level):
             "backFields": [
                 {
                     "key": "stats",
-                    "label": "━━━  MES STATISTIQUES  ━━━",
+                    "label": "MES STATISTIQUES",
                     "value": f"Points : {pts_int}\nCycle : #{cycle}\nProgression : {progress}\nProchain reward : {next_reward} lives\n\n{prog_bar}"
                 },
                 {
                     "key": "card_link",
-                    "label": "━━━  MA CARTE EN LIGNE  ━━━",
+                    "label": "MA CARTE EN LIGNE",
                     "value": member_url,
                     "attributedValue": f"<a href='{member_url}'>Ouvrir ma carte Focus</a>"
                 },
                 {
                     "key": "discord",
-                    "label": "━━━  DISCORD  ━━━",
-                    "value": "https://discord.gg/AerNKK5zYF",
-                    "attributedValue": "<a href='https://discord.gg/AerNKK5zYF'>Rejoindre Focus (+2000 membres)</a>"
-                },
-                {
-                    "key": "join",
-                    "label": "━━━  ABONNEMENT  ━━━",
-                    "value": "9.90/mois",
-                    "attributedValue": "<a href='https://mentalitefocus.com/'>Rejoindre Mentalite Focus</a>"
+                    "label": "DISCORD",
+                    "value": "https://discord.gg/NZ56mPMJ",
+                    "attributedValue": "<a href='https://discord.gg/NZ56mPMJ'>Rejoindre Focus</a>"
                 },
                 {
                     "key": "howto",
-                    "label": "━━━  COMMENT CA MARCHE  ━━━",
-                    "value": "1 live = 1 point\n10 points = 1 cycle = 1 reward\n\nNiveaux : MEMBRE → ACTIF → AVANCE → EXPERT → ELITE"
+                    "label": "COMMENT CA MARCHE",
+                    "value": "1 live = 1 point\n10 points = 1 cycle\n1 cycle = 1 reward"
                 }
             ]
         },
 
-        "barcodes": [
-            {
-                "format": "PKBarcodeFormatQR",
-                "message": member_url,
-                "messageEncoding": "iso-8859-1",
-                "altText": "groupe-focus-card.vercel.app"
-            }
-        ],
     }
 
 

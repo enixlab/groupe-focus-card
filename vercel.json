@@ -5,6 +5,9 @@
     { "src": "index.html",    "use": "@vercel/static" },
     { "src": "sw.js",         "use": "@vercel/static" },
     { "src": "manifest.json", "use": "@vercel/static" },
+    { "src": "icon-192.png",  "use": "@vercel/static" },
+    { "src": "icon-512.png",  "use": "@vercel/static" },
+    { "src": "apple-touch-icon.png", "use": "@vercel/static" },
     { "src": "api/*.py",      "use": "@vercel/python" }
   ],
   "routes": [
@@ -17,6 +20,7 @@
     { "src": "/api/discord_debug", "dest": "/api/discord_debug.py" },
     { "src": "/api/discord",  "dest": "/api/discord.py" },
     { "src": "/api/me",       "dest": "/api/me.py" },
+    { "src": "/api/radar",        "dest": "/api/radar.py" },
     { "src": "/api/live",         "dest": "/api/live.py" },
     { "src": "/api/wallet_push/(.*)", "dest": "/api/wallet_push.py" },
     { "src": "/api/wallet_push", "dest": "/api/wallet_push.py" },

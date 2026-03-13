@@ -114,10 +114,18 @@ class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200); self._cors(); self.end_headers()
 
-    # ── GET : statut live en cours ──────────────────────────────────────────
+    # ── GET : statut live en cours + historique ─────────────────────────────
     def do_GET(self):
+        qs = urlparse(self.path).query
+        params = dict(p.split("=",1) for p in qs.split("&") if "=" in p) if qs else {}
+
         live, _ = _db.load("live.json", {"active": False})
-        self._respond(live)
+        history_list, _ = _db.load("lives_history.json", [])
+
+        self._respond({
+            "current": live,
+            "history": history_list[-20:]  # 20 derniers lives
+        })
 
     # ── POST ────────────────────────────────────────────────────────────────
     def do_POST(self):
@@ -139,6 +147,8 @@ class handler(BaseHTTPRequestHandler):
                 self._handle_start(body)
             elif action == "end":
                 self._handle_end()
+            elif action == "schedule":
+                self._handle_schedule(body)
             elif action == "clean_sessions":
                 self._handle_clean()
             else:
@@ -152,11 +162,25 @@ class handler(BaseHTTPRequestHandler):
         live_data = {
             "active":     True,
             "title":      body.get("title", "Live Mentalité Focus"),
+            "host":       body.get("host", "Focus"),
             "stream_url": body.get("stream_url", ""),
             "started_at": time.time(),
         }
         live, sha = _db.load("live.json", {})
         _db.save("live.json", live_data, sha)
+
+        # Ajouter à l'historique
+        history, hsha = _db.load("lives_history.json", [])
+        entry = {
+            "id":    f"live_{int(time.time())}",
+            "title": live_data["title"],
+            "host":  live_data.get("host", "Focus"),
+            "status": "live",
+            "started_at": live_data["started_at"],
+        }
+        history.append(entry)
+        _db.save("lives_history.json", history, hsha)
+
         self._respond({"ok": True, "live": live_data})
 
     def _handle_end(self):
@@ -164,7 +188,34 @@ class handler(BaseHTTPRequestHandler):
         live["active"]   = False
         live["ended_at"] = time.time()
         _db.save("live.json", live, sha)
+
+        # Mettre à jour l'historique — marquer le dernier live comme ended
+        history, hsha = _db.load("lives_history.json", [])
+        if history:
+            for entry in reversed(history):
+                if entry.get("status") == "live":
+                    entry["status"] = "ended"
+                    entry["ended_at"] = live["ended_at"]
+                    break
+            _db.save("lives_history.json", history, hsha)
+
         self._respond({"ok": True})
+
+    def _handle_schedule(self, body):
+        """Programme un live futur."""
+        history, hsha = _db.load("lives_history.json", [])
+        scheduled_at = body.get("scheduled_at", time.time())
+        entry = {
+            "id": f"live_{int(scheduled_at)}",
+            "title": body.get("title", "Live Focus"),
+            "host": body.get("host", "Focus"),
+            "status": "scheduled",
+            "started_at": scheduled_at,
+            "scheduled_at": scheduled_at,
+        }
+        history.append(entry)
+        _db.save("lives_history.json", history, hsha)
+        self._respond({"ok": True, "live": entry})
 
     def _handle_preview_request(self, body):
         ip          = _get_client_ip(self)

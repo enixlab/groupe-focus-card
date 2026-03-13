@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Mentalité Focus — Carte Fidélité</title>
 <link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="theme-color" content="#C9A227">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -52,17 +53,17 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
 .card-front,.card-back{border-radius:20px;overflow:hidden;box-shadow:var(--shadow-card);backface-visibility:hidden;-webkit-backface-visibility:hidden;}
 .card-front{
   background:linear-gradient(135deg,#C9A227 0%,#F0D060 30%,#C9A227 55%,#A67C00 80%,#C9A227 100%);
-  padding:28px 26px 24px;min-height:210px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;
+  padding:28px 26px 24px;min-height:230px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;
 }
 .card-shimmer{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.25) 50%,transparent 70%);animation:shimmer 3s ease-in-out infinite;pointer-events:none;}
 @keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
 .card-shine{position:absolute;top:-40%;right:-20%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 65%);pointer-events:none;}
-.card-front::after{content:'FOCUS';position:absolute;bottom:-14px;right:-4px;font-family:'Oswald',sans-serif;font-size:76px;font-weight:900;color:rgba(0,0,0,0.07);letter-spacing:4px;pointer-events:none;}
+.card-front::after{content:none;}
 .card-top-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#fff,rgba(255,255,255,.6),#fff,rgba(255,255,255,.6));}
 .cf-header{display:flex;justify-content:space-between;align-items:center;}
 .cf-brand{font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:5px;color:rgba(0,0,0,0.65);text-transform:uppercase;}
 .cf-level{font-size:8px;font-weight:700;letter-spacing:2px;padding:4px 12px;border:1px solid rgba(0,0,0,0.2);color:rgba(0,0,0,0.7);border-radius:100px;background:rgba(255,255,255,0.25);}
-.cf-name{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:#0a0a0a;letter-spacing:1px;margin-top:16px;}
+.cf-name{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:#0a0a0a;letter-spacing:1px;margin-top:0;}
 .cf-discord{display:flex;align-items:center;gap:6px;margin-top:4px;}
 .cf-discord-tag{font-size:9px;color:rgba(0,0,0,0.4);letter-spacing:2px;text-transform:uppercase;}
 .cf-discord-name{font-size:10px;color:rgba(0,0,0,0.6);font-weight:600;}
@@ -71,8 +72,6 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
 .cf-stat-label{font-size:8px;color:rgba(0,0,0,0.4);letter-spacing:2px;text-transform:uppercase;}
 .cf-stat-val{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:#0a0a0a;}
 .cf-stat-val.gold{color:#6b4e00;}
-.cf-tap-hint{position:absolute;bottom:10px;right:50%;transform:translateX(50%);font-size:9px;color:rgba(0,0,0,0.3);letter-spacing:2px;text-transform:uppercase;animation:hint-blink 2s ease-in-out infinite;}
-@keyframes hint-blink{0%,100%{opacity:.3}50%{opacity:.8}}
 
 /* CARD BACK */
 .card-back{position:absolute;inset:0;background:#fff;border:1px solid var(--grey3);padding:24px;transform:rotateY(180deg);display:flex;flex-direction:column;gap:16px;}
@@ -273,6 +272,67 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
 .ln-notif-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--black);color:#fff;border:none;border-radius:12px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;}
 .ln-notif-btn:active{transform:scale(.98);}
 .ln-notif-btn.done{background:var(--grey3);color:var(--grey);}
+
+/* ═══ RADAR PAGE ═══ */
+.radar-page{padding:8px 20px 24px;}
+/* Hero compact avec mini radar animé */
+.radar-hero{background:#fff;border-radius:20px;padding:16px 20px;margin-bottom:16px;border:1px solid var(--grey3);display:flex;align-items:center;gap:16px;}
+.rh-mini{width:56px;height:56px;border-radius:50%;background:var(--grey4);position:relative;flex-shrink:0;overflow:hidden;}
+.rh-mini-sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0deg,rgba(201,162,39,.3) 40deg,transparent 80deg);animation:radar-spin 3s linear infinite;}
+@keyframes radar-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.rh-mini-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid rgba(201,162,39,.15);transform:translate(-50%,-50%);}
+.rh-mini-ring.r1{width:20px;height:20px;}.rh-mini-ring.r2{width:36px;height:36px;}.rh-mini-ring.r3{width:52px;height:52px;}
+.rh-mini-center{position:absolute;top:50%;left:50%;width:6px;height:6px;background:var(--gold);border-radius:50%;transform:translate(-50%,-50%);z-index:2;}
+.rh-info{flex:1;min-width:0;}
+.rh-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:var(--black);letter-spacing:.5px;margin-bottom:2px;}
+.rh-title span{color:var(--gold);}
+.rh-sub{font-size:12px;color:var(--grey);line-height:1.4;}
+.rh-count{font-family:'Oswald',sans-serif;font-size:28px;font-weight:900;color:var(--gold);flex-shrink:0;text-align:center;min-width:40px;}
+.rh-count-label{font-size:8px;font-weight:700;color:var(--grey);letter-spacing:1px;text-transform:uppercase;text-align:center;}
+
+/* Toggle */
+.radar-toggle{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;padding:14px 16px;border:1px solid var(--grey3);margin-bottom:16px;}
+.rt-left{display:flex;flex-direction:column;gap:2px;}
+.rt-label{font-size:14px;font-weight:700;color:var(--black);}
+.rt-sub{font-size:11px;color:var(--grey);}
+.rt-switch{width:50px;height:28px;border-radius:100px;background:var(--grey3);position:relative;cursor:pointer;transition:background .3s;}
+.rt-switch.on{background:var(--gold);}
+.rt-switch::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.15);transition:transform .3s var(--spring);}
+.rt-switch.on::after{transform:translateX(22px);}
+
+/* Grille membres — cartes individuelles */
+.radar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.rg-card{background:#fff;border-radius:16px;padding:16px 12px;border:1px solid var(--grey3);display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s;position:relative;}
+.rg-card:active{transform:scale(.97);}
+.rg-dist-badge{position:absolute;top:8px;right:8px;background:var(--grey4);border-radius:100px;padding:3px 8px;font-size:9px;font-weight:700;color:var(--gold);}
+.rg-av{width:52px;height:52px;border-radius:50%;overflow:hidden;background:var(--grey4);margin-bottom:8px;border:2.5px solid var(--gold);display:flex;align-items:center;justify-content:center;}
+.rg-av img{width:100%;height:100%;object-fit:cover;}
+.rg-av .rg-init{font-size:18px;font-weight:900;color:var(--gold);font-family:'Oswald',sans-serif;}
+.rg-name{font-size:13px;font-weight:700;color:var(--black);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.rg-tier{font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.rg-btn{width:100%;background:var(--gold);color:#fff;border:none;border-radius:10px;padding:9px;font-size:11px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+.rg-btn:active{transform:scale(.95);background:var(--gold2);}
+
+/* Liste fallback pour beaucoup de membres */
+.radar-list{display:flex;flex-direction:column;gap:8px;}
+.rl-item{display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:12px 14px;border:1px solid var(--grey3);transition:all .2s;}
+.rl-item:active{transform:scale(.98);}
+.rl-av{width:40px;height:40px;border-radius:50%;background:var(--grey4);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid var(--gold);}
+.rl-av img{width:100%;height:100%;object-fit:cover;}
+.rl-av .rl-init{font-size:14px;font-weight:800;color:var(--gold);font-family:'Oswald',sans-serif;}
+.rl-info{flex:1;min-width:0;}
+.rl-name{font-size:13px;font-weight:700;color:var(--black);}
+.rl-meta{display:flex;align-items:center;gap:6px;margin-top:2px;}
+.rl-tier{font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;}
+.rl-dist{font-size:10px;color:var(--grey);}
+.rl-btn{flex-shrink:0;background:var(--gold);color:#fff;border:none;border-radius:100px;padding:8px 14px;font-size:10px;font-weight:800;cursor:pointer;transition:all .2s;}
+.rl-btn:active{transform:scale(.95);}
+
+/* Empty */
+.radar-empty{text-align:center;padding:40px 20px;color:var(--grey);}
+.radar-empty .re-icon{font-size:48px;margin-bottom:12px;}
+.radar-empty .re-title{font-size:16px;font-weight:800;color:var(--black);margin-bottom:4px;}
+.radar-empty .re-sub{font-size:13px;line-height:1.5;}
 
 /* ═══ BOTTOM NAV ═══ */
 .bottom-nav{flex-shrink:0;display:flex;background:#fff;border-top:1px solid var(--grey3);padding:8px 6px 20px;gap:2px;}
@@ -518,9 +578,12 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
               <div class="cf-brand">Mentalité Focus</div>
               <div class="cf-level" id="cardLevel">MEMBRE</div>
             </div>
-            <div>
-              <div class="cf-name" id="cardName">MEMBRE</div>
-              <div class="cf-discord" id="cfDiscord" style="display:none">
+            <!-- Logo FOCUS grand centré -->
+            <div style="text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="font-family:'Oswald',sans-serif;font-size:56px;font-weight:900;letter-spacing:10px;color:rgba(0,0,0,.12);line-height:1;margin-bottom:10px;">FOCUS</div>
+              <div style="font-size:9px;color:rgba(0,0,0,.45);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">Carte de</div>
+              <div class="cf-name" id="cardName" style="text-align:center;">MEMBRE</div>
+              <div class="cf-discord" id="cfDiscord" style="display:none;justify-content:center;">
                 <div class="cf-discord-tag">DISCORD</div>
                 <div class="cf-discord-name" id="cfDiscordName"></div>
               </div>
@@ -530,7 +593,6 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
               <div class="cf-stat" style="text-align:center"><div class="cf-stat-label">Lives</div><div class="cf-stat-val" id="cardLives">0</div></div>
               <div class="cf-stat" style="text-align:right"><div class="cf-stat-label">Points</div><div class="cf-stat-val gold" id="cardTotal">0</div></div>
             </div>
-            <div class="cf-tap-hint">Appuie pour voir ta progression</div>
           </div>
           <div class="card-back">
             <div class="back-top-bar"></div>
@@ -552,7 +614,7 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
       <!-- ACTIONS -->
       <div class="carte-actions">
         <div class="ca-row">
-          <button class="ca-btn secondary" onclick="openWallet()" style="font-size:11px;gap:6px;"><svg width="12" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:block;flex-shrink:0;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.08.05-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg> Wallet</button>
+          <button class="ca-btn secondary" id="walletBtn" onclick="openWallet()" style="font-size:11px;gap:6px;display:none;"><svg width="12" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:block;flex-shrink:0;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.08.05-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg> Wallet</button>
           <button class="ca-btn secondary" onclick="shareCard()" style="font-size:11px;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Partager</button>
         </div>
         <button class="ca-btn secondary" id="installHomeBtn" onclick="showInstallSteps()" style="background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;border:none;font-size:12px;font-weight:800;display:none;gap:8px;">
@@ -606,6 +668,51 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
       <div class="hist-list" id="histList"></div>
     </div>
 
+    <!-- ═══ PAGE : RADAR ═══ -->
+    <div class="page radar-page" id="page-radar">
+      <!-- Hero compact avec mini radar -->
+      <div class="radar-hero" id="radarHero">
+        <div class="rh-mini">
+          <div class="rh-mini-ring r1"></div>
+          <div class="rh-mini-ring r2"></div>
+          <div class="rh-mini-ring r3"></div>
+          <div class="rh-mini-sweep"></div>
+          <div class="rh-mini-center"></div>
+        </div>
+        <div class="rh-info">
+          <div class="rh-title">Radar <span>Focus</span></div>
+          <div class="rh-sub" id="radarSubtitle">Membres à moins de 10 km</div>
+        </div>
+        <div id="radarCountWrap" style="display:none">
+          <div class="rh-count" id="radarCount">0</div>
+          <div class="rh-count-label">proches</div>
+        </div>
+      </div>
+
+      <!-- Toggle activation -->
+      <div class="radar-toggle" id="radarToggle">
+        <div class="rt-left">
+          <div class="rt-label">Activer ma position</div>
+          <div class="rt-sub">Les autres membres pourront te voir</div>
+        </div>
+        <div class="rt-switch" id="radarSwitch" onclick="toggleRadar()"></div>
+      </div>
+
+      <!-- Grille membres (jusqu'à 8) -->
+      <div class="radar-grid" id="radarGrid" style="display:none"></div>
+
+      <!-- Liste membres (au-delà de 8) -->
+      <div class="section-title" id="radarListTitle" style="display:none">Tous les membres <span>proches</span></div>
+      <div class="radar-list" id="radarList"></div>
+
+      <!-- Empty state -->
+      <div class="radar-empty" id="radarEmpty" style="display:none">
+        <div class="re-icon">📡</div>
+        <div class="re-title">Aucun membre à proximité</div>
+        <div class="re-sub">Personne dans un rayon de 10 km pour le moment.</div>
+      </div>
+    </div>
+
     <!-- ═══ PAGE : LIVE ═══ -->
     <div class="page live-page" id="page-live">
 
@@ -625,44 +732,16 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
         </div>
       </div>
 
-      <!-- Zone player / aperçu -->
+      <!-- Zone live info -->
       <div class="live-preview-wrap" id="livePlayerWrap" style="display:none">
         <div class="live-preview-box" id="livePreviewBox">
-          <!-- Overlay initial : bouton "Voir l'aperçu" -->
           <div class="live-preview-overlay" id="liveInitOverlay">
             <div class="lpo-icon"><svg width="52" height="52" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#FF3B30" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="#FF3B30"/></svg></div>
             <div class="lpo-title">Live en cours</div>
-            <div class="lpo-sub">5 minutes d'aperçu gratuit. Une seule fois par jour.</div>
-            <button class="lpo-btn" onclick="requestPreview()">Voir l'aperçu gratuit</button>
-          </div>
-          <!-- Iframe stream (injecté dynamiquement) -->
-          <div id="liveIframeWrap" style="display:none;width:100%;height:100%;position:relative;">
-            <div class="live-countdown" id="liveCountdown" style="display:none">
-              <div class="lcd-dot"></div>
-              <div class="lcd-time" id="liveCountdownTime">3:00</div>
-              <div class="lcd-label">APERÇU</div>
-            </div>
-            <iframe id="liveIframe" allowfullscreen allow="autoplay"></iframe>
-          </div>
-          <!-- Overlay bloqué : déjà utilisé / IP bloqué -->
-          <div class="live-preview-overlay" id="liveBlockedOverlay" style="display:none">
-            <div class="lpo-icon"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-            <div class="lpo-title" id="liveBlockedTitle">Aperçu déjà utilisé</div>
-            <div class="lpo-sub" id="liveBlockedSub">Rejoins Focus pour accéder au live complet.</div>
+            <div class="lpo-sub">Réservé aux membres Focus.</div>
             <button class="lpo-btn gold" onclick="openJoinLink()">REJOINDRE FOCUS — 9,90€/MOIS</button>
           </div>
         </div>
-      </div>
-
-      <!-- Paywall (affiché après les 3 min ou si bloqué) -->
-      <div class="live-paywall" id="livePaywall" style="display:none">
-        <div class="lpw-icon"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="#C9A227"/></svg></div>
-        <div class="lpw-title">Le live continue...</div>
-        <div class="lpw-sub">Tes 5 minutes d'aperçu sont terminées. Rejoins Focus pour accéder à tous les lives en direct, les replays et la communauté.</div>
-        <div class="lpw-price">9,90€<span style="font-size:16px;font-weight:500">/mois</span></div>
-        <div class="lpw-price-sub">Sans engagement · Résilie quand tu veux</div>
-        <button class="lpw-btn" onclick="openJoinLink()">REJOINDRE FOCUS — 9,90€/MOIS</button>
-        <div class="lpw-no" onclick="this.parentElement.style.display='none'">Continuer sans accès complet</div>
       </div>
 
       <!-- Résumé du dernier live -->
@@ -739,10 +818,9 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
       <span class="nav-label">Offres</span>
       <div class="nav-badge" id="badgeOffres"></div>
     </button>
-    <button class="nav-btn" id="navConcours" onclick="goPage('concours',this);loadContests()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
-      <span class="nav-label">Concours</span>
-      <div class="nav-badge" id="badgeConcours"></div>
+    <button class="nav-btn" onclick="goPage('radar',this);loadRadar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="2" x2="12" y2="6"/></svg>
+      <span class="nav-label">Radar</span>
     </button>
     <button class="nav-btn" onclick="goPage('rewards',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -763,6 +841,11 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
       <div class="wcp-header">
         <div class="wcp-brand">Mentalité Focus</div>
       </div>
+      <!-- Logo FOCUS central -->
+      <div style="text-align:center;margin:10px 0 6px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:28px;font-weight:900;letter-spacing:5px;color:rgba(240,208,96,.25);line-height:1;">FOCUS</div>
+      </div>
+      <div style="font-size:9px;color:rgba(240,208,96,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Carte de</div>
       <div class="wcp-name" id="wcpName">MEMBRE</div>
       <div class="wcp-dots" id="wcpDots"></div>
       <div class="wcp-footer">
@@ -777,9 +860,9 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
         </div>
         <div class="wa-btn-txt"><div class="wa-btn-title">Apple Wallet</div><div class="wa-btn-sub">iPhone — ajouter la carte</div></div>
       </button>
-      <button class="wa-btn share" onclick="downloadCardPNG()">
-        <div class="wa-btn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--black)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="var(--black)"/><polyline points="21 15 16 10 5 21"/></svg></div>
-        <div class="wa-btn-txt"><div class="wa-btn-title">Télécharger l'image</div><div class="wa-btn-sub">PNG — partager ou sauvegarder</div></div>
+      <button class="wa-btn" id="a2hsBtn" onclick="addToHomeScreen()" style="border:none;">
+        <div class="wa-btn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--black)" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="8" x2="12" y2="14"/><polyline points="9 11 12 8 15 11"/></svg></div>
+        <div class="wa-btn-txt"><div class="wa-btn-title">Ajouter à l'accueil</div><div class="wa-btn-sub">Accès rapide depuis ton écran</div></div>
       </button>
       <button class="wa-btn share" onclick="shareCard()">
         <div class="wa-btn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--black)" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
@@ -788,7 +871,7 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
     </div>
     <div class="install-steps" id="installStepsWallet" style="display:none">
       <div class="install-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" style="margin-right:6px;vertical-align:-2px"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>Ajouter sur l'écran d'accueil</div>
-      <div class="install-step"><div class="step-num">1</div><div class="step-txt">Appuie sur <strong>Partager ↗</strong> en bas de Safari</div></div>
+      <div class="install-step"><div class="step-num">1</div><div class="step-txt">Appuie sur <strong>Partager ⬆️</strong> en bas de Safari</div></div>
       <div class="install-step"><div class="step-num">2</div><div class="step-txt">Choisis <strong>Sur l'écran d'accueil</strong></div></div>
       <div class="install-step"><div class="step-num">3</div><div class="step-txt">Tape <strong>Ajouter</strong> — l'app apparaît sur ton écran !</div></div>
     </div>
@@ -1016,17 +1099,47 @@ const REWARDS = [
   {id:'r6', icon:_SVG_REWARD.r6, name:'Accès VIP',              desc:'Canal VIP Discord + ressources premium', content:{tag:'VIP',title:'Accès VIP Discord',dur:'Permanent',host:'Focus',svgIcon:_SVG_REWARD.r6}}
 ];
 
-const LIVES = [
-  {id:'l1', title:'Comment passer à 10k€/mois',          host:'Focus', status:'live',      viewers:247, ts:'2026-03-11T20:00:00Z'},
-  {id:'l2', title:'Mindset élite — les règles du jeu',    host:'Focus', status:'scheduled', viewers:0,   ts:'2026-03-13T19:00:00Z'},
-  {id:'l3', title:'Construire son offre irrésistible',    host:'Focus', status:'ended',     viewers:189, ts:'2026-03-09T20:00:00Z'},
-  {id:'l4', title:'Les secrets des top vendeurs',         host:'Focus', status:'ended',     viewers:312, ts:'2026-03-07T19:30:00Z'},
-  {id:'l5', title:'Automatiser pour scaler',             host:'Focus', status:'ended',     viewers:156, ts:'2026-03-05T20:00:00Z'},
-  {id:'l6', title:'Cold outreach qui convertit à 40%',   host:'Focus', status:'ended',     viewers:201, ts:'2026-03-03T19:00:00Z'},
-  {id:'l7', title:'Personal branding 2026',              host:'Focus', status:'ended',     viewers:178, ts:'2026-03-01T20:00:00Z'},
-  {id:'l8', title:'Closer ses premiers clients',          host:'Focus', status:'ended',     viewers:298, ts:'2026-02-27T19:30:00Z'},
-  {id:'l9', title:'Systèmes qui génèrent du cash 24/7',  host:'Focus', status:'ended',     viewers:221, ts:'2026-02-25T20:00:00Z'}
-];
+let LIVES = []; // Chargé depuis l'API — données réelles uniquement
+
+async function loadLives() {
+  try {
+    const res = await fetch(APP_URL + '/api/live');
+    const data = await res.json();
+    const history = data.history || [];
+    const current = data.current || {};
+
+    LIVES = history.map(l => ({
+      id: l.id,
+      title: l.title || 'Live Focus',
+      host: l.host || 'Focus',
+      status: l.status || 'ended',
+      viewers: 0,
+      ts: new Date((l.scheduled_at || l.started_at || 0) * 1000).toISOString()
+    })).reverse(); // Plus récent en premier
+
+    // Trier : live en cours d'abord, puis scheduled, puis ended
+    LIVES.sort((a, b) => {
+      const order = { live: 0, scheduled: 1, ended: 2 };
+      return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+    });
+
+    // Si un live est actif maintenant, s'assurer qu'il est en haut
+    if (current.active && LIVES.length && LIVES[0].status !== 'live') {
+      LIVES.unshift({
+        id: 'live_current',
+        title: current.title || 'Live Focus',
+        host: current.host || 'Focus',
+        status: 'live',
+        viewers: 0,
+        ts: new Date((current.started_at || 0) * 1000).toISOString()
+      });
+    }
+
+    renderLives();
+  } catch(e) {
+    console.warn('loadLives error:', e);
+  }
+}
 
 // ═══════════════════════════════════════════════════
 // TIER LOGIC
@@ -1041,6 +1154,11 @@ function getTier(pts) {
 // RENDER
 // ═══════════════════════════════════════════════════
 function render() {
+  // Auto-update name from Discord if still default
+  if (S.name === 'MEMBRE' && S.discord_name) {
+    S.name = S.discord_name.toUpperCase();
+    save();
+  }
   const tier = getTier(S.pts);
   document.getElementById('topPts').textContent      = S.pts;
   document.getElementById('cardName').textContent    = S.name;
@@ -1070,6 +1188,7 @@ function render() {
     ? `${S.cyclePoints}/10 lives regardés`
     : 'Regarde un live pour commencer';
   // Discord
+  const walletBtn = document.getElementById('walletBtn');
   if (S.discord_name) {
     document.getElementById('discordBanner').style.display    = 'none';
     document.getElementById('discordConnected').style.display = 'flex';
@@ -1077,10 +1196,16 @@ function render() {
     document.getElementById('dcName').textContent             = S.discord_name;
     document.getElementById('cfDiscord').style.display        = 'flex';
     document.getElementById('cfDiscordName').textContent      = S.discord_name;
+    walletBtn.style.display = 'flex';
+    // Hide A2HS button if already installed
+    const isStandalone2 = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    const a2hsB = document.getElementById('a2hsBtn');
+    if (a2hsB) a2hsB.style.display = isStandalone2 ? 'none' : 'flex';
   } else {
     document.getElementById('discordBanner').style.display    = 'flex';
     document.getElementById('discordConnected').style.display = 'none';
     document.getElementById('cfDiscord').style.display        = 'none';
+    walletBtn.style.display = 'none';
   }
   // Unread notifs
   const unread = S.notifications.filter(n => !n.read).length;
@@ -1095,11 +1220,8 @@ function render() {
   const installB = document.getElementById('installBanner');
   const notifB = document.getElementById('notifBanner');
 
-  if (isIOS && !isStandalone && !localStorage.getItem('mf4_install_dismissed')) {
-    // iOS Safari — montrer guide installation
-    installB.style.display = 'flex';
-    notifB.style.display = 'none';
-  } else if ('Notification' in window && Notification.permission === 'granted') {
+  installB.style.display = 'none';
+  if ('Notification' in window && Notification.permission === 'granted') {
     installB.style.display = 'none';
     notifB.style.display = 'none';
   } else {
@@ -1110,6 +1232,10 @@ function render() {
 
 function renderLives() {
   const el = document.getElementById('livesList');
+  if (!LIVES.length) {
+    el.innerHTML = '<div class="empty-state">Aucun live pour le moment. Les lives apparaîtront ici automatiquement.</div>';
+    return;
+  }
   el.innerHTML = LIVES.map(l => {
     const watched = S.watchedLives.includes(l.id);
     const lbl     = l.status === 'live' ? 'EN DIRECT' : l.status === 'scheduled' ? 'BIENTÔT' : 'REPLAY';
@@ -1190,21 +1316,43 @@ function flipCard() {
 // ═══════════════════════════════════════════════════
 let watchTimer = null;
 function watchLive(id) {
-  if (S.watchedLives.includes(id)) return;
   const live = LIVES.find(l => l.id === id);
-  if (!live || live.status === 'scheduled') return;
-  showToast('▶ Lecture en cours… +1 point dans 2s');
-  watchTimer = setTimeout(() => {
-    S.watchedLives.push(id);
-    S.pts++;
-    S.cyclePoints++;
-    S.history.push({icon:'📺', label:`Live regardé : ${live.title}`, pts:1, ts:new Date().toISOString()});
-    // Local notif
-    addNotif('📺', 'Live regardé !', `+1 point — ${live.title}`);
-    if (S.cyclePoints >= 10) completeCycle();
-    save(); render();
-    showToast('+1 point gagné ✓');
-  }, 2000);
+  if (!live) return;
+
+  // Si scheduled → pas encore dispo
+  if (live.status === 'scheduled') {
+    const d = new Date(live.ts);
+    showToast(`⏰ Ce live commence le ${d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})} à ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`);
+    return;
+  }
+
+  // Rediriger directement dans le salon vocal Live Focus
+  window.open('https://discord.com/channels/1481745584602742847/1481750393233866762', '_blank');
+
+  // Marquer la participation (le point sera gagné après 40 min)
+  if (!S.watchedLives.includes(id)) {
+    const joinTs = Date.now();
+    // Stocker l'heure de join pour vérifier les 40 min
+    if (!S._liveJoins) S._liveJoins = {};
+    S._liveJoins[id] = joinTs;
+    save();
+    showToast('🔴 Rejoins le live sur Discord — +1 point après 40 min');
+
+    // Timer 40 min pour attribuer le point
+    setTimeout(() => {
+      if (S._liveJoins && S._liveJoins[id] && !S.watchedLives.includes(id)) {
+        S.watchedLives.push(id);
+        S.pts++;
+        S.cyclePoints++;
+        S.history.push({icon:'📺', label:`Live regardé : ${live.title}`, pts:1, ts:new Date().toISOString()});
+        addNotif('📺', 'Live regardé !', `+1 point — ${live.title}`);
+        if (S.cyclePoints >= 10) completeCycle();
+        delete S._liveJoins[id];
+        save(); render();
+        showToast('+1 point gagné après 40 min de live ✓');
+      }
+    }, 40 * 60 * 1000); // 40 minutes
+  }
 }
 
 function completeCycle() {
@@ -1253,6 +1401,7 @@ async function handleDiscordCallback() {
         S.discord_id     = data.discord_id || '';
         S.discord_name   = data.discord_name || '';
         S.discord_avatar = data.avatar || '';
+        if (S.discord_name) S.name = S.discord_name.toUpperCase();
         S.history.push({icon:'🎮', label:`Discord connecté : ${S.discord_name}`, pts:0, ts:new Date().toISOString()});
         addNotif('🎮', 'Discord connecté !', `Bienvenue ${S.discord_name} 👋`);
         save(); render();
@@ -1268,6 +1417,7 @@ async function handleDiscordCallback() {
           S.discord_id = data.discord_id;
           S.discord_name = data.discord_name;
           S.discord_avatar = data.discord_avatar || '';
+          if (S.discord_name) S.name = S.discord_name.toUpperCase();
           save(); render();
           showToast(`Connecté en tant que ${S.discord_name} ✓`);
         }
@@ -1294,6 +1444,7 @@ async function handleDiscordCallback() {
         S.discord_id     = data.discord_id;
         S.discord_name   = data.discord_name || '';
         S.discord_avatar = data.avatar || '';
+        if (S.discord_name) S.name = S.discord_name.toUpperCase();
         S.history.push({icon:'🎮', label:`Discord connecté : ${S.discord_name}`, pts:0, ts:new Date().toISOString()});
         save(); render();
         showToast(`Connecté en tant que ${S.discord_name} ✓`);
@@ -1394,23 +1545,59 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 async function requestNotifPermission() {
-  // Sur iOS, les notifications ne marchent qu'en mode PWA (ajouté à l'écran d'accueil)
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+  // iOS hors PWA : guider l'installation
+  if (isIOS && !isStandalone) {
+    document.getElementById('notifBanner').style.display = 'none';
+    document.getElementById('installBanner').style.display = 'flex';
+    return;
+  }
+
+  // Navigateur sans support Notification (ex: ancien Safari)
   if (!('Notification' in window)) {
-    if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !isStandalone) {
-      showToast('Ajoute la carte sur ton ecran d\'accueil d\'abord (Partager → Ecran d\'accueil)');
+    // Tenter quand même le service worker push si disponible
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+        });
+        const tier = getTier(S.pts).name;
+        await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            subscription: sub.toJSON(),
+            discord_id: S.discord_id,
+            discord_name: S.discord_name,
+            tier: tier
+          })
+        });
+        document.getElementById('notifBanner').style.display = 'none';
+        showToast('Notifications activées ✓');
+        return;
+      } catch(e) {}
+    }
+    // Aucun support du tout
+    if (isIOS) {
+      document.getElementById('installBanner').style.display = 'flex';
+      document.getElementById('notifBanner').style.display = 'none';
     } else {
-      showToast('Notifications non supportees sur ce navigateur');
+      showToast('Ouvre cette page dans Chrome pour activer les notifications');
     }
     return;
   }
+
   const perm = await Notification.requestPermission();
   if (perm === 'granted') {
     document.getElementById('notifBanner').style.display = 'none';
-    showToast('Notifications activees ✓');
+    showToast('Notifications activées ✓');
     await registerPushSubscription();
   } else {
-    showToast('Permission refusee');
+    showToast('Permission refusée — va dans Réglages > Safari > Notifications pour autoriser');
   }
 }
 
@@ -1567,6 +1754,28 @@ function shareCard() {
 function showInstallSteps() {
   document.getElementById('installStepsWallet').style.display = 'block';
   openWallet();
+}
+
+// ═══ ADD TO HOME SCREEN ═══
+let _a2hsPrompt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); _a2hsPrompt = e; });
+
+function addToHomeScreen() {
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (isStandalone) { showToast('Déjà installée sur ton écran !'); return; }
+
+  // Android/Chrome — native prompt
+  if (_a2hsPrompt) {
+    _a2hsPrompt.prompt();
+    _a2hsPrompt.userChoice.then(r => {
+      if (r.outcome === 'accepted') showToast('Ajoutée à ton écran !');
+      _a2hsPrompt = null;
+    });
+    return;
+  }
+
+  // iOS Safari — toast rapide
+  showToast('Appuie sur ⬆️ en bas de Safari puis "Sur l\'écran d\'accueil"');
 }
 
 // ═══════════════════════════════════════════════════
@@ -1899,17 +2108,9 @@ window.addEventListener('hashchange', checkHash);
 // FIRST LAUNCH NAME
 // ═══════════════════════════════════════════════════
 function firstLaunch() {
-  if (S.name === 'MEMBRE' && !localStorage.getItem('mf4_launched')) {
+  // Plus de prompt de nom — connexion Discord uniquement
+  if (!localStorage.getItem('mf4_launched')) {
     localStorage.setItem('mf4_launched', '1');
-    setTimeout(() => {
-      const name = prompt('Bienvenue ! Entre ton prénom pour personnaliser ta carte :');
-      if (name && name.trim()) {
-        S.name = name.trim().toUpperCase();
-        S.history.push({icon:'🎉', label:`Bienvenue ${S.name} dans le Groupe Focus !`, pts:0, ts:new Date().toISOString()});
-        addNotif('🎉', 'Bienvenue !', `Carte créée pour ${S.name}`);
-        save(); render();
-      }
-    }, 800);
   }
 }
 
@@ -2022,21 +2223,11 @@ function renderLivePage(live) {
     statusTxt.textContent = 'LIVE EN COURS';
     statusTxt.classList.remove('offline');
     titleHero.textContent = live.title || 'Live Mentalité Focus';
-    subHero.textContent = 'Le live est en cours maintenant. Aperçu gratuit : 5 minutes.';
+    subHero.textContent = 'Un live est en cours maintenant.';
     countRow.style.display = 'flex';
     playerWrap.style.display = 'block';
-    paywall.style.display = 'none';
     nextBlock.style.display = 'none';
     summaryBlk.style.display = 'none';
-
-    // Vérifier si preview déjà utilisé (stocké en localStorage pour feedback instantané)
-    const prevUsed = localStorage.getItem('mf_preview_used');
-    const prevTs   = parseInt(prevUsed || '0', 10);
-    if (prevTs && Date.now() - prevTs < 86400000) {
-      // Déjà utilisé aujourd'hui — montrer overlay bloqué directement
-      showBlockedOverlay('already_used', 'Aperçu déjà utilisé aujourd\'hui. 1 aperçu gratuit par 24h — impossible à contourner.');
-    }
-    // Sinon l'overlay initial "Voir l'aperçu" est déjà visible
 
   } else {
     dot.style.display = 'none';
@@ -2059,103 +2250,202 @@ function renderLivePage(live) {
   }
 }
 
-// ── L'utilisateur clique sur "Voir l'aperçu" ────────────────────────────────
-async function requestPreview() {
-  const btn = document.querySelector('#liveInitOverlay .lpo-btn');
-  if (btn) { btn.textContent = 'Vérification...'; btn.disabled = true; }
+// ═══════════════════════════════════════════════════
+// RADAR — Membres à proximité (10 km)
+// ═══════════════════════════════════════════════════
+let radarActive = localStorage.getItem('mf_radar') === 'on';
+let radarInterval = null;
 
-  try {
-    const fp  = await getFingerprint();
-    const res = await fetch('/api/live', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ action: 'preview_request', fingerprint: fp })
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      // Accès accordé
-      localStorage.setItem('mf_preview_used', Date.now().toString());
-      startPreview(data.stream_url, data.duration || 300);
-    } else {
-      // Bloqué
-      const msgs = {
-        no_live:      'Aucun live en cours pour le moment.',
-        already_used: 'Aperçu déjà utilisé aujourd\'hui. 1 aperçu gratuit par 24h — impossible à contourner.',
-        ip_blocked:   data.message || 'Trop de tentatives. Accès suspendu 7 jours.'
-      };
-      showBlockedOverlay(data.reason, msgs[data.reason] || data.message || 'Accès refusé.');
-    }
-  } catch(e) {
-    if (btn) { btn.textContent = 'Voir l\'aperçu gratuit'; btn.disabled = false; }
-    showToast('Erreur réseau — réessaie');
+function loadRadar() {
+  const sw = document.getElementById('radarSwitch');
+  if (radarActive) {
+    sw.classList.add('on');
+    fetchNearby();
   }
 }
 
-function showBlockedOverlay(reason, msg) {
-  document.getElementById('liveInitOverlay').style.display   = 'none';
-  document.getElementById('liveBlockedOverlay').style.display = 'flex';
-  document.getElementById('liveBlockedSub').textContent       = msg || 'Rejoins Focus pour accéder au live complet.';
-  const title = document.getElementById('liveBlockedTitle');
-  if (reason === 'ip_blocked') title.textContent = 'Accès suspendu';
-  else if (reason === 'no_live') title.textContent = 'Aucun live en cours';
-  else title.textContent = 'Accès refusé';
-}
-
-function startPreview(streamUrl, duration) {
-  // Cacher overlay init, montrer iframe
-  document.getElementById('liveInitOverlay').style.display  = 'none';
-  const iframeWrap = document.getElementById('liveIframeWrap');
-  iframeWrap.style.display = 'block';
-
-  // Injecter l'iframe (YouTube embed)
-  const iframe = document.getElementById('liveIframe');
-  if (streamUrl) {
-    // Convertir URL YouTube en embed si nécessaire
-    let embedUrl = streamUrl;
-    const ytMatch = streamUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-    if (ytMatch) {
-      embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+function toggleRadar() {
+  const sw = document.getElementById('radarSwitch');
+  radarActive = !radarActive;
+  if (radarActive) {
+    sw.classList.add('on');
+    // Demander la géoloc
+    if (!navigator.geolocation) {
+      showToast('Géolocalisation non supportée');
+      radarActive = false; sw.classList.remove('on');
+      return;
     }
-    iframe.src = embedUrl;
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        localStorage.setItem('mf_radar', 'on');
+        registerPosition(pos.coords.latitude, pos.coords.longitude);
+      },
+      err => {
+        showToast('Autorise la localisation pour activer le radar');
+        radarActive = false; sw.classList.remove('on');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   } else {
-    // Pas d'URL de stream — juste afficher un placeholder
-    iframeWrap.innerHTML = `
-      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;flex-direction:column;gap:8px;">
-        <div style="font-size:32px;">🔴</div>
-        <div style="font-size:14px;font-weight:700;">Live en cours</div>
-        <div style="font-size:12px;color:#666;">Rejoins Discord pour voir le live complet</div>
-      </div>`;
+    sw.classList.remove('on');
+    localStorage.removeItem('mf_radar');
+    unregisterPosition();
+    document.getElementById('radarGrid').style.display = 'none';
+    document.getElementById('radarGrid').innerHTML = '';
+    document.getElementById('radarListTitle').style.display = 'none';
+    document.getElementById('radarList').innerHTML = '';
+    document.getElementById('radarEmpty').style.display = 'none';
+    document.getElementById('radarCountWrap').style.display = 'none';
+    document.getElementById('radarSubtitle').textContent = 'Membres à moins de 10 km';
+    if (radarInterval) { clearInterval(radarInterval); radarInterval = null; }
   }
-
-  // Démarrer le countdown
-  const countdown = document.getElementById('liveCountdown');
-  countdown.style.display = 'flex';
-  let remaining = duration;
-
-  previewTimer = setInterval(() => {
-    remaining--;
-    const m = Math.floor(remaining / 60);
-    const s = remaining % 60;
-    document.getElementById('liveCountdownTime').textContent =
-      `${m}:${s.toString().padStart(2,'0')}`;
-
-    if (remaining <= 0) {
-      clearInterval(previewTimer);
-      endPreview();
-    }
-  }, 1000);
 }
 
-function endPreview() {
-  // Couper l'iframe
-  const iframe = document.getElementById('liveIframe');
-  if (iframe) iframe.src = 'about:blank';
-  document.getElementById('liveIframeWrap').style.display = 'none';
-  document.getElementById('liveCountdown').style.display  = 'none';
+async function registerPosition(lat, lng) {
+  const member = window._memberData || {};
+  try {
+    await fetch('/api/radar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'register',
+        discord_id: S.discord_id || 'anon',
+        name: S.discord_name || S.name || 'Membre',
+        avatar: S.discord_avatar || '',
+        tier: getTier(S.pts).name || 'MEMBRE',
+        lat, lng
+      })
+    });
+    fetchNearby();
+    // Refresh toutes les 60s
+    if (radarInterval) clearInterval(radarInterval);
+    radarInterval = setInterval(() => {
+      // Re-register position + fetch nearby
+      navigator.geolocation.getCurrentPosition(pos => {
+        registerPosition(pos.coords.latitude, pos.coords.longitude);
+      }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
+    }, 30000);
+  } catch(e) {
+    showToast('Erreur réseau radar');
+  }
+}
 
-  // Afficher la paywall
-  document.getElementById('livePaywall').style.display = 'block';
+async function unregisterPosition() {
+  const member = window._memberData || {};
+  const did = S.discord_id || '';
+  if (!did) return;
+  try {
+    await fetch('/api/radar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'unregister', discord_id: did })
+    });
+  } catch(e) {}
+}
+
+async function fetchNearby() {
+  if (!radarActive) return;
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lng } = pos.coords;
+    try {
+      const myId = S.discord_id || '';
+      const res = await fetch(`/api/radar?lat=${lat}&lng=${lng}&radius=10&exclude=${myId}`);
+      const data = await res.json();
+      renderRadar(data.members || [], lat, lng);
+    } catch(e) {
+      console.error('Radar fetch error:', e);
+    }
+  }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+function renderRadar(members, myLat, myLng) {
+  const grid = document.getElementById('radarGrid');
+  const list = document.getElementById('radarList');
+  const empty = document.getElementById('radarEmpty');
+  const title = document.getElementById('radarListTitle');
+  const countWrap = document.getElementById('radarCountWrap');
+  const countEl = document.getElementById('radarCount');
+  const sub = document.getElementById('radarSubtitle');
+
+  countWrap.style.display = 'block';
+  countEl.textContent = members.length;
+  sub.textContent = members.length > 0
+    ? `${members.length} membre${members.length > 1 ? 's' : ''} dans un rayon de 10 km`
+    : 'Membres à moins de 10 km';
+
+  if (members.length === 0) {
+    empty.style.display = 'block';
+    grid.style.display = 'none';
+    title.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  // Jusqu'à 8 : grille de cartes. Au-delà : les 8 premiers en grille, le reste en liste
+  const gridMembers = members.slice(0, 8);
+  const listMembers = members.slice(8);
+
+  // Grille
+  grid.style.display = 'grid';
+  grid.innerHTML = gridMembers.map(m => {
+    const initials = (m.name || 'M').charAt(0).toUpperCase();
+    const avatarHtml = m.avatar
+      ? `<img src="${m.avatar}" alt="" onerror="this.parentElement.innerHTML='<div class=rg-init>${initials}</div>'">`
+      : `<div class="rg-init">${initials}</div>`;
+    const dist = (m.distance_km || 0).toFixed(1);
+    const safeName = (m.name || '').replace(/'/g, "\\'");
+    return `
+      <div class="rg-card">
+        <div class="rg-dist-badge">${dist} km</div>
+        <div class="rg-av">${avatarHtml}</div>
+        <div class="rg-name">${m.name || 'Membre'}</div>
+        <div class="rg-tier">${m.tier || 'MEMBRE'}</div>
+        <button class="rg-btn" onclick="contactMember('${m.discord_id}','${safeName}')">Contacter</button>
+      </div>`;
+  }).join('');
+
+  // Liste pour les membres au-delà de 8
+  if (listMembers.length > 0) {
+    title.style.display = 'block';
+    list.innerHTML = listMembers.map(m => {
+      const initials = (m.name || 'M').charAt(0).toUpperCase();
+      const avatarHtml = m.avatar
+        ? `<img src="${m.avatar}" alt="" onerror="this.parentElement.innerHTML='<div class=rl-init>${initials}</div>'">`
+        : `<div class="rl-init">${initials}</div>`;
+      const dist = (m.distance_km || 0).toFixed(1);
+      const safeName = (m.name || '').replace(/'/g, "\\'");
+      return `
+        <div class="rl-item">
+          <div class="rl-av">${avatarHtml}</div>
+          <div class="rl-info">
+            <div class="rl-name">${m.name || 'Membre'}</div>
+            <div class="rl-meta"><span class="rl-tier">${m.tier || 'MEMBRE'}</span><span class="rl-dist">· ${dist} km</span></div>
+          </div>
+          <button class="rl-btn" onclick="contactMember('${m.discord_id}','${safeName}')">Contacter</button>
+        </div>`;
+    }).join('');
+  } else {
+    title.style.display = 'none';
+    list.innerHTML = '';
+  }
+}
+
+function contactMember(discordId, name) {
+  // Essayer le deep link Discord (ouvre l'app directement)
+  const deepLink = `discord://discord.com/users/${discordId}`;
+  const webLink = `https://discord.com/users/${discordId}`;
+
+  // Sur mobile, tenter le deep link d'abord
+  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.location.href = deepLink;
+    // Fallback après 1.5s si l'app ne s'ouvre pas
+    setTimeout(() => { window.open(webLink, '_blank'); }, 1500);
+  } else {
+    window.open(webLink, '_blank');
+  }
 }
 
 // ── Notifications live ────────────────────────────────────────────────────────
@@ -2218,6 +2508,7 @@ async function checkLiveBadge() {
   }
 })();
 render();
+loadLives();
 firstLaunch();
 initSW();
 loadBadges();

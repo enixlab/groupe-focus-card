@@ -2,3 +2,4 @@ index.html.bak
 __pycache__/
 *.pyc
 .env
+.vercel

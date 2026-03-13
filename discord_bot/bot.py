@@ -33,10 +33,11 @@ RESUME_CHANNEL_ID  = int(os.environ.get("RESUME_CHANNEL_ID",  "0"))
 STATUS_CHANNEL_ID  = int(os.environ.get("STATUS_CHANNEL_ID",  "0"))
 LIVE_VOICE_ID      = int(os.environ.get("LIVE_VOICE_CHANNEL_ID", "0"))
 ADMIN_ROLE_ID      = int(os.environ.get("ADMIN_ROLE_ID", "0"))
+LIVES_CHANNEL_ID   = int(os.environ.get("LIVES_CHANNEL_ID", "0"))
 PUSH_SECRET        = os.environ.get("PUSH_SECRET", "MF2026FOCUS")
 CARD_API           = os.environ.get("CARD_API_URL", "https://groupe-focus-card.vercel.app/api")
 CARD_URL           = os.environ.get("CARD_URL", "https://groupe-focus-card.vercel.app")
-JOIN_URL           = os.environ.get("JOIN_URL", "https://focus-business.com")
+JOIN_URL           = os.environ.get("JOIN_URL", "https://mentalitefocus.com/")
 
 # ─── BOT ───────────────────────────────────────────────────────────────────────
 intents = discord.Intents.default()
@@ -49,7 +50,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # State en mémoire
 current_live = None        # dict | None
 status_msg_id = None       # ID du message status éditable
-apercu_msg_id = None       # ID du message aperçu (pour l'éditer à la coupure)
+apercu_msg_id = None       # ID du message aperçu
 
 # ─── HELPERS ───────────────────────────────────────────────────────────────────
 def is_admin(ctx):
@@ -79,13 +80,13 @@ async def send_card_push(title: str, body: str, url: str = "/", tier: str = "ALL
     except Exception as e:
         print(f"Push error: {e}")
 
-async def notify_live_api(action: str, title: str = "", stream_url: str = ""):
+async def notify_live_api(action: str, title: str = "", stream_url: str = "", host: str = "Focus"):
     """Notifie l'API de la carte du statut du live (pour le preview player)."""
     try:
         async with aiohttp.ClientSession() as session:
             await session.post(
                 f"{CARD_API}/live",
-                json={"secret": PUSH_SECRET, "action": action, "title": title, "stream_url": stream_url},
+                json={"secret": PUSH_SECRET, "action": action, "title": title, "stream_url": stream_url, "host": host},
                 timeout=aiohttp.ClientTimeout(total=10)
             )
     except Exception as e:
@@ -95,7 +96,10 @@ async def notify_live_api(action: str, title: str = "", stream_url: str = ""):
 @bot.event
 async def on_ready():
     print(f"✅ Focus Bot connecté — {bot.user} (id:{bot.user.id})")
-    update_live_status.start()
+    if not update_live_status.is_running():
+        update_live_status.start()
+    if not check_scheduled_lives.is_running():
+        check_scheduled_lives.start()
 
 @bot.event
 async def on_member_join(member):
@@ -184,7 +188,7 @@ async def cmd_live(ctx, *, args: str = ""):
     # 2) Push notification vers TOUS les abonnés carte
     await send_card_push(
         title=f"🔴 LIVE — {title}",
-        body="Live en direct. Aperçu gratuit 5 min → ouvre ta carte Focus.",
+        body="Un live est en cours maintenant ! Ouvre ta carte Focus.",
         url="/?tab=live",
         tier="ALL"
     )
@@ -200,35 +204,16 @@ async def cmd_live(ctx, *, args: str = ""):
         embed.description = (
             "**Le live vient de démarrer.**\n\n"
             f"👥 **{nb} membres** connectés en ce moment\n\n"
-            "✅ Aperçu gratuit : **5 premières minutes** disponibles sur ta carte\n"
-            "🔒 Live complet → membres uniquement\n\n"
-            f"[🃏 Voir l'aperçu sur ma carte]({CARD_URL}/?tab=live)  ·  [🚀 Rejoindre Focus]({JOIN_URL})"
+            "🔒 Réservé aux membres Focus\n\n"
+            f"[🃏 Ouvrir ma carte]({CARD_URL}/?tab=live)  ·  [🚀 Rejoindre Focus]({JOIN_URL})"
         )
-        embed.set_footer(text="Après 5 min, le live continue uniquement pour les membres.")
+        embed.set_footer(text="Focus Business · Entrepreneurs, pas salariés.")
         msg = await apercu_ch.send(embed=embed)
         apercu_msg_id = msg.id
 
-        # Tâche : coupure après 3 min
-        asyncio.create_task(post_cutoff(apercu_ch, title))
-
     await ctx.message.delete()
+    await update_lives_channel()
     print(f"[BOT] Live démarré : {title}")
-
-async def post_cutoff(channel, title: str):
-    """Poste le message de coupure 5 min après le début du live."""
-    await asyncio.sleep(300)  # 5 minutes
-    embed = discord.Embed(
-        title="⛔ Aperçu terminé — 5 minutes écoulées",
-        color=0x333333
-    )
-    embed.description = (
-        f"Les **5 premières minutes** de « **{title}** » sont écoulées.\n\n"
-        "**Le live continue pour les membres.**\n\n"
-        f"→ [Rejoindre Focus à 9,90€/mois]({JOIN_URL})\n"
-        f"→ [Obtenir ta carte fidélité]({CARD_URL})"
-    )
-    embed.set_footer(text="Ne rate plus aucun live → rejoins Focus")
-    await channel.send(embed=embed)
 
 # ─── COMMANDE : !endlive ───────────────────────────────────────────────────────
 @bot.command(name="endlive")
@@ -283,6 +268,7 @@ async def cmd_endlive(ctx, *, summary: str = ""):
 
     current_live = None
     await ctx.message.delete()
+    await update_lives_channel()
     print(f"[BOT] Live terminé : {title}")
 
 # ─── COMMANDE : !livelog ───────────────────────────────────────────────────────
@@ -306,6 +292,197 @@ async def cmd_livelog(ctx, *, text: str = ""):
         )
         await apercu_ch.send(embed=embed)
     await ctx.message.delete()
+
+# ─── COMMANDE : !sujet — définir le sujet du live en cours ────────────────────
+@bot.command(name="sujet")
+async def cmd_sujet(ctx, *, titre: str = ""):
+    """Change le sujet du live en cours et renvoie une push notification avec le vrai sujet."""
+    if not is_admin(ctx):
+        return await ctx.send("❌ Accès refusé.")
+    if not current_live:
+        return await ctx.send("❌ Aucun live en cours.")
+    if not titre:
+        return await ctx.send("Usage : `!sujet Le mindset des entrepreneurs d'élite`")
+
+    old_title = current_live["title"]
+    current_live["title"] = titre
+
+    # Mettre à jour l'API live
+    await notify_live_api("start", title=titre, host=current_live.get("host", "Focus"))
+
+    # Renvoyer une push notification avec le vrai sujet
+    await send_card_push(
+        title=f"🔴 LIVE — {titre}",
+        body=f"Live en cours par {current_live.get('host', 'Focus')}. Ouvre ta carte Focus !",
+        url="/?tab=live",
+        tier="ALL"
+    )
+
+    # Mettre à jour l'embed dans #aperçu-live
+    apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
+    if apercu_ch and apercu_msg_id:
+        try:
+            msg = await apercu_ch.fetch_message(apercu_msg_id)
+            nb = members_in_voice()
+            embed = discord.Embed(title=f"🔴 {titre}", color=0xFF0000)
+            embed.description = (
+                "**Le live vient de démarrer.**\n\n"
+                f"👥 **{nb} membres** connectés en ce moment\n\n"
+                "🔒 Réservé aux membres Focus\n\n"
+                f"[🃏 Ouvrir ma carte]({CARD_URL}/?tab=live)  ·  [🚀 Rejoindre Focus]({JOIN_URL})"
+            )
+            embed.set_footer(text="Mentalité Focus")
+            await msg.edit(embed=embed)
+        except Exception:
+            pass
+
+    await ctx.send(f"✅ Sujet mis à jour : **{titre}**\n📲 Push notification envoyée à tous les abonnés.", delete_after=10)
+    await ctx.message.delete()
+    print(f"[BOT] Sujet live changé : {old_title} → {titre}")
+
+# ─── COMMANDE : !planlive — programmer un futur live ──────────────────────────
+@bot.command(name="planlive")
+async def cmd_planlive(ctx, *, args: str = ""):
+    """Programme un live futur.
+    Usage: !planlive Titre du live | Présentateur | JJ/MM à HH:MM
+    Ex:    !planlive Automatisation Campagne Mail 🚀📧 | VALD | 15/03 à 20:30
+    """
+    if not is_admin(ctx):
+        return await ctx.send("❌ Accès refusé.")
+    if not args or "|" not in args:
+        return await ctx.send("Usage : `!planlive Titre 🔥 | Présentateur | JJ/MM à HH:MM`")
+
+    parts = [p.strip() for p in args.split("|")]
+    if len(parts) < 3:
+        return await ctx.send("Usage : `!planlive Titre 🔥 | Présentateur | JJ/MM à HH:MM`")
+
+    title = parts[0]
+    host = parts[1]
+    date_str = parts[2]
+
+    # Parser la date (format JJ/MM à HH:MM)
+    import re
+    m = re.match(r"(\d{1,2})/(\d{1,2})\s*[àa]\s*(\d{1,2})[h:](\d{2})", date_str)
+    if not m:
+        return await ctx.send("Format date invalide. Utilise : `JJ/MM à HH:MM` (ex: 15/03 à 20:30)")
+
+    from datetime import datetime, timezone, timedelta
+    day, month, hour, minute = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
+    year = datetime.now().year
+    paris = timedelta(hours=1)
+    dt_paris = datetime(year, month, day, hour, minute, 0)
+    dt_utc = dt_paris - paris
+    ts = dt_utc.replace(tzinfo=timezone.utc).timestamp()
+
+    # Enregistrer dans l'API
+    try:
+        async with aiohttp.ClientSession() as session:
+            await session.post(
+                f"{CARD_API}/live",
+                json={"secret": PUSH_SECRET, "action": "schedule", "title": title, "host": host, "scheduled_at": ts},
+                timeout=aiohttp.ClientTimeout(total=10)
+            )
+    except Exception as e:
+        print(f"planlive API error: {e}")
+
+    await ctx.send(f"✅ Live programmé !\n🎙️ **{title}**\n👤 Par **{host}**\n📅 **{date_str}**", delete_after=15)
+    await ctx.message.delete()
+
+    # Mettre à jour le canal programme
+    await update_lives_channel()
+    print(f"[BOT] Live programmé : {title} par {host} le {date_str}")
+
+# ─── MISE A JOUR DU CANAL PROGRAMME LIVES ────────────────────────────────────
+_lives_msg_id = None
+
+async def update_lives_channel():
+    """Met à jour le canal #programme-lives avec tous les lives."""
+    global _lives_msg_id
+    if not LIVES_CHANNEL_ID:
+        return
+    ch = bot.get_channel(LIVES_CHANNEL_ID)
+    if not ch:
+        return
+
+    # Charger les lives depuis l'API
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{CARD_API}/live", timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                data = await resp.json()
+    except:
+        return
+
+    history = data.get("history", [])
+    current = data.get("current", {})
+
+    # Trier par date
+    scheduled = [l for l in history if l.get("status") == "scheduled"]
+    ended = [l for l in history if l.get("status") == "ended"]
+    scheduled.sort(key=lambda x: x.get("scheduled_at", 0))
+    ended.sort(key=lambda x: x.get("started_at", 0), reverse=True)
+
+    from datetime import datetime, timezone, timedelta
+
+    # Construire l'embed
+    embed = discord.Embed(
+        title="📋 PROGRAMME DES LIVES",
+        color=0xC9A227
+    )
+
+    # Live en cours
+    if current.get("active"):
+        embed.add_field(
+            name="🔴 EN DIRECT MAINTENANT",
+            value=f"**{current.get('title', 'Live Focus')}**\n🎙️ {current.get('host', 'Focus')}",
+            inline=False
+        )
+
+    # Lives à venir
+    if scheduled:
+        upcoming = ""
+        for l in scheduled[:10]:
+            ts = l.get("scheduled_at", 0)
+            dt = datetime.fromtimestamp(ts, tz=timezone(timedelta(hours=1)))
+            date_str = dt.strftime("%d/%m à %Hh%M")
+            upcoming += f"⏰ **{l.get('title', 'Live')}**\n   🎙️ {l.get('host', 'Focus')} · 📅 {date_str}\n\n"
+        embed.add_field(name="📅 LIVES À VENIR", value=upcoming, inline=False)
+    else:
+        embed.add_field(name="📅 LIVES À VENIR", value="_Aucun live programmé pour le moment_", inline=False)
+
+    # Historique
+    if ended:
+        hist = ""
+        for l in ended[:10]:
+            ts = l.get("started_at", 0)
+            dt = datetime.fromtimestamp(ts, tz=timezone(timedelta(hours=1)))
+            date_str = dt.strftime("%d/%m à %Hh%M")
+            hist += f"✅ **{l.get('title', 'Live')}** — {l.get('host', 'Focus')} · {date_str}\n"
+        embed.add_field(name="📼 LIVES PASSÉS", value=hist, inline=False)
+
+    embed.set_footer(text=f"Dernière mise à jour · {datetime.now(tz=timezone(timedelta(hours=1))).strftime('%d/%m %H:%M')}")
+
+    # Éditer ou envoyer le message
+    try:
+        if _lives_msg_id:
+            try:
+                msg = await ch.fetch_message(_lives_msg_id)
+                await msg.edit(embed=embed)
+                return
+            except:
+                pass
+
+        # Chercher un message existant du bot
+        async for msg in ch.history(limit=10):
+            if msg.author == bot.user and msg.embeds:
+                await msg.edit(embed=embed)
+                _lives_msg_id = msg.id
+                return
+
+        # Sinon créer
+        msg = await ch.send(embed=embed)
+        _lives_msg_id = msg.id
+    except Exception as e:
+        print(f"[BOT] update_lives_channel error: {e}")
 
 # ─── COMMANDE : !push ─────────────────────────────────────────────────────────
 @bot.command(name="push")
@@ -334,6 +511,63 @@ async def cmd_stats(ctx):
     embed.add_field(name="Live en cours", value=current_live["title"] if current_live else "Aucun", inline=False)
     await ctx.send(embed=embed)
 
+# ─── TÂCHE : rappel 10 min avant les lives programmés ─────────────────────────
+_notified_lives = set()  # IDs des lives pour lesquels le rappel a déjà été envoyé
+
+@tasks.loop(minutes=1)
+async def check_scheduled_lives():
+    """Vérifie les lives programmés et envoie un rappel 10 min avant."""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{CARD_API}/live", timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                data = await resp.json()
+
+        history = data.get("history", [])
+        now = time.time()
+
+        for live in history:
+            if live.get("status") != "scheduled":
+                continue
+            lid = live.get("id", "")
+            scheduled_at = live.get("scheduled_at", 0)
+            time_until = scheduled_at - now
+
+            # Rappel 10 min avant (entre 9 et 11 min)
+            if 540 < time_until < 660 and lid not in _notified_lives:
+                _notified_lives.add(lid)
+                title = live.get("title", "Live Focus")
+                host = live.get("host", "Focus")
+
+                # Push notification à tous les abonnés
+                await send_card_push(
+                    title=f"⏰ Live dans 10 min — {host}",
+                    body=f"{title}",
+                    url="/?tab=live",
+                    tier="ALL"
+                )
+
+                # Post dans #aperçu-live
+                apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
+                if apercu_ch:
+                    embed = discord.Embed(title=f"⏰ LIVE DANS 10 MINUTES", color=0xFFAA00)
+                    embed.description = (
+                        f"**{title}**\n\n"
+                        f"🎙️ Présenté par **{host}**\n"
+                        f"🕐 Début à **20h30**\n\n"
+                        f"Prépare-toi, ça va démarrer !\n\n"
+                        f"[🃏 Ouvrir ma carte]({CARD_URL}/?tab=live)  ·  [🚀 Rejoindre Focus]({JOIN_URL})"
+                    )
+                    embed.set_footer(text="Mentalité Focus")
+                    await apercu_ch.send(embed=embed)
+
+                print(f"[BOT] ⏰ Rappel envoyé : {title} par {host} dans 10 min")
+    except Exception as e:
+        print(f"[BOT] check_scheduled error: {e}")
+
+@check_scheduled_lives.before_loop
+async def before_check_scheduled():
+    await bot.wait_until_ready()
+
 # ─── TÂCHE : statut live mis à jour toutes les 5 min ─────────────────────────
 @tasks.loop(minutes=5)
 async def update_live_status():
@@ -350,7 +584,7 @@ async def update_live_status():
         content = (
             f"🔴 **LIVE EN COURS** — {current_live['title']}\n"
             f"👥 **{nb} membres** connectés en ce moment\n\n"
-            f"_Aperçu 3 min gratuit · Live complet → membres uniquement_\n"
+            f"_Réservé aux membres Focus_\n"
             f"[🃏 Ouvrir ma carte]({CARD_URL}/?tab=live) · [🚀 Rejoindre Focus]({JOIN_URL})"
         )
     else:
@@ -370,5 +604,106 @@ async def update_live_status():
         await ch.send(content)
     except Exception:
         pass
+
+# ─── AUTO-DETECT : stream/live démarré dans un salon vocal ────────────────────
+@bot.event
+async def on_voice_state_update(member, before, after):
+    """Détecte automatiquement quand un admin lance un stream/live."""
+    global current_live, apercu_msg_id
+
+    # Ignorer les bots
+    if member.bot:
+        return
+
+    print(f"[VOX] {member.display_name} | before={before.channel} stream={getattr(before,'self_stream',False)} | after={after.channel} stream={getattr(after,'self_stream',False)}", flush=True)
+
+    # Vérifier que c'est un admin ou le propriétaire du serveur
+    is_adm = member.guild_permissions.administrator
+    if ADMIN_ROLE_ID and not is_adm:
+        is_adm = any(r.id == ADMIN_ROLE_ID for r in member.roles)
+    if not is_adm:
+        print(f"[VOX] {member.display_name} n'est pas admin, ignoré", flush=True)
+        return
+
+    # Détecter : admin rejoint un vocal OU lance un stream/vidéo
+    was_in_voice  = before.channel is not None
+    now_in_voice  = after.channel is not None
+    was_streaming = getattr(before, "self_stream", False) or getattr(before, "self_video", False)
+    now_streaming = getattr(after, "self_stream", False) or getattr(after, "self_video", False)
+
+    # Trigger : rejoint un vocal, OU lance un stream/vidéo
+    just_joined   = now_in_voice and not was_in_voice
+    just_streamed = now_streaming and not was_streaming
+
+    if (just_joined or just_streamed) and not current_live:
+        title = f"Live de {member.display_name}"
+        print(f"[BOT] 🔴 Auto-détection : {member.display_name} a lancé un stream !")
+
+        current_live = {
+            "title":      title,
+            "stream_url": "",
+            "start_ts":   time.time(),
+            "host":       member.display_name,
+        }
+
+        # 1) Notifier l'API carte
+        await notify_live_api("start", title=title)
+
+        # 2) Push notification
+        await send_card_push(
+            title=f"🔴 LIVE — {title}",
+            body="Un live est en cours maintenant ! Ouvre ta carte Focus.",
+            url="/?tab=live",
+            tier="ALL"
+        )
+
+        # 3) Post dans #aperçu-live
+        apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
+        if apercu_ch:
+            nb = members_in_voice()
+            embed = discord.Embed(title=f"🔴 {title}", color=0xFF0000)
+            embed.description = (
+                "**Le live vient de démarrer.**\n\n"
+                f"👥 **{nb} membres** connectés en ce moment\n\n"
+                "🔒 Réservé aux membres Focus\n\n"
+                f"[🃏 Ouvrir ma carte]({CARD_URL}/?tab=live)  ·  [🚀 Rejoindre Focus]({JOIN_URL})"
+            )
+            embed.set_footer(text="Focus Business · Entrepreneurs, pas salariés.")
+            msg = await apercu_ch.send(embed=embed)
+            apercu_msg_id = msg.id
+
+    # Détecter le STOP : quitte le vocal OU arrête le stream
+    just_left = was_in_voice and not now_in_voice
+    just_stopped = was_streaming and not now_streaming
+
+    if (just_left or just_stopped) and current_live:
+        if current_live.get("host") == member.display_name:
+            title = current_live["title"]
+            print(f"[BOT] ⚫ Auto-détection : {member.display_name} a arrêté le stream.")
+
+            await notify_live_api("end")
+
+            # Post résumé dans #résumé-membres
+            resume_ch = bot.get_channel(RESUME_CHANNEL_ID)
+            if resume_ch:
+                embed = discord.Embed(title=f"📋 Résumé — {title}", color=0x0A0A0A)
+                embed.description = (
+                    "**Le live est terminé.**\n\n"
+                    "✅ Résumé partiel disponible\n"
+                    "🔒 Replay complet réservé aux membres\n\n"
+                    f"→ [Accéder au replay]({JOIN_URL})\n"
+                    f"→ [Obtenir ta carte Focus]({CARD_URL})"
+                )
+                embed.set_footer(text="Focus Business · Ne rate plus rien → rejoins l'abonnement")
+                await resume_ch.send(embed=embed)
+
+            await send_card_push(
+                title=f"📋 Live terminé — {title}",
+                body="Résumé disponible. Replay complet pour les membres.",
+                url="/?tab=live",
+                tier="ALL"
+            )
+
+            current_live = None
 
 bot.run(TOKEN)
