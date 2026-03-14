@@ -2167,8 +2167,13 @@ function firstLaunch() {
 // ═══════════════════════════════════════════════════
 async function initSW() {
   if (!('serviceWorker' in navigator)) return;
-  await navigator.serviceWorker.register('/sw.js');
-  if (S.notifEnabled && Notification.permission === 'granted') {
+  const reg = await navigator.serviceWorker.register('/sw.js');
+  reg.update(); // Force la mise à jour du SW à chaque ouverture
+
+  // Si permission déjà accordée → toujours re-register la subscription
+  // (couvre le cas PWA ajoutée à l'écran d'accueil qui perd le contexte)
+  if ('Notification' in window && Notification.permission === 'granted') {
+    document.getElementById('notifBanner').style.display = 'none';
     await registerPushSubscription();
   } else if ('Notification' in window && Notification.permission === 'default') {
     document.getElementById('notifBanner').style.display = 'flex';
