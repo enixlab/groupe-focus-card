@@ -16,10 +16,11 @@ Logique IP blocking :
 """
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse
-import json, os, sys, time, hashlib, hmac, base64
+import json, os, sys, time, hashlib, hmac, base64, urllib.request
 
 sys.path.insert(0, os.path.dirname(__file__))
 import _db
+import push as _push
 
 PUSH_SECRET      = os.environ.get("PUSH_SECRET", "MF2026FOCUS")
 PREVIEW_DURATION = 300   # secondes (5 min)
@@ -181,7 +182,15 @@ class handler(BaseHTTPRequestHandler):
         history.append(entry)
         _db.save("lives_history.json", history, hsha)
 
-        self._respond({"ok": True, "live": live_data})
+        # Envoyer push notification à tous les abonnés
+        title = live_data["title"]
+        push_result = _push.push_to_all(
+            f"🔴 LIVE — {title}",
+            f"{live_data['host']} est en direct maintenant !",
+            "/"
+        )
+
+        self._respond({"ok": True, "live": live_data, "push": push_result})
 
     def _handle_end(self):
         live, sha = _db.load("live.json", {})
