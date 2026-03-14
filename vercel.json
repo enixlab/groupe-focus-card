@@ -8,14 +8,14 @@
     { "src": "icon-192.png",  "use": "@vercel/static" },
     { "src": "icon-512.png",  "use": "@vercel/static" },
     { "src": "apple-touch-icon.png", "use": "@vercel/static" },
-    { "src": "api/*.py",      "use": "@vercel/python" },
+    { "src": "api/[!_]*.py",   "use": "@vercel/python" },
     { "src": "presentation_focus.html", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/sw.js",        "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/" } },
     { "src": "/manifest.json","dest": "/manifest.json" },
     { "src": "/api/pass",     "dest": "/api/pass.py" },
-    { "src": "/api/subscribe","dest": "/api/subscribe.py" },
+    { "src": "/api/subscribe","dest": "/api/push.py" },
     { "src": "/api/push",     "dest": "/api/push.py" },
     { "src": "/api/admin",    "dest": "/api/admin.py" },
     { "src": "/api/discord_debug", "dest": "/api/discord_debug.py" },

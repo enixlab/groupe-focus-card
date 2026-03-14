@@ -1,11 +1,13 @@
 """
-Push notifications vers TOUS les abonnés
-GET  /api/push?secret=MF2026FOCUS&title=...&body=...&url=/&tier=ALL
-POST /api/push { "secret":"MF2026FOCUS", "title":"...", "body":"...", "url":"/", "tier":"ALL" }
+Push notifications + Subscriptions
+GET  /api/push?secret=MF2026FOCUS&title=...&body=...&url=/&tier=ALL  → envoyer push
+POST /api/push { "secret":"...", "title":"...", "body":"...", "url":"/", "tier":"ALL" } → envoyer push
+GET  /api/subscribe → total abonnés
+POST /api/subscribe { "subscription":{...}, "discord_name":"...", "tier":"..." } → s'abonner
 """
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-import json, urllib.request, base64, os, sys, time
+import json, os, sys, time
 
 sys.path.insert(0, os.path.dirname(__file__))
 import _db
@@ -48,50 +50,82 @@ def push_to_all(title, body, url="/", tier_filter="ALL"):
         results["last_error"] = _last_push_error
     return results
 
+def _handle_subscribe(handler, body):
+    sub = body.get("subscription")
+    if not sub:
+        _respond(handler, {"error": "no subscription"}, 400); return
+    subs, sha = _db.load("subscriptions.json", [])
+    ep   = sub.get("endpoint", "")
+    subs = [s for s in subs if s.get("endpoint") != ep]
+    subs.append({
+        **sub,
+        "discord_name": body.get("discord_name", ""),
+        "discord_id":   body.get("discord_id", ""),
+        "tier":         body.get("tier", "MEMBRE"),
+        "ts":           time.time()
+    })
+    _db.save("subscriptions.json", subs, sha)
+    _respond(handler, {"ok": True, "total": len(subs)}, 201)
+
+def _respond(handler, data, code=200):
+    body = json.dumps(data).encode()
+    handler.send_response(code)
+    handler.send_header("Access-Control-Allow-Origin", "*")
+    handler.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    handler.send_header("Access-Control-Allow-Headers", "Content-Type")
+    handler.send_header("Content-Type", "application/json")
+    handler.send_header("Content-Length", str(len(body)))
+    handler.end_headers(); handler.wfile.write(body)
+
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
-        self.send_response(200); self._cors(); self.end_headers()
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
 
     def do_GET(self):
+        path = urlparse(self.path).path
+        # GET /api/subscribe → total abonnés
+        if path.rstrip("/").endswith("/subscribe"):
+            subs, _ = _db.load("subscriptions.json", [])
+            _respond(self, {"total": len(subs)}); return
+
+        # GET /api/push → envoyer push (nécessite secret)
         qs     = parse_qs(urlparse(self.path).query)
         secret = qs.get("secret",[""])[0]
         if secret != PUSH_SECRET:
-            self.send_response(403); self.end_headers()
-            self.wfile.write(b'{"error":"forbidden"}'); return
+            _respond(self, {"error": "forbidden"}, 403); return
         result = push_to_all(
-            qs.get("title",["🔴 LIVE — Mentalité Focus"])[0],
+            qs.get("title",["\U0001f534 LIVE — Mentalité Focus"])[0],
             qs.get("body", ["Un live est en cours !"])[0],
             qs.get("url",  ["/"])[0],
             qs.get("tier", ["ALL"])[0]
         )
-        self._respond(result)
+        _respond(self, result)
 
     def do_POST(self):
         try:
             length = int(self.headers.get("Content-Length", 0))
             body   = json.loads(self.rfile.read(length))
+            path   = urlparse(self.path).path
+
+            # POST /api/subscribe → inscription push
+            if path.rstrip("/").endswith("/subscribe"):
+                _handle_subscribe(self, body); return
+
+            # POST /api/push → envoyer push
             if body.get("secret") != PUSH_SECRET:
-                self.send_response(403); self.end_headers(); return
+                _respond(self, {"error": "forbidden"}, 403); return
             result = push_to_all(
-                body.get("title","🔴 LIVE — Mentalité Focus"),
+                body.get("title","\U0001f534 LIVE — Mentalité Focus"),
                 body.get("body", "Un live commence maintenant !"),
                 body.get("url",  "/"),
                 body.get("tier", "ALL")
             )
-            self._respond(result)
+            _respond(self, result)
         except Exception as e:
-            self._respond({"error": str(e)}, 500)
-
-    def _respond(self, data, code=200):
-        body = json.dumps(data).encode()
-        self.send_response(code); self._cors()
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers(); self.wfile.write(body)
-
-    def _cors(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+            _respond(self, {"error": str(e)}, 500)
 
     def log_message(self, *a): pass
