@@ -176,25 +176,30 @@ async def cmd_live(ctx, *, args: str = ""):
 
     global current_live, apercu_msg_id
 
+    host = ctx.author.display_name
+    already_live = current_live is not None
+
     current_live = {
         "title":      title,
         "stream_url": stream_url,
-        "start_ts":   time.time(),
-        "host":       ctx.author.display_name,
+        "start_ts":   current_live.get("start_ts", time.time()) if current_live else time.time(),
+        "host":       host,
     }
 
-    # 1) Notifier l'API carte
-    await notify_live_api("start", title=title, stream_url=stream_url)
+    # 1) Notifier l'API carte (update titre si déjà live, sinon start)
+    await notify_live_api("start", title=title, stream_url=stream_url, host=host)
 
-    # 2) Push notification Focus Card — TOUJOURS envoyer
-    host = ctx.author.display_name
-    await send_card_push(
-        title=f"🔴 {title}",
-        body=f"Par {host} — Rejoins maintenant",
-        url="/?tab=live",
-        tier="ALL"
-    )
-    print(f"[BOT] Push envoyée : {title}")
+    # 2) Push notification Focus Card — UNE SEULE FOIS
+    if not already_live:
+        await send_card_push(
+            title=f"🔴 {title}",
+            body=f"Par {host} — Rejoins maintenant",
+            url="/?tab=live",
+            tier="ALL"
+        )
+        print(f"[BOT] Push envoyée : {title}")
+    else:
+        print(f"[BOT] Live déjà actif, titre mis à jour : {title} (pas de re-push)")
 
     # 3) Post dans #aperçu-live
     apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
@@ -288,13 +293,7 @@ async def cmd_sujet(ctx, *, titre: str = ""):
     # Mettre à jour l'API live
     await notify_live_api("start", title=titre, host=current_live.get("host", "Focus"))
 
-    # Renvoyer une push notification avec le vrai sujet
-    await send_card_push(
-        title=f"🔴 LIVE — {titre}",
-        body=f"Live en cours par {current_live.get('host', 'Focus')}. Ouvre ta carte Focus !",
-        url="/?tab=live",
-        tier="ALL"
-    )
+    # Pas de re-push pour un changement de sujet (éviter doublons)
 
     # Mettre à jour l'embed dans #aperçu-live
     apercu_ch = bot.get_channel(APERCU_CHANNEL_ID)
