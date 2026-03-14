@@ -1321,7 +1321,7 @@ let watchTimer = null;
 function watchLive(id) {
   // Cas spécial : bouton "REJOINDRE" sur la page Live (pas dans le tableau LIVES)
   if (id === 'live_now') {
-    window.open('https://discord.com/channels/1481745584602742847/1481750393233866762', '_blank');
+    window.location.href='discord://discord.com/channels/1481745584602742847/1481750393233866762';
     showToast('🔴 Rejoins le live sur Discord');
     return;
   }
@@ -1329,7 +1329,7 @@ function watchLive(id) {
   const live = LIVES.find(l => l.id === id);
   if (!live) {
     // Fallback : ouvrir le vocal Discord
-    window.open('https://discord.com/channels/1481745584602742847/1481750393233866762', '_blank');
+    window.location.href='discord://discord.com/channels/1481745584602742847/1481750393233866762';
     return;
   }
 
@@ -1341,7 +1341,7 @@ function watchLive(id) {
   }
 
   // Rediriger directement dans le salon vocal Live Focus
-  window.open('https://discord.com/channels/1481745584602742847/1481750393233866762', '_blank');
+  window.location.href='discord://discord.com/channels/1481745584602742847/1481750393233866762';
 
   // Marquer la participation (le point sera gagné après 40 min)
   if (!S.watchedLives.includes(id)) {
