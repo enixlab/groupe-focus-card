@@ -621,11 +621,11 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
       <div class="carte-actions">
         <div class="ca-row">
           <button class="ca-btn secondary" id="walletBtn" onclick="openWallet()" style="font-size:11px;gap:6px;display:none;"><svg width="12" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:block;flex-shrink:0;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.08.05-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg> Wallet</button>
-          <button class="ca-btn secondary" onclick="shareCard()" style="font-size:11px;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Partager</button>
         </div>
-        <button class="ca-btn secondary" id="installHomeBtn" onclick="showInstallSteps()" style="background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;border:none;font-size:12px;font-weight:800;display:none;gap:8px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
-          Ajouter sur l'écran d'accueil
+        <!-- BOUTON AJOUTER ÉCRAN ACCUEIL — toujours visible -->
+        <button class="ca-btn gold" id="installHomeBtn" onclick="showInstallSteps()" style="font-size:13px;font-weight:800;gap:10px;padding:15px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/><path d="M12 6v6m0 0l-2-2m2 2l2-2"/></svg>
+          📲 Ajouter sur mon téléphone
         </button>
       </div>
 
@@ -1616,10 +1616,16 @@ async function requestNotifPermission() {
   }
 }
 
+let _pushRegistering = false;
 async function registerPushSubscription() {
+  if (_pushRegistering) return; // Anti-doublon
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  _pushRegistering = true;
   try {
     const reg = await navigator.serviceWorker.ready;
+    // Vérifier si déjà souscrit
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) { _pushRegistering = false; return; } // Déjà inscrit → stop
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
@@ -1638,6 +1644,7 @@ async function registerPushSubscription() {
     S.notifEnabled = true;
     save();
   } catch(e) { console.log('Push registration failed:', e); }
+  finally { _pushRegistering = false; }
 }
 
 async function updatePushSubscription() {
@@ -1800,8 +1807,11 @@ function shareCard() {
 }
 
 function showInstallSteps() {
-  document.getElementById('installStepsWallet').style.display = 'block';
-  openWallet();
+  document.getElementById('installGuideOverlay').style.display = 'flex';
+  // Détecter iOS ou Android
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  document.getElementById('installGuideIOS').style.display = isIOS ? 'block' : 'none';
+  document.getElementById('installGuideAndroid').style.display = isIOS ? 'none' : 'block';
 }
 
 // ═══ ADD TO HOME SCREEN ═══
@@ -2702,6 +2712,137 @@ function dismissNotifPopup() {
     <button onclick="dismissNotifPopup()" style="width:100%;padding:10px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;">Plus tard</button>
   </div>
 </div>
+
+<!-- ═══ MODAL GUIDE INSTALLATION ═══ -->
+<div id="installGuideOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);align-items:flex-end;justify-content:center;animation:overlay-in .3s ease;">
+  <div style="background:#fff;border-radius:28px 28px 0 0;width:100%;max-width:430px;padding:28px 24px 40px;position:relative;max-height:92vh;overflow-y:auto;">
+
+    <!-- Handle -->
+    <div style="width:40px;height:4px;background:#e0e0e0;border-radius:100px;margin:0 auto 24px;"></div>
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:36px;margin-bottom:10px;">📲</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:22px;font-weight:900;color:#0a0a0a;margin-bottom:6px;">Ajoute la carte sur ton téléphone</div>
+      <div style="font-size:13px;color:#888;line-height:1.5;">Accède à tes lives et points en 1 tap,<br>même sans connexion internet.</div>
+    </div>
+
+    <!-- IOS GUIDE -->
+    <div id="installGuideIOS">
+      <!-- Étape 1 -->
+      <div style="background:#f5f5f5;border-radius:18px;padding:18px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;background:#C9A227;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;">1</div>
+          <div style="font-size:14px;font-weight:700;color:#0a0a0a;">Appuie sur le bouton Partager</div>
+        </div>
+        <!-- Screen simulé -->
+        <div style="background:#000;border-radius:14px;padding:10px;position:relative;">
+          <div style="background:#1c1c1e;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:11px;color:#fff;opacity:.7;">groupe-focus-card.vercel.app</div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <!-- Icône partager simulée -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            </div>
+          </div>
+          <div style="text-align:center;padding:20px 0 10px;font-size:11px;color:rgba(255,255,255,.4);">← Barre d'adresse Safari</div>
+          <!-- Flèche animée -->
+          <div style="position:absolute;bottom:-8px;right:22px;font-size:22px;animation:bounce-down 1s infinite;">👆</div>
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:14px;text-align:center;">Le bouton ⬆️ se trouve en bas de Safari</div>
+      </div>
+
+      <!-- Étape 2 -->
+      <div style="background:#f5f5f5;border-radius:18px;padding:18px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;background:#C9A227;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;">2</div>
+          <div style="font-size:14px;font-weight:700;color:#0a0a0a;">Choisis "Sur l'écran d'accueil"</div>
+        </div>
+        <!-- Menu simulé -->
+        <div style="background:#1c1c1e;border-radius:14px;overflow:hidden;">
+          <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;opacity:.4;">
+            <span style="font-size:18px;">🔗</span><span style="font-size:13px;color:#fff;">Copier le lien</span>
+          </div>
+          <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;background:rgba(201,162,39,.15);">
+            <span style="font-size:18px;">📱</span><span style="font-size:13px;color:#C9A227;font-weight:700;">Sur l'écran d'accueil</span>
+            <span style="margin-left:auto;font-size:16px;">←</span>
+          </div>
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:12px;opacity:.4;">
+            <span style="font-size:18px;">📤</span><span style="font-size:13px;color:#fff;">Partager</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étape 3 -->
+      <div style="background:#f5f5f5;border-radius:18px;padding:18px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;background:#C9A227;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;">3</div>
+          <div style="font-size:14px;font-weight:700;color:#0a0a0a;">Appuie sur "Ajouter" en haut à droite</div>
+        </div>
+        <div style="background:#1c1c1e;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;color:rgba(255,255,255,.5);">Annuler</span>
+          <span style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#fff;">Carte Focus</span>
+          <span style="font-size:13px;color:#C9A227;font-weight:700;">Ajouter ←</span>
+        </div>
+        <div style="text-align:center;margin-top:14px;font-size:22px;">✅</div>
+        <div style="text-align:center;font-size:12px;color:#888;margin-top:6px;">L'icône Focus apparaît sur ton écran !</div>
+      </div>
+    </div>
+
+    <!-- ANDROID GUIDE -->
+    <div id="installGuideAndroid" style="display:none;">
+      <!-- Étape 1 -->
+      <div style="background:#f5f5f5;border-radius:18px;padding:18px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;background:#C9A227;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;">1</div>
+          <div style="font-size:14px;font-weight:700;color:#0a0a0a;">Appuie sur les 3 points ⋮ en haut à droite</div>
+        </div>
+        <div style="background:#202124;border-radius:14px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:11px;color:rgba(255,255,255,.6);">groupe-focus-card.vercel.app</div>
+          <div style="color:#C9A227;font-size:20px;font-weight:900;">⋮</div>
+        </div>
+      </div>
+
+      <!-- Étape 2 -->
+      <div style="background:#f5f5f5;border-radius:18px;padding:18px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;background:#C9A227;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;">2</div>
+          <div style="font-size:14px;font-weight:700;color:#0a0a0a;">Sélectionne "Ajouter à l'écran d'accueil"</div>
+        </div>
+        <div style="background:#202124;border-radius:14px;overflow:hidden;">
+          <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;opacity:.4;">
+            <span style="font-size:18px;">⭐</span><span style="font-size:13px;color:#fff;">Ajouter aux favoris</span>
+          </div>
+          <div style="padding:12px 16px;background:rgba(201,162,39,.15);display:flex;align-items:center;gap:12px;">
+            <span style="font-size:18px;">📱</span><span style="font-size:13px;color:#C9A227;font-weight:700;">Ajouter à l'écran d'accueil</span>
+            <span style="margin-left:auto;">←</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étape 3 -->
+      <div style="background:#f5f5f5;border-radius:18px;padding:18px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:32px;height:32px;background:#C9A227;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:#fff;flex-shrink:0;">3</div>
+          <div style="font-size:14px;font-weight:700;color:#0a0a0a;">Confirme en appuyant sur "Ajouter"</div>
+        </div>
+        <div style="text-align:center;font-size:22px;margin-bottom:8px;">✅</div>
+        <div style="text-align:center;font-size:12px;color:#888;">L'icône Focus apparaît sur ton écran d'accueil !</div>
+      </div>
+    </div>
+
+    <!-- Bouton fermer -->
+    <button onclick="document.getElementById('installGuideOverlay').style.display='none'" style="width:100%;padding:15px;background:#0a0a0a;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;">
+      J'ai compris ✓
+    </button>
+  </div>
+</div>
+
+<style>
+@keyframes bounce-down {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+</style>
 
 </body>
 </html>
