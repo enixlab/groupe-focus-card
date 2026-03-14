@@ -704,47 +704,46 @@ body{background:#fff;color:var(--black);font-family:'Inter',system-ui,sans-serif
         <button class="db-btn" style="background:#5865F2;color:#fff;">Lier</button>
       </div>
 
-      <!-- Hero compact avec mini radar -->
-      <div class="radar-hero" id="radarHero">
-        <div class="rh-mini">
-          <div class="rh-mini-ring r1"></div>
-          <div class="rh-mini-ring r2"></div>
-          <div class="rh-mini-ring r3"></div>
-          <div class="rh-mini-sweep"></div>
-          <div class="rh-mini-center"></div>
+      <!-- Header membres actifs -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:20px;font-weight:900;color:var(--black);">Membres <span style="color:var(--gold);">actifs</span></div>
+          <div style="font-size:11px;color:var(--grey);margin-top:2px;" id="radarSubtitle">Connectés maintenant</div>
         </div>
-        <div class="rh-info">
-          <div class="rh-title">Radar <span>Focus</span></div>
-          <div class="rh-sub" id="radarSubtitle">Membres à moins de 10 km</div>
-        </div>
-        <div id="radarCountWrap" style="display:none">
-          <div class="rh-count" id="radarCount">0</div>
-          <div class="rh-count-label">proches</div>
+        <div style="display:flex;align-items:center;gap:6px;background:var(--grey4);border-radius:100px;padding:6px 14px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 1.5s infinite;"></div>
+          <span id="radarCount" style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:var(--black);">0</span>
+          <span style="font-size:11px;color:var(--grey);">en ligne</span>
         </div>
       </div>
 
-      <!-- Toggle activation -->
-      <div class="radar-toggle" id="radarToggle">
+      <!-- Toggle visible -->
+      <div class="radar-toggle" id="radarToggle" style="margin-bottom:14px;">
         <div class="rt-left">
-          <div class="rt-label">Activer ma position</div>
-          <div class="rt-sub">Les autres membres pourront te voir</div>
+          <div class="rt-label">Être visible</div>
+          <div class="rt-sub">Apparais dans la liste des membres actifs</div>
         </div>
         <div class="rt-switch" id="radarSwitch" onclick="toggleRadar()"></div>
       </div>
 
-      <!-- Grille membres (jusqu'à 8) -->
-      <div class="radar-grid" id="radarGrid" style="display:none"></div>
-
-      <!-- Liste membres (au-delà de 8) -->
-      <div class="section-title" id="radarListTitle" style="display:none">Tous les membres <span>proches</span></div>
-      <div class="radar-list" id="radarList"></div>
+      <!-- Liste membres actifs -->
+      <div id="radarList" style="display:flex;flex-direction:column;gap:1px;border-radius:14px;overflow:hidden;border:1px solid var(--grey3);margin-bottom:16px;"></div>
 
       <!-- Empty state -->
-      <div class="radar-empty" id="radarEmpty" style="display:none">
-        <div class="re-icon">📡</div>
-        <div class="re-title">Aucun membre à proximité</div>
-        <div class="re-sub">Personne dans un rayon de 10 km pour le moment.</div>
+      <div id="radarEmpty" style="display:none;text-align:center;padding:40px 20px;">
+        <div style="font-size:32px;margin-bottom:10px;">👥</div>
+        <div style="font-size:14px;font-weight:700;color:var(--black);margin-bottom:4px;">Aucun membre actif</div>
+        <div style="font-size:12px;color:var(--grey);">Active ta visibilité pour apparaître ici.</div>
       </div>
+
+      <!-- CHAT -->
+      <div style="font-family:'Oswald',sans-serif;font-size:16px;font-weight:900;color:var(--black);margin-bottom:10px;">Chat <span style="color:var(--gold);">Focus</span></div>
+      <div id="chatMessages" style="background:var(--grey4);border-radius:14px;padding:12px;min-height:200px;max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input id="chatInput" type="text" maxlength="300" placeholder="Écris un message…" style="flex:1;background:#fff;border:1px solid var(--grey3);border-radius:12px;padding:12px 14px;font-size:13px;outline:none;font-family:'Inter',sans-serif;" onkeydown="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()" style="background:var(--gold);color:#000;border:none;border-radius:12px;padding:12px 18px;font-size:13px;font-weight:800;cursor:pointer;">→</button>
+      </div>
+
     </div>
 
     <!-- ═══ PAGE : LIVE ═══ -->
@@ -2349,24 +2348,32 @@ async function loadLivePage() {
 }
 
 // ═══════════════════════════════════════════════════
-// RADAR — Membres à proximité (10 km)
+// RADAR — Membres actifs connectés
 // ═══════════════════════════════════════════════════
 let radarActive = localStorage.getItem('mf_radar') === 'on';
 let radarInterval = null;
+let chatInterval = null;
+let lastChatTs = 0;
 
 function loadRadar() {
   const sw = document.getElementById('radarSwitch');
-  if (radarActive) {
-    sw.classList.add('on');
-    fetchNearby();
-    // Auto-refresh toutes les 15 secondes
-    if (!window._radarInterval) {
-      window._radarInterval = setInterval(() => {
-        if (radarActive && document.getElementById('page-radar').classList.contains('active')) {
-          fetchNearby();
-        }
-      }, 15000);
-    }
+  if (radarActive) { sw.classList.add('on'); registerPresence(); }
+  fetchActiveMembers();
+  loadChat();
+  if (!window._radarInterval) {
+    window._radarInterval = setInterval(() => {
+      if (document.getElementById('page-radar').classList.contains('active')) {
+        fetchActiveMembers();
+        if (radarActive) registerPresence();
+      }
+    }, 20000);
+  }
+  if (!window._chatInterval) {
+    window._chatInterval = setInterval(() => {
+      if (document.getElementById('page-radar').classList.contains('active')) {
+        loadChat();
+      }
+    }, 5000);
   }
 }
 
@@ -2375,70 +2382,37 @@ function toggleRadar() {
   radarActive = !radarActive;
   if (radarActive) {
     sw.classList.add('on');
-    // Demander la géoloc
-    if (!navigator.geolocation) {
-      showToast('Géolocalisation non supportée');
-      radarActive = false; sw.classList.remove('on');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        localStorage.setItem('mf_radar', 'on');
-        registerPosition(pos.coords.latitude, pos.coords.longitude);
-      },
-      err => {
-        showToast('Autorise la localisation pour activer le radar');
-        radarActive = false; sw.classList.remove('on');
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+    localStorage.setItem('mf_radar', 'on');
+    registerPresence();
+    showToast('Tu es maintenant visible ✓');
   } else {
     sw.classList.remove('on');
     localStorage.removeItem('mf_radar');
-    unregisterPosition();
-    document.getElementById('radarGrid').style.display = 'none';
-    document.getElementById('radarGrid').innerHTML = '';
-    document.getElementById('radarListTitle').style.display = 'none';
-    document.getElementById('radarList').innerHTML = '';
-    document.getElementById('radarEmpty').style.display = 'none';
-    document.getElementById('radarCountWrap').style.display = 'none';
-    document.getElementById('radarSubtitle').textContent = 'Membres à moins de 10 km';
-    if (radarInterval) { clearInterval(radarInterval); radarInterval = null; }
+    unregisterPresence();
+    showToast('Tu es maintenant invisible');
   }
 }
 
-async function registerPosition(lat, lng) {
-  const member = window._memberData || {};
+async function registerPresence() {
+  const did = S.discord_id || localStorage.getItem('mf_uid') || 'anon_' + Math.random().toString(36).slice(2,8);
+  if (!localStorage.getItem('mf_uid')) localStorage.setItem('mf_uid', did);
   try {
     await fetch('/api/radar', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         action: 'register',
-        discord_id: S.discord_id || 'anon',
-        name: S.discord_name || S.name || 'Membre',
+        discord_id: did,
+        name:   S.discord_name || S.name || 'Membre',
         avatar: (S.discord_avatar && S.discord_id) ? `https://cdn.discordapp.com/avatars/${S.discord_id}/${S.discord_avatar}.png?size=128` : '',
-        tier: getTier(S.pts).name || 'MEMBRE',
-        lat, lng
+        tier:   getTier(S.pts).name || 'MEMBRE'
       })
     });
-    fetchNearby();
-    // Refresh toutes les 60s
-    if (radarInterval) clearInterval(radarInterval);
-    radarInterval = setInterval(() => {
-      // Re-register position + fetch nearby
-      navigator.geolocation.getCurrentPosition(pos => {
-        registerPosition(pos.coords.latitude, pos.coords.longitude);
-      }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
-    }, 30000);
-  } catch(e) {
-    showToast('Erreur réseau radar');
-  }
+  } catch(e) {}
 }
 
-async function unregisterPosition() {
-  const member = window._memberData || {};
-  const did = S.discord_id || '';
+async function unregisterPresence() {
+  const did = S.discord_id || localStorage.getItem('mf_uid') || '';
   if (!did) return;
   try {
     await fetch('/api/radar', {
@@ -2449,109 +2423,112 @@ async function unregisterPosition() {
   } catch(e) {}
 }
 
-async function fetchNearby() {
-  if (!radarActive) return;
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const { latitude: lat, longitude: lng } = pos.coords;
-    try {
-      const myId = S.discord_id || '';
-      const res = await fetch(`/api/radar?lat=${lat}&lng=${lng}&radius=10&exclude=${myId}`);
-      const data = await res.json();
-      renderRadar(data.members || [], lat, lng);
-    } catch(e) {
-      console.error('Radar fetch error:', e);
-    }
-  }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
+async function fetchActiveMembers() {
+  try {
+    const myId = S.discord_id || localStorage.getItem('mf_uid') || '';
+    const res  = await fetch(`/api/radar?exclude=${myId}`);
+    const data = await res.json();
+    renderActiveMembers(data.members || []);
+  } catch(e) {}
 }
 
-function renderRadar(members, myLat, myLng) {
-  const grid = document.getElementById('radarGrid');
-  const list = document.getElementById('radarList');
+function renderActiveMembers(members) {
+  const list  = document.getElementById('radarList');
   const empty = document.getElementById('radarEmpty');
-  const title = document.getElementById('radarListTitle');
-  const countWrap = document.getElementById('radarCountWrap');
-  const countEl = document.getElementById('radarCount');
-  const sub = document.getElementById('radarSubtitle');
+  const count = document.getElementById('radarCount');
+  const sub   = document.getElementById('radarSubtitle');
 
-  countWrap.style.display = 'block';
-  countEl.textContent = members.length;
-  sub.textContent = members.length > 0
-    ? `${members.length} membre${members.length > 1 ? 's' : ''} dans un rayon de 10 km`
-    : 'Membres à moins de 10 km';
+  count.textContent = members.length;
+  sub.textContent   = members.length > 0 ? `${members.length} membre${members.length > 1 ? 's' : ''} connecté${members.length > 1 ? 's' : ''}` : 'Connectés maintenant';
 
-  if (members.length === 0) {
+  if (!members.length) {
     empty.style.display = 'block';
-    grid.style.display = 'none';
-    title.style.display = 'none';
-    list.innerHTML = '';
+    list.style.display  = 'none';
     return;
   }
 
   empty.style.display = 'none';
+  list.style.display  = 'flex';
 
-  // Jusqu'à 8 : grille de cartes. Au-delà : les 8 premiers en grille, le reste en liste
-  const gridMembers = members.slice(0, 8);
-  const listMembers = members.slice(8);
-
-  // Grille
-  grid.style.display = 'grid';
-  grid.innerHTML = gridMembers.map(m => {
-    const initials = (m.name || 'M').charAt(0).toUpperCase();
+  list.innerHTML = members.map(m => {
+    const initials   = (m.name || 'M').slice(0,2).toUpperCase();
     const avatarHtml = m.avatar
-      ? `<img src="${m.avatar}" alt="" onerror="this.parentElement.innerHTML='<div class=rg-init>${initials}</div>'">`
-      : `<div class="rg-init">${initials}</div>`;
-    const dist = (m.distance_km || 0).toFixed(1);
+      ? `<img src="${m.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='<span style=font-size:14px;font-weight:700;color:#fff>${initials}</span>'">`
+      : `<span style="font-size:14px;font-weight:700;color:#fff;">${initials}</span>`;
+    const dot = m.online
+      ? `<div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--green);border-radius:50%;border:2px solid #fff;"></div>`
+      : `<div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--grey3);border-radius:50%;border:2px solid #fff;"></div>`;
     const safeName = (m.name || '').replace(/'/g, "\\'");
     return `
-      <div class="rg-card">
-        <div class="rg-dist-badge">${dist} km</div>
-        <div class="rg-av">${avatarHtml}</div>
-        <div class="rg-name">${m.name || 'Membre'}</div>
-        <div class="rg-tier">${m.tier || 'MEMBRE'}</div>
-        <button class="rg-btn" onclick="contactMember('${m.discord_id}','${safeName}')">Contacter</button>
+      <div style="background:#fff;padding:12px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--grey4);">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold2),var(--gold));display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
+          ${avatarHtml}${dot}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:var(--black);">${m.name || 'Membre'}</div>
+          <div style="font-size:10px;color:var(--grey);font-weight:600;letter-spacing:.5px;">${m.tier || 'MEMBRE'} · ${m.online ? '<span style="color:var(--green)">En ligne</span>' : 'Récemment actif'}</div>
+        </div>
+        <button onclick="openChat('${m.discord_id}','${safeName}')" style="background:var(--grey4);border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;color:var(--black);">💬 Chat</button>
       </div>`;
   }).join('');
+}
 
-  // Liste pour les membres au-delà de 8
-  if (listMembers.length > 0) {
-    title.style.display = 'block';
-    list.innerHTML = listMembers.map(m => {
-      const initials = (m.name || 'M').charAt(0).toUpperCase();
-      const avatarHtml = m.avatar
-        ? `<img src="${m.avatar}" alt="" onerror="this.parentElement.innerHTML='<div class=rl-init>${initials}</div>'">`
-        : `<div class="rl-init">${initials}</div>`;
-      const dist = (m.distance_km || 0).toFixed(1);
-      const safeName = (m.name || '').replace(/'/g, "\\'");
-      return `
-        <div class="rl-item">
-          <div class="rl-av">${avatarHtml}</div>
-          <div class="rl-info">
-            <div class="rl-name">${m.name || 'Membre'}</div>
-            <div class="rl-meta"><span class="rl-tier">${m.tier || 'MEMBRE'}</span><span class="rl-dist">· ${dist} km</span></div>
-          </div>
-          <button class="rl-btn" onclick="contactMember('${m.discord_id}','${safeName}')">Contacter</button>
-        </div>`;
-    }).join('');
-  } else {
-    title.style.display = 'none';
-    list.innerHTML = '';
+function openChat(discordId, name) {
+  const input = document.getElementById('chatInput');
+  if (input) {
+    input.placeholder = `Message à ${name}…`;
+    input.dataset.to = discordId;
+    input.dataset.toName = name;
+    input.focus();
   }
 }
 
-function contactMember(discordId, name) {
-  // Essayer le deep link Discord (ouvre l'app directement)
-  const deepLink = `discord://discord.com/users/${discordId}`;
-  const webLink = `https://discord.com/users/${discordId}`;
+// ─── CHAT ────────────────────────────────────────
+async function loadChat() {
+  try {
+    const res  = await fetch(`/api/chat?since=${lastChatTs}`);
+    const data = await res.json();
+    const msgs = data.messages || [];
+    if (!msgs.length) return;
+    const box = document.getElementById('chatMessages');
+    const myId = S.discord_id || localStorage.getItem('mf_uid') || '';
+    const wasAtBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 40;
+    msgs.forEach(m => {
+      if (m.ts > lastChatTs) lastChatTs = m.ts;
+      const isMe = m.discord_id === myId;
+      const div  = document.createElement('div');
+      div.style.cssText = `display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};gap:2px;`;
+      div.innerHTML = `
+        <div style="font-size:10px;color:var(--grey);font-weight:600;">${isMe ? 'Moi' : m.name}</div>
+        <div style="background:${isMe ? 'var(--gold)' : '#fff'};color:${isMe ? '#000' : 'var(--black)'};border-radius:${isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px'};padding:8px 12px;font-size:13px;max-width:240px;word-break:break-word;border:${isMe ? 'none' : '1px solid var(--grey3)'};">${m.message}</div>`;
+      box.appendChild(div);
+    });
+    if (wasAtBottom) box.scrollTop = box.scrollHeight;
+  } catch(e) {}
+}
 
-  // Sur mobile, tenter le deep link d'abord
-  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    window.location.href = deepLink;
-    // Fallback après 1.5s si l'app ne s'ouvre pas
-    setTimeout(() => { window.open(webLink, '_blank'); }, 1500);
-  } else {
-    window.open(webLink, '_blank');
-  }
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg   = input.value.trim();
+  if (!msg) return;
+  const myId = S.discord_id || localStorage.getItem('mf_uid') || 'anon_' + Math.random().toString(36).slice(2,8);
+  if (!localStorage.getItem('mf_uid')) localStorage.setItem('mf_uid', myId);
+  input.value = '';
+  try {
+    await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        discord_id: myId,
+        name:    S.discord_name || S.name || 'Membre',
+        avatar:  (S.discord_avatar && S.discord_id) ? `https://cdn.discordapp.com/avatars/${S.discord_id}/${S.discord_avatar}.png?size=128` : '',
+        tier:    getTier(S.pts).name || 'MEMBRE',
+        message: msg
+      })
+    });
+    lastChatTs = 0; // Force reload
+    await loadChat();
+  } catch(e) { showToast('Erreur envoi message'); }
 }
 
 // ── Notifications live ────────────────────────────────────────────────────────

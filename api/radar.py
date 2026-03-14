@@ -1,26 +1,17 @@
 """
-Radar — Membres Focus à proximité (10 km)
-GET  /api/radar?lat=...&lng=...&radius=10  → liste des membres proches
-POST /api/radar { action: "register"|"unregister", discord_id, name, avatar, tier, lat, lng }
+Radar — Membres Focus actifs (connectés dans la dernière heure)
+GET  /api/radar?exclude=discord_id  → tous les membres actifs
+POST /api/radar { action: "register"|"unregister"|"ping", discord_id, name, avatar, tier }
 """
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-import json, os, sys, time, math
+import json, os, sys, time
 
 sys.path.insert(0, os.path.dirname(__file__))
 import _db
 
 RADAR_FILE = "radar_positions.json"
-MAX_AGE = 3600  # positions expirent après 1h d'inactivité
-
-
-def haversine(lat1, lng1, lat2, lng2):
-    """Distance en km entre deux points GPS."""
-    R = 6371
-    dlat = math.radians(lat2 - lat1)
-    dlng = math.radians(lng2 - lng1)
-    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng/2)**2
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+MAX_AGE = 3600  # actif = connecté dans la dernière heure
 
 
 class handler(BaseHTTPRequestHandler):
@@ -29,40 +20,29 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         qs = parse_qs(urlparse(self.path).query)
-        try:
-            lat = float(qs.get("lat", ["0"])[0])
-            lng = float(qs.get("lng", ["0"])[0])
-            radius = float(qs.get("radius", ["10"])[0])
-            exclude = qs.get("exclude", [""])[0]
-        except (ValueError, IndexError):
-            self._respond({"error": "invalid params"}, 400)
-            return
+        exclude = qs.get("exclude", [""])[0]
 
         positions, _ = _db.load(RADAR_FILE, [])
         now = time.time()
 
-        # Filtrer les positions expirées et calculer la distance
-        nearby = []
+        active = []
         for p in positions:
             if exclude and p.get("discord_id") == exclude:
                 continue
             age = now - p.get("ts", 0)
             if age > MAX_AGE:
                 continue
-            dist = haversine(lat, lng, p.get("lat", 0), p.get("lng", 0))
-            if dist <= radius:
-                nearby.append({
-                    "discord_id": p.get("discord_id", ""),
-                    "name": p.get("name", "Membre"),
-                    "avatar": p.get("avatar", ""),
-                    "tier": p.get("tier", "MEMBRE"),
-                    "distance_km": round(dist, 2)
-                })
+            active.append({
+                "discord_id": p.get("discord_id", ""),
+                "name":       p.get("name", "Membre"),
+                "avatar":     p.get("avatar", ""),
+                "tier":       p.get("tier", "MEMBRE"),
+                "online":     age < 300  # vert si actif < 5 min
+            })
 
-        # Trier par distance
-        nearby.sort(key=lambda x: x["distance_km"])
-
-        self._respond({"members": nearby, "count": len(nearby)})
+        # Trier : online d'abord
+        active.sort(key=lambda x: (0 if x["online"] else 1, x["name"]))
+        self._respond({"members": active, "count": len(active)})
 
     def do_POST(self):
         try:
@@ -72,28 +52,20 @@ class handler(BaseHTTPRequestHandler):
 
             positions, sha = _db.load(RADAR_FILE, [])
             now = time.time()
-
-            # Nettoyer les positions expirées
             positions = [p for p in positions if now - p.get("ts", 0) < MAX_AGE]
 
-            if action == "register":
+            if action in ("register", "ping"):
                 discord_id = body.get("discord_id", "")
                 if not discord_id:
-                    self._respond({"error": "discord_id required"}, 400)
-                    return
-
-                # Mettre à jour ou ajouter
+                    self._respond({"error": "discord_id required"}, 400); return
                 positions = [p for p in positions if p.get("discord_id") != discord_id]
                 positions.append({
                     "discord_id": discord_id,
-                    "name": body.get("name", "Membre"),
+                    "name":   body.get("name", "Membre"),
                     "avatar": body.get("avatar", ""),
-                    "tier": body.get("tier", "MEMBRE"),
-                    "lat": float(body.get("lat", 0)),
-                    "lng": float(body.get("lng", 0)),
-                    "ts": now
+                    "tier":   body.get("tier", "MEMBRE"),
+                    "ts":     now
                 })
-
                 _db.save(RADAR_FILE, positions, sha)
                 self._respond({"ok": True, "active": len(positions)})
 
@@ -102,7 +74,6 @@ class handler(BaseHTTPRequestHandler):
                 positions = [p for p in positions if p.get("discord_id") != discord_id]
                 _db.save(RADAR_FILE, positions, sha)
                 self._respond({"ok": True})
-
             else:
                 self._respond({"error": "invalid action"}, 400)
 
