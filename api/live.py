@@ -183,12 +183,15 @@ class handler(BaseHTTPRequestHandler):
         _db.save("lives_history.json", history, hsha)
 
         # Envoyer push notification à tous les abonnés
-        title = live_data["title"]
-        push_result = _push.push_to_all(
-            f"🔴 LIVE — {title}",
-            f"{live_data['host']} est en direct maintenant !",
-            "/"
-        )
+        push_result = {"sent": 0, "error": "not_attempted"}
+        try:
+            push_result = _push.push_to_all(
+                f"\U0001f534 LIVE — {live_data['title']}",
+                f"{live_data['host']} est en direct maintenant !",
+                "/"
+            )
+        except Exception as push_err:
+            push_result = {"sent": 0, "error": str(push_err)[:200]}
 
         self._respond({"ok": True, "live": live_data, "push": push_result})
 
